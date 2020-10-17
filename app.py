@@ -21,8 +21,6 @@ import requests
 from db import init_db_command
 from user import User
 
-# git
-# git2
 from googleapiclient.discovery import build
 import google_auth_oauthlib.helpers
 
