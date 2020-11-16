@@ -4,6 +4,8 @@ from __future__ import print_function
 import json
 import os
 import sqlite3
+import flask
+from flask_cors import CORS
 
 # Third-party libraries
 from flask import Flask, redirect, request, url_for
@@ -76,19 +78,29 @@ def load_user(user_id):
 
 @app.route("/")
 def index():
-    if current_user.is_authenticated:
-        return (
-            "<p>Hello, {}! You're logged in! Email: {}</p>"
-            "<div><p>Google Profile Picture:</p>"
-            '<img src="{}" alt="Google profile pic"></img></div>'
-            '<div><a class="button" href="/getEvents">Get Events</a></div>'
-            '<div><p></p></div>'
-            '<a class="button" href="/logout">Logout</a>'.format(
-                current_user.name, current_user.email, current_user.profile_pic
-            )
-        )
-    else:
-        return '<a class="button" href="/login">Google Login</a>'
+    return flask.jsonify(
+        name="Roy Quitt",
+        email="roy.quitt@gmail.com",
+        pic="https://lh3.googleusercontent.com/a-/AOh14GhoZiEKa6_e6IN1qiK9MUJWXRyFvQp-QUEIjl6BDA"
+    )
+    # if current_user.is_authenticated:
+    #     return flask.jsonify(
+    #         name=current_user.name,
+    #         email=current_user.email,
+    #         pic=current_user.profile_pic
+    #     )
+    #     # return (
+    #     #     "<p>Hello, {}! You're logged in! Email: {}</p>"
+    #     #     "<div><p>Google Profile Picture:</p>"
+    #     #     '<img src="{}" alt="Google profile pic"></img></div>'
+    #     #     '<div><a class="button" href="/getEvents">Get Events</a></div>'
+    #     #     '<div><p></p></div>'
+    #     #     '<a class="button" href="/logout">Logout</a>'.format(
+    #     #         current_user.name, current_user.email, current_user.profile_pic
+    #     #     )
+    #     # )
+    # else:
+    #     return '<a class="button" href="/login">Google Login</a>'
 
 
 def get_google_provider_cfg():
@@ -202,7 +214,6 @@ def callback():
     return redirect(url_for("index"))
 
 
-
 @app.route("/logout")
 @login_required
 def logout():
@@ -211,4 +222,5 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(ssl_context="adhoc")
+    app.run(host="10.50.1.146")
+# , ssl_context="adhoc"
