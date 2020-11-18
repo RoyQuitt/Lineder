@@ -37,6 +37,8 @@ from google.auth.transport.requests import Request
 import base64
 
 
+
+
 # Configuration
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
@@ -78,29 +80,29 @@ def load_user(user_id):
 
 @app.route("/")
 def index():
-    return flask.jsonify(
-        name="Roy Quitt",
-        email="roy.quitt@gmail.com",
-        pic="https://lh3.googleusercontent.com/a-/AOh14GhoZiEKa6_e6IN1qiK9MUJWXRyFvQp-QUEIjl6BDA"
-    )
-    # if current_user.is_authenticated:
-    #     return flask.jsonify(
-    #         name=current_user.name,
-    #         email=current_user.email,
-    #         pic=current_user.profile_pic
-    #     )
-    #     # return (
-    #     #     "<p>Hello, {}! You're logged in! Email: {}</p>"
-    #     #     "<div><p>Google Profile Picture:</p>"
-    #     #     '<img src="{}" alt="Google profile pic"></img></div>'
-    #     #     '<div><a class="button" href="/getEvents">Get Events</a></div>'
-    #     #     '<div><p></p></div>'
-    #     #     '<a class="button" href="/logout">Logout</a>'.format(
-    #     #         current_user.name, current_user.email, current_user.profile_pic
-    #     #     )
-    #     # )
-    # else:
-    #     return '<a class="button" href="/login">Google Login</a>'
+    # return flask.jsonify(
+    #     name="Roy Quitt",
+    #     email="roy.quitt@gmail.com",
+    #     pic="https://lh3.googleusercontent.com/a-/AOh14GhoZiEKa6_e6IN1qiK9MUJWXRyFvQp-QUEIjl6BDA"
+    # )
+    if current_user.is_authenticated:
+        # return flask.jsonify(
+        #     name=current_user.name,
+        #     email=current_user.email,
+        #     pic=current_user.profile_pic
+        # )
+        return (
+            "<p>Hello, {}! You're logged in! Email: {}</p>"
+            "<div><p>Google Profile Picture:</p>"
+            '<img src="{}" alt="Google profile pic"></img></div>'
+            '<div><a class="button" href="/getEvents">Get Events</a></div>'
+            '<div><p></p></div>'
+            '<a class="button" href="/logout">Logout</a>'.format(
+                current_user.name, current_user.email, current_user.profile_pic
+            )
+        )
+    else:
+        return '<a class="button" href="/login">Google Login</a>'
 
 
 def get_google_provider_cfg():
@@ -118,10 +120,8 @@ def get_events():
     print(token)
     req = requests.get(url, headers={'Authorization': 'Bearer %s' % token}, data=None)
     print("\nresponse:", req.text)
-
-
-
-
+    with open("sample.txt", "w", encoding="utf-8") as text_file:
+        text_file.write(req.text)
     return redirect(url_for("index"))
 
 
@@ -222,5 +222,6 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(host="10.50.1.146")
-# , ssl_context="adhoc"
+    # app.run(host="10.50.1.146")
+    # app.run()
+    app.run(ssl_context="adhoc")

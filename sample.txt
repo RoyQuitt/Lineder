@@ -1,0 +1,122 @@
+{
+ "kind": "calendar#events",
+ "etag": "\"p324efvs3k63uq0g\"",
+ "summary": "roy.quitt@googlemail.com",
+ "updated": "2020-11-16T14:19:21.477Z",
+ "timeZone": "Asia/Jerusalem",
+ "accessRole": "owner",
+ "defaultReminders": [
+  {
+   "method": "popup",
+   "minutes": 30
+  }
+ ],
+ "nextPageToken": "CkgKOjZrcGplZDMxY2dyNjRiYjM2MWg2NGI5azZoZ2pjYjlvY2dzamNiOWljZ3BqMmViM2NjbzY0YzMzY28YASCAgICGtOibrhcaDwgAEgAYiOf_g6GH7QIgASIHCAIQqMilDQ==",
+ "items": [
+  {
+   "kind": "calendar#event",
+   "etag": "\"3103997601875000\"",
+   "id": "cdimadj661im8b9o6di66b9k6gr66bb275hj4bb475hjce1kcgq30cj46k",
+   "status": "cancelled"
+  },
+  {
+   "kind": "calendar#event",
+   "etag": "\"3110695038321000\"",
+   "id": "cdimadj661im8b9o6di66b9k6gr66bb275hj4bb475hjce1kcgq30cj46k_R20190327T150000",
+   "status": "cancelled"
+  },
+  {
+   "kind": "calendar#event",
+   "etag": "\"3192248413354000\"",
+   "id": "65j68d1lcos34bb56ssj6b9kcgq6cbb16lijgb9icoqm6e3361hmadb5co",
+   "status": "confirmed",
+   "htmlLink": "https://www.google.com/calendar/event?eid=NjVqNjhkMWxjb3MzNGJiNTZzc2o2YjlrY2dxNmNiYjE2bGlqZ2I5aWNvcW02ZTMzNjFobWFkYjVjbyByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+   "created": "2020-07-30T15:50:06.000Z",
+   "updated": "2020-07-30T15:50:06.677Z",
+   "summary": "ביקורת רופא שיניים",
+   "creator": {
+    "email": "roy.quitt@googlemail.com",
+    "self": true
+   },
+   "organizer": {
+    "email": "roy.quitt@googlemail.com",
+    "self": true
+   },
+   "start": {
+    "dateTime": "2020-12-03T17:15:00+02:00",
+    "timeZone": "Asia/Jerusalem"
+   },
+   "end": {
+    "dateTime": "2020-12-03T18:15:00+02:00",
+    "timeZone": "Asia/Jerusalem"
+   },
+   "iCalUID": "65j68d1lcos34bb56ssj6b9kcgq6cbb16lijgb9icoqm6e3361hmadb5co@google.com",
+   "sequence": 0,
+   "reminders": {
+    "useDefault": true
+   }
+  },
+  {
+   "kind": "calendar#event",
+   "etag": "\"3210388281024000\"",
+   "id": "chim6d9i60o32b9p6pi3ib9k74pjibb26oqj4b9g6dijcphk6gpm8dhh64",
+   "status": "confirmed",
+   "htmlLink": "https://www.google.com/calendar/event?eid=Y2hpbTZkOWk2MG8zMmI5cDZwaTNpYjlrNzRwamliYjI2b3FqNGI5ZzZkaWpjcGhrNmdwbThkaGg2NCByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+   "created": "2020-11-12T15:15:40.000Z",
+   "updated": "2020-11-12T15:15:40.512Z",
+   "summary": "שיעור נהיגה",
+   "creator": {
+    "email": "roy.quitt@googlemail.com",
+    "self": true
+   },
+   "organizer": {
+    "email": "roy.quitt@googlemail.com",
+    "self": true
+   },
+   "start": {
+    "dateTime": "2020-11-18T19:20:00+02:00",
+    "timeZone": "Asia/Jerusalem"
+   },
+   "end": {
+    "dateTime": "2020-11-18T20:00:00+02:00",
+    "timeZone": "Asia/Jerusalem"
+   },
+   "iCalUID": "chim6d9i60o32b9p6pi3ib9k74pjibb26oqj4b9g6dijcphk6gpm8dhh64@google.com",
+   "sequence": 0,
+   "reminders": {
+    "useDefault": true
+   }
+  },
+  {
+   "kind": "calendar#event",
+   "etag": "\"3210721388568000\"",
+   "id": "6kpjed31cgr64bb361h64b9k6hgjcb9ocgsjcb9icgpj2eb3cco64c33co",
+   "status": "confirmed",
+   "htmlLink": "https://www.google.com/calendar/event?eid=NmtwamVkMzFjZ3I2NGJiMzYxaDY0YjlrNmhnamNiOW9jZ3NqY2I5aWNncGoyZWIzY2NvNjRjMzNjbyByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+   "created": "2020-11-14T13:31:34.000Z",
+   "updated": "2020-11-14T13:31:34.284Z",
+   "summary": "משמרת",
+   "creator": {
+    "email": "roy.quitt@googlemail.com",
+    "self": true
+   },
+   "organizer": {
+    "email": "roy.quitt@googlemail.com",
+    "self": true
+   },
+   "start": {
+    "dateTime": "2020-11-19T18:00:00+02:00",
+    "timeZone": "Asia/Jerusalem"
+   },
+   "end": {
+    "dateTime": "2020-11-19T21:00:00+02:00",
+    "timeZone": "Asia/Jerusalem"
+   },
+   "iCalUID": "6kpjed31cgr64bb361h64b9k6hgjcb9ocgsjcb9icgpj2eb3cco64c33co@google.com",
+   "sequence": 0,
+   "reminders": {
+    "useDefault": true
+   }
+  }
+ ]
+}
