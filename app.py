@@ -36,7 +36,12 @@ from google.auth.transport.requests import Request
 
 import base64
 
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 
+# from quickstart import main as flow_main
+import quickstart
 
 
 # Configuration
@@ -126,19 +131,25 @@ def get_events():
 
 
 @app.route("/login")
-def login():
-    # Find out what URL to hit for Google login
-    google_provider_cfg = get_google_provider_cfg()
-    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+def login_flow():
+    token, creds, url = quickstart.until_url()
+    print(url)
+    return redirect(url)
+    # quickstart.after_url(creds, token)
 
-    # Use library to construct the request for Google login and provide
-    # scopes that let you retrieve user's profile from Google
-    request_uri = client.prepare_request_uri(
-        authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
-        scope=["openid", "email", "profile", 'https://www.googleapis.com/auth/calendar.readonly'],
-    )
-    return redirect(request_uri)
+
+# def login():
+#     # Find out what URL to hit for Google login
+#     google_provider_cfg = get_google_provider_cfg()
+#     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+#     # Use library to construct the request for Google login and provide
+#     # scopes that let you retrieve user's profile from Google
+#     request_uri = client.prepare_request_uri(
+#         authorization_endpoint,
+#         redirect_uri=request.base_url + "/callback",
+#         scope=["openid", "email", "profile", 'https://www.googleapis.com/auth/calendar.readonly'],
+#     )
+#     return redirect(request_uri)
 
 
 @app.route("/login/callback")

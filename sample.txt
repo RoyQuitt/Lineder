@@ -1,8 +1,8 @@
 {
  "kind": "calendar#events",
- "etag": "\"p324efvs3k63uq0g\"",
+ "etag": "\"p3389rk6sr26eq0g\"",
  "summary": "roy.quitt@googlemail.com",
- "updated": "2020-11-16T14:19:21.477Z",
+ "updated": "2020-11-18T18:11:49.986Z",
  "timeZone": "Asia/Jerusalem",
  "accessRole": "owner",
  "defaultReminders": [
@@ -11,7 +11,7 @@
    "minutes": 30
   }
  ],
- "nextPageToken": "CkgKOjZrcGplZDMxY2dyNjRiYjM2MWg2NGI5azZoZ2pjYjlvY2dzamNiOWljZ3BqMmViM2NjbzY0YzMzY28YASCAgICGtOibrhcaDwgAEgAYiOf_g6GH7QIgASIHCAIQqMilDQ==",
+ "nextPageToken": "CigKGjB0ZG51ZW9obDY1bTFzMWdnbXJmMXY3NWtiGAEggIDAuvCRrK4XGg8IABIAGNCd0NzYjO0CIAEiBwgCEMSAqw0=",
  "items": [
   {
    "kind": "calendar#event",
@@ -58,37 +58,6 @@
   },
   {
    "kind": "calendar#event",
-   "etag": "\"3210388281024000\"",
-   "id": "chim6d9i60o32b9p6pi3ib9k74pjibb26oqj4b9g6dijcphk6gpm8dhh64",
-   "status": "confirmed",
-   "htmlLink": "https://www.google.com/calendar/event?eid=Y2hpbTZkOWk2MG8zMmI5cDZwaTNpYjlrNzRwamliYjI2b3FqNGI5ZzZkaWpjcGhrNmdwbThkaGg2NCByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
-   "created": "2020-11-12T15:15:40.000Z",
-   "updated": "2020-11-12T15:15:40.512Z",
-   "summary": "שיעור נהיגה",
-   "creator": {
-    "email": "roy.quitt@googlemail.com",
-    "self": true
-   },
-   "organizer": {
-    "email": "roy.quitt@googlemail.com",
-    "self": true
-   },
-   "start": {
-    "dateTime": "2020-11-18T19:20:00+02:00",
-    "timeZone": "Asia/Jerusalem"
-   },
-   "end": {
-    "dateTime": "2020-11-18T20:00:00+02:00",
-    "timeZone": "Asia/Jerusalem"
-   },
-   "iCalUID": "chim6d9i60o32b9p6pi3ib9k74pjibb26oqj4b9g6dijcphk6gpm8dhh64@google.com",
-   "sequence": 0,
-   "reminders": {
-    "useDefault": true
-   }
-  },
-  {
-   "kind": "calendar#event",
    "etag": "\"3210721388568000\"",
    "id": "6kpjed31cgr64bb361h64b9k6hgjcb9ocgsjcb9icgpj2eb3cco64c33co",
    "status": "confirmed",
@@ -116,6 +85,57 @@
    "sequence": 0,
    "reminders": {
     "useDefault": true
+   }
+  },
+  {
+   "kind": "calendar#event",
+   "etag": "\"3210907314856000\"",
+   "id": "0tdnueohl65m1s1ggmrf1v75kb",
+   "status": "confirmed",
+   "htmlLink": "https://www.google.com/calendar/event?eid=MHRkbnVlb2hsNjVtMXMxZ2dtcmYxdjc1a2Igcm95LnF1aXR0QGdvb2dsZW1haWwuY29t",
+   "created": "2020-11-15T08:32:41.000Z",
+   "updated": "2020-11-15T08:32:42.101Z",
+   "summary": "הצגת פרוייקט",
+   "creator": {
+    "email": "roy.quitt@googlemail.com",
+    "self": true
+   },
+   "organizer": {
+    "email": "roy.quitt@googlemail.com",
+    "self": true
+   },
+   "start": {
+    "dateTime": "2020-11-23T14:00:00+02:00"
+   },
+   "end": {
+    "dateTime": "2020-11-23T16:00:00+02:00"
+   },
+   "iCalUID": "0tdnueohl65m1s1ggmrf1v75kb@google.com",
+   "sequence": 0,
+   "reminders": {
+    "useDefault": false,
+    "overrides": [
+     {
+      "method": "popup",
+      "minutes": 7200
+     },
+     {
+      "method": "popup",
+      "minutes": 4320
+     },
+     {
+      "method": "popup",
+      "minutes": 30
+     },
+     {
+      "method": "popup",
+      "minutes": 1440
+     },
+     {
+      "method": "popup",
+      "minutes": 180
+     }
+    ]
    }
   }
  ]
