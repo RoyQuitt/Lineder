@@ -1,142 +1,348 @@
 {
- "kind": "calendar#events",
- "etag": "\"p3389rk6sr26eq0g\"",
- "summary": "roy.quitt@googlemail.com",
- "updated": "2020-11-18T18:11:49.986Z",
- "timeZone": "Asia/Jerusalem",
- "accessRole": "owner",
- "defaultReminders": [
-  {
-   "method": "popup",
-   "minutes": 30
-  }
- ],
- "nextPageToken": "CigKGjB0ZG51ZW9obDY1bTFzMWdnbXJmMXY3NWtiGAEggIDAuvCRrK4XGg8IABIAGNCd0NzYjO0CIAEiBwgCEMSAqw0=",
- "items": [
-  {
-   "kind": "calendar#event",
-   "etag": "\"3103997601875000\"",
-   "id": "cdimadj661im8b9o6di66b9k6gr66bb275hj4bb475hjce1kcgq30cj46k",
-   "status": "cancelled"
-  },
-  {
-   "kind": "calendar#event",
-   "etag": "\"3110695038321000\"",
-   "id": "cdimadj661im8b9o6di66b9k6gr66bb275hj4bb475hjce1kcgq30cj46k_R20190327T150000",
-   "status": "cancelled"
-  },
-  {
-   "kind": "calendar#event",
-   "etag": "\"3192248413354000\"",
-   "id": "65j68d1lcos34bb56ssj6b9kcgq6cbb16lijgb9icoqm6e3361hmadb5co",
-   "status": "confirmed",
-   "htmlLink": "https://www.google.com/calendar/event?eid=NjVqNjhkMWxjb3MzNGJiNTZzc2o2YjlrY2dxNmNiYjE2bGlqZ2I5aWNvcW02ZTMzNjFobWFkYjVjbyByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
-   "created": "2020-07-30T15:50:06.000Z",
-   "updated": "2020-07-30T15:50:06.677Z",
-   "summary": "ביקורת רופא שיניים",
-   "creator": {
-    "email": "roy.quitt@googlemail.com",
-    "self": true
-   },
-   "organizer": {
-    "email": "roy.quitt@googlemail.com",
-    "self": true
-   },
-   "start": {
-    "dateTime": "2020-12-03T17:15:00+02:00",
-    "timeZone": "Asia/Jerusalem"
-   },
-   "end": {
-    "dateTime": "2020-12-03T18:15:00+02:00",
-    "timeZone": "Asia/Jerusalem"
-   },
-   "iCalUID": "65j68d1lcos34bb56ssj6b9kcgq6cbb16lijgb9icoqm6e3361hmadb5co@google.com",
-   "sequence": 0,
-   "reminders": {
-    "useDefault": true
-   }
-  },
-  {
-   "kind": "calendar#event",
-   "etag": "\"3210721388568000\"",
-   "id": "6kpjed31cgr64bb361h64b9k6hgjcb9ocgsjcb9icgpj2eb3cco64c33co",
-   "status": "confirmed",
-   "htmlLink": "https://www.google.com/calendar/event?eid=NmtwamVkMzFjZ3I2NGJiMzYxaDY0YjlrNmhnamNiOW9jZ3NqY2I5aWNncGoyZWIzY2NvNjRjMzNjbyByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
-   "created": "2020-11-14T13:31:34.000Z",
-   "updated": "2020-11-14T13:31:34.284Z",
-   "summary": "משמרת",
-   "creator": {
-    "email": "roy.quitt@googlemail.com",
-    "self": true
-   },
-   "organizer": {
-    "email": "roy.quitt@googlemail.com",
-    "self": true
-   },
-   "start": {
-    "dateTime": "2020-11-19T18:00:00+02:00",
-    "timeZone": "Asia/Jerusalem"
-   },
-   "end": {
-    "dateTime": "2020-11-19T21:00:00+02:00",
-    "timeZone": "Asia/Jerusalem"
-   },
-   "iCalUID": "6kpjed31cgr64bb361h64b9k6hgjcb9ocgsjcb9icgpj2eb3cco64c33co@google.com",
-   "sequence": 0,
-   "reminders": {
-    "useDefault": true
-   }
-  },
-  {
-   "kind": "calendar#event",
-   "etag": "\"3210907314856000\"",
-   "id": "0tdnueohl65m1s1ggmrf1v75kb",
-   "status": "confirmed",
-   "htmlLink": "https://www.google.com/calendar/event?eid=MHRkbnVlb2hsNjVtMXMxZ2dtcmYxdjc1a2Igcm95LnF1aXR0QGdvb2dsZW1haWwuY29t",
-   "created": "2020-11-15T08:32:41.000Z",
-   "updated": "2020-11-15T08:32:42.101Z",
-   "summary": "הצגת פרוייקט",
-   "creator": {
-    "email": "roy.quitt@googlemail.com",
-    "self": true
-   },
-   "organizer": {
-    "email": "roy.quitt@googlemail.com",
-    "self": true
-   },
-   "start": {
-    "dateTime": "2020-11-23T14:00:00+02:00"
-   },
-   "end": {
-    "dateTime": "2020-11-23T16:00:00+02:00"
-   },
-   "iCalUID": "0tdnueohl65m1s1ggmrf1v75kb@google.com",
-   "sequence": 0,
-   "reminders": {
-    "useDefault": false,
-    "overrides": [
-     {
-      "method": "popup",
-      "minutes": 7200
-     },
-     {
-      "method": "popup",
-      "minutes": 4320
-     },
-     {
-      "method": "popup",
-      "minutes": 30
-     },
-     {
-      "method": "popup",
-      "minutes": 1440
-     },
-     {
-      "method": "popup",
-      "minutes": 180
-     }
+    "kind": "calendar#events",
+    "etag": "\"p330f3j73pi9eq0g\"",
+    "summary": "roy.quitt@googlemail.com",
+    "updated": "2020-11-21T02:34:21.816Z",
+    "timeZone": "Asia/Jerusalem",
+    "accessRole": "owner",
+    "defaultReminders": [
+        {
+            "method": "popup",
+            "minutes": 30
+        }
+    ],
+    "items": [
+        {
+            "kind": "calendar#event",
+            "etag": "\"3210928345818000\"",
+            "id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g74o42d9p84r3ie1n89148dhg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6sp38ea56oq38cpj8ks42chk8gs3cc1h6h2jgda565134hhl612g",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=XzYwcTMwYzFnNjBvMzBlMWk2MG80YWMxZzYwcmo4Z3BsODhyajJjMWg4NHMzNGg5ZzYwczMwYzFnNjBvMzBjMWc3NG80MmQ5cDg0cjNpZTFuODkxNDhkaGc2NG8zMGMxZzYwbzMwYzFnNjBvMzBjMWc2MG8zMmMxZzYwbzMwYzFnNnNwMzhlYTU2b3EzOGNwajhrczQyY2hrOGdzM2NjMWg2aDJqZ2RhNTY1MTM0aGhsNjEyZyByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+            "created": "2020-11-15T17:42:44.000Z",
+            "updated": "2020-11-15T18:16:12.909Z",
+            "summary": "\u05d7\u05d9\u05e1\u05d5\u05df \u05e9\u05e4\u05e2\u05ea 10:30",
+            "description": "\n",
+            "location": "\u05de\u05db\u05d1\u05d9",
+            "creator": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "irit.marcipar@hp.com",
+                "displayName": "Marcipar, Irit"
+            },
+            "start": {
+                "dateTime": "2020-11-22T10:30:00+02:00"
+            },
+            "end": {
+                "dateTime": "2020-11-22T11:00:00+02:00"
+            },
+            "iCalUID": "040000008200E00074C5B7101A82E0080000000090A59A6987BBD6010000000000000000100000007249E64433E8A24D86014E85E1B2F50E",
+            "sequence": 0,
+            "attendees": [
+                {
+                    "email": "roy.quitt@googlemail.com",
+                    "self": true,
+                    "responseStatus": "accepted"
+                }
+            ],
+            "guestsCanInviteOthers": false,
+            "privateCopy": true,
+            "reminders": {
+                "useDefault": true
+            }
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3210907314856000\"",
+            "id": "0tdnueohl65m1s1ggmrf1v75kb",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=MHRkbnVlb2hsNjVtMXMxZ2dtcmYxdjc1a2Igcm95LnF1aXR0QGdvb2dsZW1haWwuY29t",
+            "created": "2020-11-15T08:32:41.000Z",
+            "updated": "2020-11-15T08:32:42.101Z",
+            "summary": "\u05d4\u05e6\u05d2\u05ea \u05e4\u05e8\u05d5\u05d9\u05d9\u05e7\u05d8",
+            "creator": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2020-11-23T14:00:00+02:00"
+            },
+            "end": {
+                "dateTime": "2020-11-23T16:00:00+02:00"
+            },
+            "iCalUID": "0tdnueohl65m1s1ggmrf1v75kb@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": false,
+                "overrides": [
+                    {
+                        "method": "popup",
+                        "minutes": 4320
+                    },
+                    {
+                        "method": "popup",
+                        "minutes": 7200
+                    },
+                    {
+                        "method": "popup",
+                        "minutes": 30
+                    },
+                    {
+                        "method": "popup",
+                        "minutes": 1440
+                    },
+                    {
+                        "method": "popup",
+                        "minutes": 180
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3211446145244000\"",
+            "id": "6pgm2dr2ckojeb9h61i32b9k6ks66bb1corm2bb670q30cr1c8r64db36o",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=NnBnbTJkcjJja29qZWI5aDYxaTMyYjlrNmtzNjZiYjFjb3JtMmJiNjcwcTMwY3IxYzhyNjRkYjM2byByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+            "created": "2020-11-18T18:11:12.000Z",
+            "updated": "2020-11-18T18:11:12.622Z",
+            "summary": "\u05e9\u05d9\u05e2\u05d5\u05e8 \u05e0\u05d4\u05d9\u05d2\u05d4",
+            "creator": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2020-11-24T18:10:00+02:00",
+                "timeZone": "Asia/Jerusalem"
+            },
+            "end": {
+                "dateTime": "2020-11-24T19:10:00+02:00",
+                "timeZone": "Asia/Jerusalem"
+            },
+            "iCalUID": "6pgm2dr2ckojeb9h61i32b9k6ks66bb1corm2bb670q30cr1c8r64db36o@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": true
+            }
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3211446219972000\"",
+            "id": "coo3ic9gcpgm2b9ic8pmab9k69j3ebb174o3abb6chi30p1m64s62p9j60",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=Y29vM2ljOWdjcGdtMmI5aWM4cG1hYjlrNjlqM2ViYjE3NG8zYWJiNmNoaTMwcDFtNjRzNjJwOWo2MCByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+            "created": "2020-11-18T18:11:49.000Z",
+            "updated": "2020-11-18T18:11:49.986Z",
+            "summary": "\u05e9\u05d9\u05e2\u05d5\u05e8 \u05e2\u05dd \u05d9\u05d5\u05d1\u05dc \u05e4\u05d6 \u05dc\u05e4\u05e0\u05d9 \u05d4\u05d8\u05e1\u05d8",
+            "creator": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2020-11-25T12:15:00+02:00",
+                "timeZone": "Asia/Jerusalem"
+            },
+            "end": {
+                "dateTime": "2020-11-25T14:15:00+02:00",
+                "timeZone": "Asia/Jerusalem"
+            },
+            "iCalUID": "coo3ic9gcpgm2b9ic8pmab9k69j3ebb174o3abb6chi30p1m64s62p9j60@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": true
+            }
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3211446174454000\"",
+            "id": "6gs68d9mcop64b9l6kr6ab9kccr32bb16spj2b9oc8qmccj1c4q3ic1nc8",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=NmdzNjhkOW1jb3A2NGI5bDZrcjZhYjlrY2NyMzJiYjE2c3BqMmI5b2M4cW1jY2oxYzRxM2ljMW5jOCByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+            "created": "2020-11-18T18:11:27.000Z",
+            "updated": "2020-11-18T18:11:27.227Z",
+            "summary": "\u05d8\u05e1\u05d8",
+            "creator": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2020-11-25T14:30:00+02:00",
+                "timeZone": "Asia/Jerusalem"
+            },
+            "end": {
+                "dateTime": "2020-11-25T15:15:00+02:00",
+                "timeZone": "Asia/Jerusalem"
+            },
+            "iCalUID": "6gs68d9mcop64b9l6kr6ab9kccr32bb16spj2b9oc8qmccj1c4q3ic1nc8@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": true
+            }
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3192248413354000\"",
+            "id": "65j68d1lcos34bb56ssj6b9kcgq6cbb16lijgb9icoqm6e3361hmadb5co",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=NjVqNjhkMWxjb3MzNGJiNTZzc2o2YjlrY2dxNmNiYjE2bGlqZ2I5aWNvcW02ZTMzNjFobWFkYjVjbyByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+            "created": "2020-07-30T15:50:06.000Z",
+            "updated": "2020-07-30T15:50:06.677Z",
+            "summary": "\u05d1\u05d9\u05e7\u05d5\u05e8\u05ea \u05e8\u05d5\u05e4\u05d0 \u05e9\u05d9\u05e0\u05d9\u05d9\u05dd",
+            "creator": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2020-12-03T17:15:00+02:00",
+                "timeZone": "Asia/Jerusalem"
+            },
+            "end": {
+                "dateTime": "2020-12-03T18:15:00+02:00",
+                "timeZone": "Asia/Jerusalem"
+            },
+            "iCalUID": "65j68d1lcos34bb56ssj6b9kcgq6cbb16lijgb9icoqm6e3361hmadb5co@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": true
+            }
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3211072638578000\"",
+            "id": "6thmcdr4chhjcb9kc5j3ib9k6pgj0bb2ccq3ab9i6oqj0dhi60q6apj564",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=NnRobWNkcjRjaGhqY2I5a2M1ajNpYjlrNnBnajBiYjJjY3EzYWI5aTZvcWowZGhpNjBxNmFwajU2NCByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+            "created": "2020-11-16T14:17:29.000Z",
+            "updated": "2020-11-16T14:18:39.289Z",
+            "summary": "\u05e9\u05d9\u05e0\u05e0\u05d9\u05ea",
+            "creator": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2021-02-18T13:00:00+02:00",
+                "timeZone": "Asia/Jerusalem"
+            },
+            "end": {
+                "dateTime": "2021-02-18T14:00:00+02:00",
+                "timeZone": "Asia/Jerusalem"
+            },
+            "iCalUID": "6thmcdr4chhjcb9kc5j3ib9k6pgj0bb2ccq3ab9i6oqj0dhi60q6apj564@google.com",
+            "sequence": 1,
+            "attendees": [
+                {
+                    "email": "tommy.quitt@gmail.com",
+                    "displayName": "Tommy Quitt",
+                    "responseStatus": "needsAction"
+                },
+                {
+                    "email": "roy.quitt@googlemail.com",
+                    "organizer": true,
+                    "self": true,
+                    "responseStatus": "accepted"
+                },
+                {
+                    "email": "iritmarcipar@gmail.com",
+                    "displayName": "Irit Marcipar",
+                    "responseStatus": "needsAction"
+                }
+            ],
+            "hangoutLink": "https://meet.google.com/woa-zswr-stx",
+            "conferenceData": {
+                "createRequest": {
+                    "requestId": "6krjgp9m65hjeb9o6kqj0b9k70om6bb1coom8b9kcpgj0d3169gj8d1l68",
+                    "conferenceSolutionKey": {
+                        "type": "hangoutsMeet"
+                    },
+                    "status": {
+                        "statusCode": "success"
+                    }
+                },
+                "entryPoints": [
+                    {
+                        "entryPointType": "video",
+                        "uri": "https://meet.google.com/woa-zswr-stx",
+                        "label": "meet.google.com/woa-zswr-stx"
+                    }
+                ],
+                "conferenceSolution": {
+                    "key": {
+                        "type": "hangoutsMeet"
+                    },
+                    "name": "Google Meet",
+                    "iconUri": "https://lh5.googleusercontent.com/proxy/bWvYBOb7O03a7HK5iKNEAPoUNPEXH1CHZjuOkiqxHx8OtyVn9sZ6Ktl8hfqBNQUUbCDg6T2unnsHx7RSkCyhrKgHcdoosAW8POQJm_ZEvZU9ZfAE7mZIBGr_tDlF8Z_rSzXcjTffVXg3M46v"
+                },
+                "conferenceId": "woa-zswr-stx",
+                "signature": "AGkP/s3Eh943oN5sTnlcaN/aVThp"
+            },
+            "reminders": {
+                "useDefault": true
+            }
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3211072722954000\"",
+            "id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g60o34gi274pj8cpk891k8dhg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6ksj6dph6or36cho6cqjcghk64sj4chn8gok8c1o8cp3ehi26spg",
+            "status": "tentative",
+            "htmlLink": "https://www.google.com/calendar/event?eid=XzYwcTMwYzFnNjBvMzBlMWk2MG80YWMxZzYwcmo4Z3BsODhyajJjMWg4NHMzNGg5ZzYwczMwYzFnNjBvMzBjMWc2MG8zNGdpMjc0cGo4Y3BrODkxazhkaGc2NG8zMGMxZzYwbzMwYzFnNjBvMzBjMWc2MG8zMmMxZzYwbzMwYzFnNmtzajZkcGg2b3IzNmNobzZjcWpjZ2hrNjRzajRjaG44Z29rOGMxbzhjcDNlaGkyNnNwZyByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+            "created": "2020-11-16T14:19:06.000Z",
+            "updated": "2020-11-16T14:19:21.477Z",
+            "summary": "\u05e8\u05d5\u05e2\u05d9 \u05ea\u05d5\u05e8 \u05dc\u05e9\u05d9\u05e0\u05e0\u05d9\u05ea",
+            "description": "\n",
+            "location": "\u05de\u05db\u05d1\u05d9 \u05d3\u05e0\u05d8 \u05e8\u05de\u05ea \u05d4\u05e9\u05e8\u05d5\u05df",
+            "creator": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "irit.marcipar@hp.com",
+                "displayName": "Marcipar, Irit"
+            },
+            "start": {
+                "dateTime": "2021-02-18T13:00:00+02:00"
+            },
+            "end": {
+                "dateTime": "2021-02-18T14:00:00+02:00"
+            },
+            "iCalUID": "040000008200E00074C5B7101A82E00800000000002BB93434BCD6010000000000000000100000005937166328356B419227D1D08C27FB73",
+            "sequence": 0,
+            "attendees": [
+                {
+                    "email": "roy.quitt@googlemail.com",
+                    "self": true,
+                    "responseStatus": "needsAction"
+                }
+            ],
+            "guestsCanInviteOthers": false,
+            "privateCopy": true,
+            "reminders": {
+                "useDefault": true
+            }
+        }
     ]
-   }
-  }
- ]
 }

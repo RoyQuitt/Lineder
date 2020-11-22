@@ -77,6 +77,12 @@ print(GOOGLE_CLIENT_ID)
 print(GOOGLE_CLIENT_SECRET)
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
+
+token = None
+creds = None
+
+
+
 # Flask-Login helper to retrieve a user from our db
 @login_manager.user_loader
 def load_user(user_id):
@@ -130,11 +136,16 @@ def get_events():
     return redirect(url_for("index"))
 
 
-@app.route("/login")
+@app.route("/login")  # arrow 1
 def login_flow():
-    token, creds, url = quickstart.until_url()
+    global token
+    global creds
+    token, creds, url = quickstart.until_url()  # arrow 2 + 3
     print(url)
-    return redirect(url)
+    print("test")
+    print(url)
+    print("creds in login:", creds)
+    return redirect(url, code=302)  # arrow 4 + 5
     # quickstart.after_url(creds, token)
 
 
@@ -154,56 +165,61 @@ def login_flow():
 
 @app.route("/login/callback")
 def callback():
-    # Get authorization code Google sent back to you
-    code = request.args.get("code")
-
-    # Find out what URL to hit to get tokens that allow you to ask for
-    # things on behalf of a user
-    google_provider_cfg = get_google_provider_cfg()
-    token_endpoint = google_provider_cfg["token_endpoint"]
-
-    # Prepare and send a request to get tokens! Yay tokens!
-    token_url, headers, body = client.prepare_token_request(
-        token_endpoint,
-        authorization_response=request.url,
-        redirect_url=request.base_url,
-        code=code
-    )
-    token_response = requests.post(
-        token_url,
-        headers=headers,
-        data=body,
-        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-    )
-    print("token type:", type(token_response))
-    # Parse the tokens!
-    print(token_response)
-    client.parse_request_body_response(json.dumps(token_response.json()))
-    # client.token
-    print(token_response)
-    # Now that you have tokens (yay) let's find and hit the URL
-    # from Google that gives you the user's profile information,
-    # including their Google profile image and email
-    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-    uri, headers, body = client.add_token(userinfo_endpoint)
-    print("headers:", headers, "\nbody:", body)
-    userinfo_response = requests.get(uri, headers=headers, data=body)
-    # url = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
-    # events_response = requests.post(url, headers={"authorization":})
-
-    # You want to make sure their email is verified.
-    # The user authenticated with Google, authorized your
-    # app, and now you've verified their email through Google!
-    print("test:\n")
-    print(type(userinfo_response))
-    print(userinfo_response.json())
-    if userinfo_response.json().get("email_verified"):
-        unique_id = userinfo_response.json()["sub"]
-        users_email = userinfo_response.json()["email"]
-        picture = userinfo_response.json()["picture"]
-        users_name = userinfo_response.json()["given_name"]
-    else:
-        return "User email not available or not verified by Google.", 400
+    global token
+    global creds
+    print("CALLBACK")
+    print("creds:", creds)
+    quickstart.after_url(creds, token)
+    # # Get authorization code Google sent back to you
+    # code = request.args.get("code")
+    #
+    # # Find out what URL to hit to get tokens that allow you to ask for
+    # # things on behalf of a user
+    # google_provider_cfg = get_google_provider_cfg()
+    # token_endpoint = google_provider_cfg["token_endpoint"]
+    #
+    # # Prepare and send a request to get tokens! Yay tokens!
+    # token_url, headers, body = client.prepare_token_request(
+    #     token_endpoint,
+    #     authorization_response=request.url,
+    #     redirect_url=request.base_url,
+    #     code=code
+    # )
+    # token_response = requests.post(
+    #     token_url,
+    #     headers=headers,
+    #     data=body,
+    #     auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+    # )
+    # print("token type:", type(token_response))
+    # # Parse the tokens!
+    # print(token_response)
+    # client.parse_request_body_response(json.dumps(token_response.json()))
+    # # client.token
+    # print(token_response)
+    # # Now that you have tokens (yay) let's find and hit the URL
+    # # from Google that gives you the user's profile information,
+    # # including their Google profile image and email
+    # userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+    # uri, headers, body = client.add_token(userinfo_endpoint)
+    # print("headers:", headers, "\nbody:", body)
+    # userinfo_response = requests.get(uri, headers=headers, data=body)
+    # # url = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
+    # # events_response = requests.post(url, headers={"authorization":})
+    #
+    # # You want to make sure their email is verified.
+    # # The user authenticated with Google, authorized your
+    # # app, and now you've verified their email through Google!
+    # print("test:\n")
+    # print(type(userinfo_response))
+    # print(userinfo_response.json())
+    # if userinfo_response.json().get("email_verified"):
+    #     unique_id = userinfo_response.json()["sub"]
+    #     users_email = userinfo_response.json()["email"]
+    #     picture = userinfo_response.json()["picture"]
+    #     users_name = userinfo_response.json()["given_name"]
+    # else:
+    #     return "User email not available or not verified by Google.", 400
     # ------------- start Get Events -------------
 
 
