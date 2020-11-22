@@ -1,8 +1,8 @@
 {
     "kind": "calendar#events",
-    "etag": "\"p330f3j73pi9eq0g\"",
+    "etag": "\"p330br3u4lqbeq0g\"",
     "summary": "roy.quitt@googlemail.com",
-    "updated": "2020-11-21T02:34:21.816Z",
+    "updated": "2020-11-22T14:29:41.688Z",
     "timeZone": "Asia/Jerusalem",
     "accessRole": "owner",
     "defaultReminders": [
@@ -12,46 +12,6 @@
         }
     ],
     "items": [
-        {
-            "kind": "calendar#event",
-            "etag": "\"3210928345818000\"",
-            "id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g74o42d9p84r3ie1n89148dhg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6sp38ea56oq38cpj8ks42chk8gs3cc1h6h2jgda565134hhl612g",
-            "status": "confirmed",
-            "htmlLink": "https://www.google.com/calendar/event?eid=XzYwcTMwYzFnNjBvMzBlMWk2MG80YWMxZzYwcmo4Z3BsODhyajJjMWg4NHMzNGg5ZzYwczMwYzFnNjBvMzBjMWc3NG80MmQ5cDg0cjNpZTFuODkxNDhkaGc2NG8zMGMxZzYwbzMwYzFnNjBvMzBjMWc2MG8zMmMxZzYwbzMwYzFnNnNwMzhlYTU2b3EzOGNwajhrczQyY2hrOGdzM2NjMWg2aDJqZ2RhNTY1MTM0aGhsNjEyZyByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
-            "created": "2020-11-15T17:42:44.000Z",
-            "updated": "2020-11-15T18:16:12.909Z",
-            "summary": "\u05d7\u05d9\u05e1\u05d5\u05df \u05e9\u05e4\u05e2\u05ea 10:30",
-            "description": "\n",
-            "location": "\u05de\u05db\u05d1\u05d9",
-            "creator": {
-                "email": "roy.quitt@googlemail.com",
-                "self": true
-            },
-            "organizer": {
-                "email": "irit.marcipar@hp.com",
-                "displayName": "Marcipar, Irit"
-            },
-            "start": {
-                "dateTime": "2020-11-22T10:30:00+02:00"
-            },
-            "end": {
-                "dateTime": "2020-11-22T11:00:00+02:00"
-            },
-            "iCalUID": "040000008200E00074C5B7101A82E0080000000090A59A6987BBD6010000000000000000100000007249E64433E8A24D86014E85E1B2F50E",
-            "sequence": 0,
-            "attendees": [
-                {
-                    "email": "roy.quitt@googlemail.com",
-                    "self": true,
-                    "responseStatus": "accepted"
-                }
-            ],
-            "guestsCanInviteOthers": false,
-            "privateCopy": true,
-            "reminders": {
-                "useDefault": true
-            }
-        },
         {
             "kind": "calendar#event",
             "etag": "\"3210907314856000\"",
@@ -194,6 +154,78 @@
             "sequence": 0,
             "reminders": {
                 "useDefault": true
+            }
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3212097060097000\"",
+            "id": "_c5858or99hokksrgalqj6ii975462l2me54l2bjfdg",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=X2M1ODU4b3I5OWhva2tzcmdhbHFqNmlpOTc1NDYybDJtZTU0bDJiamZkZyByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+            "created": "2020-11-22T12:35:29.000Z",
+            "updated": "2020-11-22T12:35:30.137Z",
+            "summary": "\u05de\u05e9\u05de\u05e8\u05ea",
+            "location": "\u05d3\u05d5\u05de\u05d9\u05e0\u05d5\u05e1 \u05e8\u05de\u05ea \u05d4\u05e9\u05e8\u05d5\u05df",
+            "creator": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2020-11-26T17:00:00+02:00"
+            },
+            "end": {
+                "dateTime": "2020-11-26T21:00:00+02:00"
+            },
+            "iCalUID": "aPTciLqJspUu3JI9HaTVqIQ.ol",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": false,
+                "overrides": [
+                    {
+                        "method": "popup",
+                        "minutes": 15
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3212097231782000\"",
+            "id": "_c4pk8qbq9ksj2s3jddmmqlabdtllgk1e9lcl2bjfdg",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=X2M0cGs4cWJxOWtzajJzM2pkZG1tcWxhYmR0bGxnazFlOWxjbDJiamZkZyByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+            "created": "2020-11-22T12:36:55.000Z",
+            "updated": "2020-11-22T12:36:55.932Z",
+            "summary": "\u05de\u05e9\u05de\u05e8\u05ea",
+            "location": "\u05d3\u05d5\u05de\u05d9\u05e0\u05d5\u05e1 \u05e8\u05de\u05ea \u05d4\u05e9\u05e8\u05d5\u05df",
+            "creator": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2020-11-28T18:00:00+02:00"
+            },
+            "end": {
+                "dateTime": "2020-11-28T22:00:00+02:00"
+            },
+            "iCalUID": "a3DizM91pskmmUKokXP.MYQ.ol",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": false,
+                "overrides": [
+                    {
+                        "method": "popup",
+                        "minutes": 15
+                    }
+                ]
             }
         },
         {

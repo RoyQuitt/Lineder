@@ -7,13 +7,21 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import json
 import threading
+import time
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
   
+token = None
+creds = None
+results_from_thread = [None] * 2  # index 0 = creds, index 1 = url
 
 def until_url():
-    creds = None
+    global token
+    global creds
+    # creds = None
+    global results_from_thread
+
 
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -31,14 +39,17 @@ def until_url():
                 'credentials_flow.json', SCOPES)
             auth_url, local_server, wsgi_app = flow.run_local_server_1(port=0)
             print("MSG:", auth_url)
-            new_thread = threading.Thread(target=flow.run_local_server_2, args=(auth_url, local_server, wsgi_app))  # , port=0
+            new_thread = threading.Thread(target=flow.run_local_server_2, args=(auth_url, local_server, wsgi_app, results_from_thread))  # , port=0
             new_thread.start()
             # creds, auth_response = flow.run_local_server_2(auth_url, local_server, wsgi_app, port=0)
             # return auth_url
+
         # Save the credentials for the next run
-        print("Token")
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
+        # print("Token")
+
+
+        # with open('token.pickle', 'wb') as token:
+        #     pickle.dump(creds, token)
     else:
         auth_url = "!"
     if auth_url is None:
@@ -47,7 +58,21 @@ def until_url():
         return token, creds, auth_url
 
 
-def after_url(creds, token):
+def after_url():  # creds, token
+    global token
+    global creds
+    global results_from_thread
+    print("creds before while:", creds)
+    # print(auth_url)
+    creds = results_from_thread[0]
+    auth_url = results_from_thread[1]
+    while creds is None or auth_url is None:
+        creds = results_from_thread[0]
+        auth_url = results_from_thread[1]
+        time.sleep(0.01)  # delay in order to not overload CPU
+    print("out of while")
+    print("creds in after_url:", creds)
+    print(auth_url)
     service = build('calendar', 'v3', credentials=creds)
 
     # Call the Calendar API

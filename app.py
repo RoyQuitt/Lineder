@@ -78,8 +78,7 @@ print(GOOGLE_CLIENT_SECRET)
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 
-token = None
-creds = None
+
 
 
 
@@ -138,11 +137,9 @@ def get_events():
 
 @app.route("/login")  # arrow 1
 def login_flow():
-    global token
-    global creds
+    # global token
+    # global creds
     token, creds, url = quickstart.until_url()  # arrow 2 + 3
-    print(url)
-    print("test")
     print(url)
     print("creds in login:", creds)
     return redirect(url, code=302)  # arrow 4 + 5
@@ -165,11 +162,10 @@ def login_flow():
 
 @app.route("/login/callback")
 def callback():
-    global token
-    global creds
+    # global token
+    # global creds
     print("CALLBACK")
-    print("creds:", creds)
-    quickstart.after_url(creds, token)
+    quickstart.after_url()  # creds, token
     # # Get authorization code Google sent back to you
     # code = request.args.get("code")
     #
@@ -226,16 +222,16 @@ def callback():
 
     # Create a user in your db with the information provided
     # by Google
-    user = User(
-        id_=unique_id, name=users_name, email=users_email, profile_pic=picture
-    )
-
-    # Doesn't exist? Add it to the database.
-    if not User.get(unique_id):
-        User.create(unique_id, users_name, users_email, picture)
-
-    # Begin user session by logging the user in
-    login_user(user)
+    # user = User(
+    #     id_=unique_id, name=users_name, email=users_email, profile_pic=picture
+    # )
+    #
+    # # Doesn't exist? Add it to the database.
+    # if not User.get(unique_id):
+    #     User.create(unique_id, users_name, users_email, picture)
+    #
+    # # Begin user session by logging the user in
+    # login_user(user)
 
     # Send user back to homepage
     return redirect(url_for("index"))
