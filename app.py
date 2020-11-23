@@ -47,6 +47,8 @@ import quickstart
 # Configuration
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
+# Google API Credentials
+## The client ID created for the app in the Google Developers Console with the google-signin-client_id meta element
 GOOGLE_CLIENT_ID = "701150580333-9lqf3ot4ptha6k80j942km8l5pq5hd2s.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET = "CnWxlsvrnLi9Wbmdk2Txb6ES"
 # GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
