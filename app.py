@@ -78,14 +78,82 @@ print(GOOGLE_CLIENT_SECRET)
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 
+class Event:
+    def __init__(self, start, end, title):
+        self.start = start
+        self.end = end
+        self.title = title
+
+    def __repr__(self):
+        return str(self.start) + "  -  " + str(self.end) + "   |   " + str(self.title)
+
+    def make_json(self):
+        # return "title:" + str(self.title) + ", \n" + "start:"
+        return str(flask.jsonify(
+            title=self.title,
+            start=self.start,
+            end=self.end
+        ))
+
+    def serialize(self):
+        return {
+            'title':self.title,
+            'start':self.start,
+            'end':self.end
+        }
 
 
+class EventsList:
+    def __init__(self, events):
+        self.events_list = events
+        self.events_list_arranged = []
+        self.events_list_json = []
+
+    def __repr__(self):
+        s = ""
+        for i, event in enumerate(self.events_list_arranged):
+            s += event.__repr__() + ", "
+        return s
+
+    def make_json(self):
+        # return json.dumps(self.events_list_arranged)
+        for event in self.events_list_arranged:
+            self.events_list_json.append(event.make_json())
+        return flask.jsonify(
+            events=self.events_list_json
+        )
+
+
+
+
+
+    def arrange_events(self):
+        if not self.events_list:
+            print('No upcoming events found.')
+        for i, event in enumerate(self.events_list):
+            start = event['start'].get('dateTime', event['start'].get('date'))
+            end = event['end'].get('dateTime', event['start'].get('date'))
+            title = event['summary']
+            new_event = Event(start, end, title)
+            print("\nevent number:", i)
+            print(new_event)
+            self.events_list_arranged.append(new_event)
+            # print(start, " - ", end, " | ", event['summary'])
+        print("\n\nevents list arranged in arrange_events:\n" + self.__repr__())
 
 
 # Flask-Login helper to retrieve a user from our db
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
+
+
+
+@app.route("/json_test")
+def json_test():
+    return flask.jsonify(
+
+    )
 
 
 @app.route("/")
@@ -165,7 +233,17 @@ def callback():
     # global token
     # global creds
     print("CALLBACK")
-    quickstart.after_url()  # creds, token
+    events_list = EventsList(quickstart.after_url())  # creds, token
+    events_list.arrange_events()
+    print("\n\nevents list arranged in callback:\n" + events_list.__repr__())
+    print(events_list.make_json())
+    # print("events:\n", events_list)
+    # if not events:
+    #     print('No upcoming events found.')
+    # for event in events:
+    #     start = event['start'].get('dateTime', event['start'].get('date'))
+    #     end = event['end'].get('dateTime', event['start'].get('date'))
+    #     print(start, " - ", end, " | ", event['summary'])
     # # Get authorization code Google sent back to you
     # code = request.args.get("code")
     #
@@ -234,7 +312,12 @@ def callback():
     # login_user(user)
 
     # Send user back to homepage
-    return redirect(url_for("index"))
+    # return (events_list.events_list_arranged[0]).make_json()
+    # return events_list.make_json()
+    # return redirect(url_for("index"))
+    return flask.jsonify(
+        events=[event.serialize() for event in events_list.events_list_arranged]
+    )
 
 
 @app.route("/logout")

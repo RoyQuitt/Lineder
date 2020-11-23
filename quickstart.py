@@ -84,21 +84,23 @@ def after_url():  # creds, token
     print(type(events_result))
     events_result_json = json.dumps(events_result, indent=4)
     print(type(events_result_json))
-    print("JSON:\n", events_result_json)
-    print("RES: ", events_result)
+    # print("JSON:\n", events_result_json)
+    # print("RES: ", events_result)
     with open("sample.txt", "w", encoding="utf-8") as text_file:
         text_file.write(events_result_json)
     # print("HELLO: ", events_result.get('items', []))
     events = events_result.get('items', [])
-    for event in events:
-        print("\nNEW EVENT")
-        print(event)
+    # for event in events:
+    #     print("\nNEW EVENT")
+    #     print(event)
+    return events
 
-    if not events:
-        print('No upcoming events found.')
-    for event in events:
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
+    # if not events:
+    #     print('No upcoming events found.')
+    # for event in events:
+    #     start = event['start'].get('dateTime', event['start'].get('date'))
+    #     end = event['end'].get('dateTime', event['start'].get('date'))
+    #     print(start, " - ", end, " | ", event['summary'])
 
 
 def main():

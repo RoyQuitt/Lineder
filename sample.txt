@@ -1,8 +1,8 @@
 {
     "kind": "calendar#events",
-    "etag": "\"p330br3u4lqbeq0g\"",
+    "etag": "\"p33kcd5unveceq0g\"",
     "summary": "roy.quitt@googlemail.com",
-    "updated": "2020-11-22T14:29:41.688Z",
+    "updated": "2020-11-23T15:20:10.673Z",
     "timeZone": "Asia/Jerusalem",
     "accessRole": "owner",
     "defaultReminders": [
@@ -12,57 +12,6 @@
         }
     ],
     "items": [
-        {
-            "kind": "calendar#event",
-            "etag": "\"3210907314856000\"",
-            "id": "0tdnueohl65m1s1ggmrf1v75kb",
-            "status": "confirmed",
-            "htmlLink": "https://www.google.com/calendar/event?eid=MHRkbnVlb2hsNjVtMXMxZ2dtcmYxdjc1a2Igcm95LnF1aXR0QGdvb2dsZW1haWwuY29t",
-            "created": "2020-11-15T08:32:41.000Z",
-            "updated": "2020-11-15T08:32:42.101Z",
-            "summary": "\u05d4\u05e6\u05d2\u05ea \u05e4\u05e8\u05d5\u05d9\u05d9\u05e7\u05d8",
-            "creator": {
-                "email": "roy.quitt@googlemail.com",
-                "self": true
-            },
-            "organizer": {
-                "email": "roy.quitt@googlemail.com",
-                "self": true
-            },
-            "start": {
-                "dateTime": "2020-11-23T14:00:00+02:00"
-            },
-            "end": {
-                "dateTime": "2020-11-23T16:00:00+02:00"
-            },
-            "iCalUID": "0tdnueohl65m1s1ggmrf1v75kb@google.com",
-            "sequence": 0,
-            "reminders": {
-                "useDefault": false,
-                "overrides": [
-                    {
-                        "method": "popup",
-                        "minutes": 30
-                    },
-                    {
-                        "method": "popup",
-                        "minutes": 1440
-                    },
-                    {
-                        "method": "popup",
-                        "minutes": 180
-                    },
-                    {
-                        "method": "popup",
-                        "minutes": 4320
-                    },
-                    {
-                        "method": "popup",
-                        "minutes": 7200
-                    }
-                ]
-            }
-        },
         {
             "kind": "calendar#event",
             "etag": "\"3211446145244000\"",
@@ -151,6 +100,37 @@
                 "timeZone": "Asia/Jerusalem"
             },
             "iCalUID": "6gs68d9mcop64b9l6kr6ab9kccr32bb16spj2b9oc8qmccj1c4q3ic1nc8@google.com",
+            "sequence": 0,
+            "reminders": {
+                "useDefault": true
+            }
+        },
+        {
+            "kind": "calendar#event",
+            "etag": "\"3212170207594000\"",
+            "id": "6cp6cchi6cq66bb16oojgb9kc9h68bb2cop66bb5c9j68o9g71i38cj564",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=NmNwNmNjaGk2Y3E2NmJiMTZvb2pnYjlrYzloNjhiYjJjb3A2NmJiNWM5ajY4bzlnNzFpMzhjajU2NCByb3kucXVpdHRAZ29vZ2xlbWFpbC5jb20",
+            "created": "2020-11-22T22:45:03.000Z",
+            "updated": "2020-11-22T22:45:03.797Z",
+            "summary": "Meeting with Alex",
+            "creator": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "organizer": {
+                "email": "roy.quitt@googlemail.com",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2020-11-25T18:00:00+02:00",
+                "timeZone": "Asia/Jerusalem"
+            },
+            "end": {
+                "dateTime": "2020-11-25T19:00:00+02:00",
+                "timeZone": "Asia/Jerusalem"
+            },
+            "iCalUID": "6cp6cchi6cq66bb16oojgb9kc9h68bb2cop66bb5c9j68o9g71i38cj564@google.com",
             "sequence": 0,
             "reminders": {
                 "useDefault": true
