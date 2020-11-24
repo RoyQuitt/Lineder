@@ -26,7 +26,6 @@ from user import User
 from googleapiclient.discovery import build
 import google_auth_oauthlib.helpers
 
-
 import datetime
 import pickle
 import os.path
@@ -43,12 +42,11 @@ from google.auth.transport.requests import Request
 # from quickstart import main as flow_main
 import quickstart
 
-
 # Configuration
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 # Google API Credentials
-## The client ID created for the app in the Google Developers Console with the google-signin-client_id meta element
+# The client ID created for the app in the Google Developers Console with the google-signin-client_id meta element
 GOOGLE_CLIENT_ID = "701150580333-9lqf3ot4ptha6k80j942km8l5pq5hd2s.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET = "CnWxlsvrnLi9Wbmdk2Txb6ES"
 # GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
@@ -56,7 +54,6 @@ GOOGLE_CLIENT_SECRET = "CnWxlsvrnLi9Wbmdk2Txb6ES"
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
-
 
 # Flask app setup
 app = Flask(__name__)
@@ -98,10 +95,14 @@ class Event:
         ))
 
     def serialize(self):
+        """
+This is where the JSON magic happens. This is the dictionary that specifies how to serialized the class.
+        :return:
+        """
         return {
-            'title':self.title,
-            'start':self.start,
-            'end':self.end
+            'title': self.title,
+            'start': self.start,
+            'end': self.end
         }
 
 
@@ -125,10 +126,6 @@ class EventsList:
             events=self.events_list_json
         )
 
-
-
-
-
     def arrange_events(self):
         if not self.events_list:
             print('No upcoming events found.')
@@ -150,7 +147,6 @@ def load_user(user_id):
     return User.get(user_id)
 
 
-
 @app.route("/json_test")
 def json_test():
     return flask.jsonify(
@@ -160,11 +156,6 @@ def json_test():
 
 @app.route("/")
 def index():
-    # return flask.jsonify(
-    #     name="Roy Quitt",
-    #     email="roy.quitt@gmail.com",
-    #     pic="https://lh3.googleusercontent.com/a-/AOh14GhoZiEKa6_e6IN1qiK9MUJWXRyFvQp-QUEIjl6BDA"
-    # )
     if current_user.is_authenticated:
         # return flask.jsonify(
         #     name=current_user.name,
@@ -207,6 +198,12 @@ def get_events():
 
 @app.route("/login")  # arrow 1
 def login_flow():
+    """
+    login_flow statrts the login process and then redirects the user to the next stage by sending a 302 redirect
+    response with the URL received from quickstart
+    :return:
+        The redirect response
+    """
     # global token
     # global creds
     token, creds, url = quickstart.until_url()  # arrow 2 + 3
@@ -232,6 +229,10 @@ def login_flow():
 
 @app.route("/login/callback")
 def callback():
+    """
+    Callback is being called by Google API when the user is authenticated. Once the user is authenticated,
+    it arranges the events and created the JSON response with the list of events
+    """
     # global token
     # global creds
     print("CALLBACK")
@@ -298,8 +299,6 @@ def callback():
     #     return "User email not available or not verified by Google.", 400
     # ------------- start Get Events -------------
 
-
-
     # Create a user in your db with the information provided
     # by Google
     # user = User(
@@ -317,6 +316,9 @@ def callback():
     # return (events_list.events_list_arranged[0]).make_json()
     # return events_list.make_json()
     # return redirect(url_for("index"))
+
+    # Jsonify will return a RESPONSE that is the JSON serialization of the array of events. It uses the serialize
+    # function in Event class. The whole array appears under the key 'events'
     return flask.jsonify(
         events=[event.serialize() for event in events_list.events_list_arranged]
     )
