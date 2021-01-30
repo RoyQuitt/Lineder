@@ -1,25 +1,18 @@
 from __future__ import print_function
-from typing import List
-# My custom classes
-# from classes.Users import Users
-# from classes.User import MyUser
-# from classes.Event import MyEvent
 
-
-
+import datetime
 # Python standard libraries
 import json
-import os
-import sqlite3
-import flask
+import os.path
 import random
-from flask_cors import CORS
+import sqlite3
+from datetime import datetime
 
 # Third-party libraries
-import base32hex
-from flask import Flask, redirect, request, url_for, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+# import base32hex
+import flask
+import requests
+from flask import Flask, redirect, request, url_for
 from flask_cors import CORS
 from flask_login import (
     LoginManager,
@@ -29,34 +22,20 @@ from flask_login import (
     logout_user,
 )
 from oauthlib.oauth2 import WebApplicationClient
-import requests
-
-# Internal imports
-from db import init_db_command
-from user import User
-from classes.Event import MyEvent as dbEvent
-from dbUser import MyUser as DbUser
-from freebusy_range import Freebusy as Range
-
-from googleapiclient.discovery import build
-import google_auth_oauthlib.helpers
-
-import datetime
-import pickle
-import os.path
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-
-import base64
-
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
 
 # from quickstart import main as flow_main
 import quickstart
-from datetime import datetime, timezone
+from classes.Event import MyEvent as dbEvent
+# Internal imports
+from db import init_db_command
+from dbUser import MyUser as DbUser
+from freebusy_range import Freebusy as Range
+from user import User
+
+# My custom classes
+# from classes.Users import Users
+# from classes.User import MyUser
+# from classes.Event import MyEvent
 
 
 # class MyEvent:
@@ -136,13 +115,10 @@ app.config['supports_credentials'] = True
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 
-import models
-
 # User session management setup
 # https://flask-login.readthedocs.io/en/latest
 login_manager = LoginManager()
 login_manager.init_app(app)
-from db import get_db
 # Naive database setup
 try:
     init_db_command()
