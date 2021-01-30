@@ -68,7 +68,7 @@ def after_url():  # creds, token
     global token
     global creds
     global results_from_thread
-    print(str(datetime.now()) + " creds before while: " + creds)
+    print(str(datetime.now()) + " creds before while: ", creds)
     # print(auth_url)
     creds = results_from_thread[0]
     auth_url = results_from_thread[1]

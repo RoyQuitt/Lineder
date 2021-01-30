@@ -22,7 +22,7 @@ class MyUser(UserMixin):
         self.id = new_id
 
     @staticmethod
-    def get_user_ranges(user_address):
+    def get_user_ranges(user_address) -> list[tuple[datetime, datetime]]:
         print("User address in get ranges:", user_address)
         user_id = MyUser.get_id_by_email(user_address)
         db = get_db()
@@ -38,7 +38,7 @@ class MyUser(UserMixin):
         return final_ranges
 
     @staticmethod
-    def is_available(user_address, time=(datetime.datetime.utcnow())):
+    def is_available(user_address, time=(datetime.datetime.utcnow())) -> bool:
         # now = datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time (1985-04-12T23:20:50.52Z)
         user_ranges = MyUser.get_user_ranges(user_address)
         is_available = True
@@ -48,15 +48,15 @@ class MyUser(UserMixin):
         return is_available
 
     @staticmethod
-    def next_available(user_address):
+    def next_available(user_address) -> datetime:
         if MyUser.is_available(user_address):
             return datetime.utcnow().isoformat()  # (now)
-        ranges = MyUser.get_user_ranges(user_address)
-        ranges_end = [range[2] for range in ranges]
+        ranges: list[tuple[datetime, datetime]] = MyUser.get_user_ranges(user_address)
+        ranges_end: list[datetime] = [range[2] for range in ranges]
         ranges_end.sort()
         # check if first end time in 'ranges_end' is not inside another range
-        overlapping = MyUser.is_available(user_address, time=ranges_end[0])
-        next_available = ranges_end[0]
+        overlapping: bool = not MyUser.is_available(user_address, time=ranges_end[0])
+        next_available: datetime = ranges_end[0]
         i = 1
         while overlapping and i < len(ranges_end):
             overlapping = MyUser.is_available(user_address, time=ranges_end[i])

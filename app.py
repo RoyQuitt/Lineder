@@ -34,6 +34,7 @@ from freebusy_range import Freebusy as Range
 from user import User
 
 my_logger = Lineder_logging.get_logger("App")
+my_logger.debug("\n--------------------------- NEW ---------------------------\n")
 my_logger.debug("Starting Logging")
 
 # My custom classes
@@ -380,6 +381,7 @@ def add_new_event():
 
 @app.route("/login/new_callback")
 def ranges_callback():
+    my_logger.debug("ranges callback")
     freebusy, user_address = quickstart.after_url()
     cUser = DbUser(user_address)  # current user
     print("cUser after constructor:")
@@ -395,6 +397,7 @@ def ranges_callback():
     for range in freebusy:
         Range.create_range(current_user.id, range['start'], range['end'])
     res = flask.jsonify(freebusy=freebusy)
+    my_logger.debug("callback response: " + res.get_data(as_text=True))
     return res
 
 
@@ -528,12 +531,11 @@ def new_range():
 def get_user_schedule():
     params = flask.request.args
     user_address = params.get('user_address')
-    print("User address in new:", user_address)
-    user_ranges = DbUser.get_user_ranges(user_address)
-    print("type of start:", type(user_ranges[1]))
-    # final_ranges = (user_ranges[1], user_ranges[2])
-    is_available = DbUser.is_available(user_address)
-    next_available = DbUser.next_available(user_address)
+    my_logger.debug("User address in get user schedule:", user_address)
+    user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges(user_address)
+    my_logger.debug("type of start:", type(user_ranges[1]))
+    is_available: bool = DbUser.is_available(user_address)
+    next_available: datetime = DbUser.next_available(user_address)
     res = flask.jsonify(
         ranges=user_ranges,
         is_available=is_available,
