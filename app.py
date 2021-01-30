@@ -7,8 +7,7 @@ import os.path
 import random
 import sqlite3
 from datetime import datetime
-import logging
-from logging.handlers import TimedRotatingFileHandler
+import Lineder_logging
 
 # Third-party libraries
 # import base32hex
@@ -34,9 +33,8 @@ from dbUser import MyUser as DbUser
 from freebusy_range import Freebusy as Range
 from user import User
 
-# Logging handler creation
-FORMATTER = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
-LOG_FILE = "Lineder.log"
+my_logger = Lineder_logging.get_logger("App")
+my_logger.debug("Starting Logging")
 
 # My custom classes
 # from classes.Users import Users
