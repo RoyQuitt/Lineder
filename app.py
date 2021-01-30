@@ -311,6 +311,7 @@ def login():
 
 @app.after_request
 def after_request(response):
+    print("after request")
     response.headers.add('Access-Control-Allow-Origin', 'http://localhost:4200')
     # response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,Access-Control-Allow-Origin')
     response.headers.add('Access-Control-Allow-Headers', '*')
@@ -543,9 +544,9 @@ return value is JSON
     """
     params = flask.request.args
     user_address = params.get('user_address')
-    my_logger.debug("User address in get user schedule:", user_address)
+    print("User address in get user schedule: " + user_address)
     user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges(user_address)
-    my_logger.debug("type of start:", type(user_ranges[1]))
+    # print("type of start:", type(user_ranges[]))
     is_available: bool = DbUser.is_available(user_address)
     next_available: datetime = DbUser.next_available(user_address)
     res = flask.jsonify(
@@ -553,6 +554,8 @@ return value is JSON
         is_available=is_available,
         next_available=next_available
     )
+    # Range.clean_db()
+    Range.print_table()
     return res
 
 
