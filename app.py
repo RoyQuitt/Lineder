@@ -107,9 +107,9 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 GOOGLE_CLIENT_ID = os.environ.get ("GOOGLE_CLIENT_ID", None)
 GOOGLE_CLIENT_SECRET = os.environ.get ("GOOGLE_CLIENT_SECRET", None)
 GOOGLE_DISCOVERY_URL = (
-    "https://accounts.google"
-    ".com/.well-known/openid-configuration"
+    "https://accounts.google.com/.well-known/openid-configuration"
 )
+
 
 # In memory DB initialization
 # users = Users([])
@@ -407,9 +407,9 @@ def ranges_callback ():
     return res
 
 
-# @app.route("/login/new_callback")
-def new_callback ():
-    print ("NEW CALLBACK")
+@app.route("/login/og_callback")
+def og_callback():
+    print("OG CALLBACK")
     # Get authorization code Google sent back to you
     code = request.args.get ("code")
     print ("code:", code)
@@ -524,11 +524,11 @@ def new_range ():
     return res
 
 
-# def randomize_new_event_id ():
+# def randomize_new_event_id():
 #     # generate a random string in base32hex similar to the google unique event ID
-#     s = base32hex.b32encode (random.randint (HEX32_MAX))
-#     while dbEvent.get_event (s):
-#         s = base32hex.b32encode (random.randint (HEX32_MAX))
+#     s = base32hex.b32encode(random.randint(HEX32_MAX))
+#     while dbEvent.get_event(s):
+#         s = base32hex.b32encode(random.randint(HEX32_MAX))
 #     return s
 
 
