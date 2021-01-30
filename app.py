@@ -134,7 +134,7 @@ try:
     # db.execute("DROP TABLE myUser")
     # db.execute("DROP TABLE events")
     # db.execute("DROP TABLE freebusy")
-    print("dropped all")
+    # print("dropped all")
 except sqlite3.OperationalError:
     # Assume it's already been created
     pass
@@ -497,8 +497,8 @@ def og_callback():
     # final_events = events_list.events_list_arranged
 
 
-@app.route("/new_event")
-@login_required
+# @app.route("/new_event")
+# # @login_required
 # def new_event():
 #     new_event_id = randomize_new_event_id()
 #     params = flask.request.args
@@ -517,7 +517,6 @@ def og_callback():
 @app.route("/new_range")
 @login_required
 def new_range():
-    '''Creates a new range based on start and end parameters'''
     params = flask.request.args
     start = params.get('start')
     end = params.get('end')
