@@ -1,19 +1,17 @@
 from __future__ import print_function
-from time_zone import IST
+
 import datetime
-import pickle
-import os.path
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
 import json
+import os.path
+import pickle
 import threading
 import time
+from datetime import datetime
 from datetime import timedelta
-from datetime import datetime, timezone
-from collections import defaultdict
 
-
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/userinfo.profile',
@@ -22,7 +20,6 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.goog
 token = None
 creds = None
 results_from_thread = [None] * 2  # index 0 = creds, index 1 = url
-
 
 def until_url():
     global token
