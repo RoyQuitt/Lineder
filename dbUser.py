@@ -1,7 +1,9 @@
 from flask_login import UserMixin
-from datetime import datetime, timezone
+# from datetime import datetime, timezone
 import datetime
+from datetime import timezone, timedelta
 from db import get_db
+import dateutil.parser
 
 """
 The User class has methods to get an existing user from the database and create a new user:
@@ -22,35 +24,48 @@ class MyUser(UserMixin):
         self.id = new_id
 
     @staticmethod
-    def get_user_ranges(user_address) -> list[tuple[datetime, datetime]]:
+    def get_user_ranges(user_address) -> list[tuple[datetime.datetime, datetime.datetime]]:
         print("User address in get ranges:", user_address)
         user_id = MyUser.get_id_by_email(user_address)
         db = get_db()
         ranges = db.execute(
             "SELECT * FROM freebusy WHERE owner_id = ?", (user_id,)
         ).fetchall()
-        final_ranges = []
-        for range in ranges:
-            # temp_range = (datetime.datetime.strptime(range[1], '%Y-%m-%d %H:%M:%S.%f'),
-            #               datetime.datetime.strptime(range[2], '%Y-%m-%d %H:%M:%S.%f'))
-            temp_range = (range[1], range[2])
+        final_ranges: list[tuple[datetime.datetime, datetime.datetime]] = []
+        for c_range in ranges:
+            # start: datetime.datetime = datetime.datetime.strptime(c_range[1], "%Y-%m-%dT%H:%M:%S.ssZ")
+            # end: datetime.datetime = datetime.datetime.fromisoformat(c_range[2])
+            start = dateutil.parser.parse(c_range[1])
+            end = dateutil.parser.parse(c_range[2])
+            temp_range = (start, end)
             final_ranges.append(temp_range)
         return final_ranges
 
     @staticmethod
-    def is_available(user_address, time=(datetime.datetime.utcnow())) -> bool:
+    def is_available(user_address, time=(datetime.datetime.now(tz=timezone(timedelta(hours=2), 'IST')))) -> bool:
+        # time_object = datetime.datetime.fromisoformat(time)
         # now = datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time (1985-04-12T23:20:50.52Z)
-        user_ranges = MyUser.get_user_ranges(user_address)
+        user_ranges: list[tuple] = MyUser.get_user_ranges(user_address)
         is_available = True
-        for range in user_ranges:
-            if range[1] < time < range[2]:  # 1 = start, 2 = end
+        for c_range in user_ranges:
+            # current_range: tuple[datetime, datetime] = range
+            c_start = c_range[0]  #.isoformat()
+            c_end = c_range[1]  #.isoformat()
+            # c_start = datetime.datetime.fromisoformat(c_range[0])
+            # c_end = datetime.datetime.fromisoformat(c_range[1])
+            # if c_start < c_end:
+            #     print("start is smaller than end")
+            # print(type(c_range[0]), type(c_range[1]))
+            # print(type(c_start), type(time), type(c_end))
+            # print(c_start, time, c_end)
+            if c_start < time < c_end:  # 0 = start, 1 = end
                 is_available = False
         return is_available
 
     @staticmethod
     def next_available(user_address) -> datetime:
         if MyUser.is_available(user_address):
-            return datetime.utcnow().isoformat()  # (now)
+            return datetime.datetime.utcnow().isoformat()  # (now)
         ranges: list[tuple[datetime, datetime]] = MyUser.get_user_ranges(user_address)
         ranges_end: list[datetime] = [range[2] for range in ranges]
         ranges_end.sort()
@@ -67,11 +82,11 @@ class MyUser(UserMixin):
     @staticmethod
     def get_id_by_email(email):
         db = get_db()
-        print("User address in get id:", email)
+        # print("User address in get id:", email)
         gotUser = db.execute(
             "SELECT * FROM myUser WHERE email = ?", (email,)
         ).fetchone()
-        print(gotUser, type(gotUser))
+        # print(gotUser, type(gotUser))
         if gotUser is None:
             return None  # not in DB
         user_id = gotUser[0]

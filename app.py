@@ -311,6 +311,7 @@ def login():
 
 @app.after_request
 def after_request(response):
+    print("after request")
     response.headers.add('Access-Control-Allow-Origin', 'http://localhost:4200')
     # response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,Access-Control-Allow-Origin')
     response.headers.add('Access-Control-Allow-Headers', '*')
@@ -554,6 +555,8 @@ return value is JSON
         is_available=is_available,
         next_available=next_available
     )
+    # Range.clean_db()
+    Range.print_table()
     return res
 
 
