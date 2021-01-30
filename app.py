@@ -334,7 +334,7 @@ def callback ():
     Callback is being called by Google API when the user is authenticated. Once the user is authenticated,
     it arranges the events and created the JSON response with the list of events
     """
-    global users
+    # global users
     print ("CALLBACK")
     after_url_events, user_address = quickstart.after_url ()  # get user events + email address
     events_list = EventsList (after_url_events)  # creds, token
@@ -368,7 +368,7 @@ def show_cookie ():
 # http://127.0.0.1:5000/new_event?title=text&start=1000&end=1100
 # @app.route("/new_event")  # , methods=['POST']
 def add_new_event ():
-    global users
+    # global users
     username = flask.request.cookies.get ('user_address')
     if not username:
         print ("Username Not Found")
@@ -440,11 +440,9 @@ def new_callback ():
     userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
     uri, headers, body = client.add_token (userinfo_endpoint)
     userinfo_response = requests.get (uri, headers=headers, data=body)
-    """
-    You want to make sure their email is verified.
-    The user authenticated with Google, authorized your
-    app, and now you've verified their email through Google!
-    """
+    # You want to make sure their email is verified.
+    # The user authenticated with Google, authorized your
+    # app, and now you've verified their email through Google!
     if userinfo_response.json ().get ("email_verified"):
         unique_id = userinfo_response.json ()["sub"]
         users_email = userinfo_response.json ()["email"]
@@ -464,16 +462,16 @@ def new_callback ():
     # Begin user session by logging the user in
     login_user (user)
 
-    """ Get the user's calendar events (same as the userinfo but with a different endpoint) """
+    # Get the user's calendar events (same as the userinfo but with a different endpoint)
     # Get user events + gmail address
     after_url_events, user_address = quickstart.after_url ()
     with open ("sample.txt", "w", encoding="utf-8") as text_file:
         text_file.write (str (after_url_events))
-    cUser = DbUser (user_address)  # current user
-    if not cUser.get ():
-        cUser.create ()
+    c_user = DbUser (user_address)  # current user
+    if not c_user.get ():
+        c_user.create ()
     # Begin user session by logging the user in
-    login_user (cUser)
+    login_user (c_user)
     events = EventsList (after_url_events)
     events.arrange_events (user_address)
     final_events = events.events_list_arranged
