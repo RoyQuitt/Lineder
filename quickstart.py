@@ -46,6 +46,7 @@ def until_url():
             flow = InstalledAppFlow.from_client_secrets_file(
                 'credentials_flow.json', SCOPES)
             auth_url, local_server, wsgi_app = flow.run_local_server_1(port=0)
+            # auth_url.replace("localhost", "10.50.1.149")
             print("MSG:", auth_url)
             new_thread = threading.Thread(target=flow.run_local_server_2, args=(auth_url, local_server, wsgi_app, results_from_thread))  # , port=0
             new_thread.start()
@@ -70,7 +71,7 @@ def after_url():  # creds, token
     global token
     global creds
     global results_from_thread
-    print("creds before while:", creds)
+    print(str(datetime.now()) + " creds before while: " + creds)
     # print(auth_url)
     creds = results_from_thread[0]
     auth_url = results_from_thread[1]
@@ -79,7 +80,7 @@ def after_url():  # creds, token
         auth_url = results_from_thread[1]
         time.sleep(0.01)  # delay in order to not overload CPU
     # print("out of while")
-    print("creds after while:", creds)
+    print(datetime.now(), "creds after while:", creds)
     # print(auth_url)
     # build service for google calendar API
     print(datetime.now(), "building calendar")
