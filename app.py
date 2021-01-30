@@ -23,6 +23,7 @@ from flask_login import (
     logout_user,
 )
 from oauthlib.oauth2 import WebApplicationClient
+import Lineder_logging
 
 # from quickstart import main as flow_main
 import quickstart
@@ -79,7 +80,8 @@ my_logger.debug("Starting Logging")
 #         return None
 #
 #     def insert_new_user(self, new_user: MyUser):
-#         # if not self.user_list:  # check if first item in the list is '[]', if so, insert the user into that spot
+#         # if not self.user_list:  # check if first item in the list is '[]'
+#         # if so, insert the user into that spot
 #         #     self.user_list[0] = new_user
 #         if new_user not in self.user_list:
 #             self.user_list.append(new_user)
@@ -100,9 +102,12 @@ HEX32_MAX = 111111111
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 # Google API Credentials
-# The client ID created for the app in the Google Developers Console with the google-signin-client_id meta element
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
+# The client ID created for the app in the Google Developers Console
+# with the google-signin-client_id meta element
+# GOOGLE_CLIENT_ID = "701150580333-9lqf3ot4ptha6k80j942km8l5pq5hd2s.apps.googleusercontent.com"
+# GOOGLE_CLIENT_SECRET = "CnWxlsvrnLi9Wbmdk2Txb6ES"
+GOOGLE_CLIENT_ID = os.environ.get ("GOOGLE_CLIENT_ID", None)
+GOOGLE_CLIENT_SECRET = os.environ.get ("GOOGLE_CLIENT_SECRET", None)
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
@@ -159,7 +164,8 @@ class Event:
 
     def serialize(self):
         """
-This is where the JSON magic happens. This is the dictionary that specifies how to serialized the class.
+This is where the JSON magic happens.
+This is the dictionary that specifies how to serialized the class.
         :return:
         """
         return {
@@ -313,6 +319,7 @@ def after_request(response):
     return response
     # return response
 
+
 # @app.after_request
 # def after_request(response):
 #     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -357,11 +364,12 @@ def show_cookie():
     print(username)
     return res
 
+
 # http://127.0.0.1:5000/new_event?title=text&start=1000&end=1100
 # @app.route("/new_event")  # , methods=['POST']
-def add_new_event():
-    global users
-    username = flask.request.cookies.get('user_address')
+def add_new_event ():
+    # global users
+    username = flask.request.cookies.get ('user_address')
     if not username:
         print("Username Not Found")
         return flask.jsonify(success=False)
@@ -432,18 +440,16 @@ def og_callback():
     # from Google that gives you the user's profile information,
     # including their Google profile image and email
     userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-    uri, headers, body = client.add_token(userinfo_endpoint)
-    userinfo_response = requests.get(uri, headers=headers, data=body)
-    """
-    You want to make sure their email is verified.
-    The user authenticated with Google, authorized your
-    app, and now you've verified their email through Google!
-    """
-    if userinfo_response.json().get("email_verified"):
-        unique_id = userinfo_response.json()["sub"]
-        users_email = userinfo_response.json()["email"]
-        picture = userinfo_response.json()["picture"]
-        users_name = userinfo_response.json()["given_name"]
+    uri, headers, body = client.add_token (userinfo_endpoint)
+    userinfo_response = requests.get (uri, headers=headers, data=body)
+    # You want to make sure their email is verified.
+    # The user authenticated with Google, authorized your
+    # app, and now you've verified their email through Google!
+    if userinfo_response.json ().get ("email_verified"):
+        unique_id = userinfo_response.json ()["sub"]
+        users_email = userinfo_response.json ()["email"]
+        picture = userinfo_response.json ()["picture"]
+        users_name = userinfo_response.json ()["given_name"]
     else:
         return "User email not available or not verified by Google.", 400
 
@@ -460,16 +466,16 @@ def og_callback():
 
     """ Get the user's calendar events (same as the userinfo but with a different endpoint) """
     # Get user events + gmail address
-    after_url_events, user_address = quickstart.after_url()
-    with open("sample.txt", "w", encoding="utf-8") as text_file:
-        text_file.write(str(after_url_events))
-    cUser = DbUser(user_address)  # current user
-    if not cUser.get():
-        cUser.create()
+    after_url_events, user_address = quickstart.after_url ()
+    with open ("sample.txt", "w", encoding="utf-8") as text_file:
+        text_file.write (str (after_url_events))
+    c_user = DbUser (user_address)  # current user
+    if not c_user.get ():
+        c_user.create ()
     # Begin user session by logging the user in
-    login_user(cUser)
-    events = EventsList(after_url_events)
-    events.arrange_events(user_address)
+    login_user (c_user)
+    events = EventsList (after_url_events)
+    events.arrange_events (user_address)
     final_events = events.events_list_arranged
     print("FINAL EVENTS in new:\n", final_events)
     """ Insert new events to db """
@@ -504,6 +510,7 @@ def new_event():
     res = flask.jsonify(success=success)
     return res
 
+
 # /new_range?start=1985-04-12T23:20:50.52Z&end=1985-05-12T23:20:50.52Z
 # from 12.04.1985, 23:20:50.52 until 12.05.1985, 23:20:50.52
 @app.route("/new_range")
@@ -527,8 +534,13 @@ def new_range():
 #     return s
 
 
-@app.route("/get_user_schedule")
-def get_user_schedule():
+@app.route ("/get_user_schedule")
+def get_user_schedule ():
+    """
+Retrieve the availability of the user
+return value is JSON
+    @rtype: object
+    """
     params = flask.request.args
     user_address = params.get('user_address')
     my_logger.debug("User address in get user schedule:", user_address)
