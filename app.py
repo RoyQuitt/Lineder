@@ -498,17 +498,17 @@ def og_callback():
 
 @app.route("/new_event")
 @login_required
-def new_event():
-    new_event_id = randomize_new_event_id()
-    params = flask.request.args
-    new_event = dbEvent(new_event_id, current_user.id, params.get('title'),
-                        params.get('start'), params.get('end'))
-    if not dbEvent.get_event(new_event.event_id):
-        dbEvent.create(new_event.event_id, current_user.id, new_event.title,
-                       new_event.start, new_event.end)
-    success = dbEvent.get_event(new_event.event_id)
-    res = flask.jsonify(success=success)
-    return res
+# def new_event():
+#     new_event_id = randomize_new_event_id()
+#     params = flask.request.args
+#     new_event = dbEvent(new_event_id, current_user.id, params.get('title'),
+#                         params.get('start'), params.get('end'))
+#     if not dbEvent.get_event(new_event.event_id):
+#         dbEvent.create(new_event.event_id, current_user.id, new_event.title,
+#                        new_event.start, new_event.end)
+#     success = dbEvent.get_event(new_event.event_id)
+#     res = flask.jsonify(success=success)
+#     return res
 
 
 # /new_range?start=1985-04-12T23:20:50.52Z&end=1985-05-12T23:20:50.52Z
@@ -516,6 +516,7 @@ def new_event():
 @app.route("/new_range")
 @login_required
 def new_range():
+    '''Creates a new range based on start and end parameters'''
     params = flask.request.args
     start = params.get('start')
     end = params.get('end')
@@ -543,9 +544,9 @@ return value is JSON
     """
     params = flask.request.args
     user_address = params.get('user_address')
-    my_logger.debug("User address in get user schedule:", user_address)
+    my_logger.debug("User address in get user schedule:" + user_address)
     user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges(user_address)
-    my_logger.debug("type of start:", type(user_ranges[1]))
+    my_logger.debug("type of start:" + type(user_ranges[1]))
     is_available: bool = DbUser.is_available(user_address)
     next_available: datetime = DbUser.next_available(user_address)
     res = flask.jsonify(
