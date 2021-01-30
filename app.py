@@ -476,7 +476,7 @@ def new_callback ():
     events.arrange_events (user_address)
     final_events = events.events_list_arranged
     print ("FINAL EVENTS in new:\n", final_events)
-    """ Insert new events to db """
+    # Insert new events to db
     for event in final_events:
         if not dbEvent.get_event (event.event_id):
             dbEvent.create (event.event_id, current_user.id, event.title, event.start, event.end)
