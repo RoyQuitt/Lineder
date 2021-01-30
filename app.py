@@ -493,22 +493,6 @@ def new_callback ():
     # # print(len(events_list.events_list_arranged))
     # final_events = events_list.events_list_arranged
 
-
-@app.route ("/new_event")
-@login_required
-def new_event ():
-    new_event_id = randomize_new_event_id ()
-    params = flask.request.args
-    new_event = dbEvent (new_event_id, current_user.id, params.get ('title'),
-                         params.get ('start'), params.get ('end'))
-    if not dbEvent.get_event (new_event.event_id):
-        dbEvent.create (new_event.event_id, current_user.id, new_event.title,
-                        new_event.start, new_event.end)
-    success = dbEvent.get_event (new_event.event_id)
-    res = flask.jsonify (success=success)
-    return res
-
-
 # /new_range?start=1985-04-12T23:20:50.52Z&end=1985-05-12T23:20:50.52Z
 # from 12.04.1985, 23:20:50.52 until 12.05.1985, 23:20:50.52
 @app.route ("/new_range")
