@@ -132,14 +132,14 @@ try:
     # db.execute("DROP TABLE myUser")
     # db.execute("DROP TABLE events")
     # db.execute("DROP TABLE freebusy")
-    print ("dropped all")
+    my_logger.debug ("dropped all")
 except sqlite3.OperationalError:
     # Assume it's already been created
     pass
 
 # OAuth 2 client setup
-print (GOOGLE_CLIENT_ID)
-print (GOOGLE_CLIENT_SECRET)
+my_logger.debug (GOOGLE_CLIENT_ID)
+my_logger.debug (GOOGLE_CLIENT_SECRET)
 client = WebApplicationClient (GOOGLE_CLIENT_ID)
 
 
@@ -195,7 +195,7 @@ class EventsList:
 
     def arrange_events (self, owner_id):
         if not self.events_list:
-            print ('No upcoming events found.')
+            my_logger.debug ('No upcoming events found.')
 
         for i, event in enumerate (self.events_list):
             event_id = event['id']
@@ -203,11 +203,11 @@ class EventsList:
             end = event['end'].get ('dateTime', event['start'].get ('date'))
             title = event['summary']
             new_evnt = dbEvent (event_id, owner_id, title, start, end)
-            print ("\nevent number:", i)
-            print (new_evnt)
+            my_logger.debug ("\nevent number:", i)
+            my_logger.debug (new_evnt)
             self.events_list_arranged.append (new_evnt)
             # print(start, " - ", end, " | ", event['summary'])
-        print ("\n\nevents list arranged in arrange_events:\n" + self.__repr__ ())
+        my_logger.debug ("\n\nevents list arranged in arrange_events:\n" + self.__repr__ ())
 
 
 # Flask-Login helper to retrieve a user from our db
