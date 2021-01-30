@@ -2,6 +2,10 @@ from flask_login import UserMixin
 
 from db import get_db
 
+"""
+The User class has methods to get an existing user from the database and create a new user:
+"""
+
 
 class User(UserMixin):
     def __init__(self, id_, name, email, profile_pic):
@@ -33,3 +37,10 @@ class User(UserMixin):
             (id_, name, email, profile_pic),
         )
         db.commit()
+
+
+"""
+The code executes SQL statements against the database, which is retrieved from the
+get_db() function from the previous db.py file. Each new user results in the insertion of
+an additional row in the database.
+"""

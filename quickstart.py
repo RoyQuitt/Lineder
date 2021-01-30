@@ -1,4 +1,5 @@
 from __future__ import print_function
+from time_zone import IST
 import datetime
 import pickle
 import os.path
@@ -8,13 +9,20 @@ from google.auth.transport.requests import Request
 import json
 import threading
 import time
+from datetime import timedelta
+from datetime import datetime, timezone
+from collections import defaultdict
+
+
 
 # If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+SCOPES = ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/userinfo.profile',
+          'https://www.googleapis.com/auth/gmail.readonly']
   
 token = None
 creds = None
 results_from_thread = [None] * 2  # index 0 = creds, index 1 = url
+
 
 def until_url():
     global token
@@ -70,37 +78,117 @@ def after_url():  # creds, token
         creds = results_from_thread[0]
         auth_url = results_from_thread[1]
         time.sleep(0.01)  # delay in order to not overload CPU
-    print("out of while")
-    print("creds in after_url:", creds)
-    print(auth_url)
+    # print("out of while")
+    print("creds after while:", creds)
+    # print(auth_url)
+    # build service for google calendar API
+    print(datetime.now(), "building calendar")
     service = build('calendar', 'v3', credentials=creds)
-
+    # build service for gmail API in order to get user email address
+    print(datetime.now(), "building gmail")
+    # people_service = build('people', 'v1', credentials=creds)
+    service_gmail = build('gmail', 'v1', credentials=creds)
+    print(datetime.now(), "finished building")
     # Call the Calendar API
-    now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
-    print('Getting the upcoming 10 events')
-    events_result = service.events().list(calendarId='primary', timeMin=now,
-                                          maxResults=10, singleEvents=True,
-                                          orderBy='startTime').execute()
-    print(type(events_result))
-    events_result_json = json.dumps(events_result, indent=4)
-    print(type(events_result_json))
-    # print("JSON:\n", events_result_json)
-    # print("RES: ", events_result)
-    with open("sample.txt", "w", encoding="utf-8") as text_file:
-        text_file.write(events_result_json)
-    # print("HELLO: ", events_result.get('items', []))
-    events = events_result.get('items', [])
-    # for event in events:
-    #     print("\nNEW EVENT")
-    #     print(event)
-    return events
+    now = datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
+    time_max = datetime.utcnow() + timedelta(days=7)
+    time_max_text = time_max.isoformat() + 'Z' # 'Z' indicates UTC time
+    # all_calendars = get_all_calendars(service)
+    events_result = {}
+    # all_calendars_events_list = []
 
-    # if not events:
-    #     print('No upcoming events found.')
-    # for event in events:
-    #     start = event['start'].get('dateTime', event['start'].get('date'))
-    #     end = event['end'].get('dateTime', event['start'].get('date'))
-    #     print(start, " - ", end, " | ", event['summary'])
+
+    print("Getting This Week's Events From All Calendars")
+    # events_result = (service.events().list(calendarId='otfnarbn0008p8cnthk9976gtsgp1auc@import.calendar.google.com', timeMin=now,  # calendarId='primary' / otfnarbn0008p8cnthk9976gtsgp1auc@import.calendar.google.com
+    #                                        timeMax=time_max_text, singleEvents=True,
+    #                                        orderBy='startTime').execute())
+    #
+    # events_result_json = json.dumps(events_result, indent=4)
+    # # with open("sample.txt", "w", encoding="utf-8") as text_file:
+    # #     text_file.write(events_result_json)
+    # events = events_result.get('items', [])
+    # # events[]
+    # print("\nevents:", events)
+    user_address = call_gmail_api(service_gmail)
+    # # user_address, user_id, user_name = call_people_api(people_service)
+    # return events, user_address
+    calendars = [
+        {
+            "id": 'primary'
+        },
+        {
+            "id": 'otfnarbn0008p8cnthk9976gtsgp1auc'
+        }
+        ]
+    body = {
+        "timeMin": now,
+        "timeMax": time_max_text,
+        "items": calendars
+    }
+
+    freebusy_result = service.freebusy().query(body=body).execute()
+    print(freebusy_result)
+    freebusy = []
+    # calendars = freebusy_result['calendars']
+    calendars = freebusy_result[u'calendars']
+    for calendar in calendars:
+        print(calendar)
+        if (calendars[calendar])[u'busy']:
+            freebusy.extend((calendars[calendar])[u'busy'])
+        print(freebusy)
+    return freebusy, user_address
+
+
+def get_all_calendars(service):
+    page_token = None
+    while True:
+        calendar_list = service.calendarList().list(pageToken=page_token, minAccessRole="writer").execute()
+        for calendar_list_entry in calendar_list['items']:
+            print(calendar_list_entry['summary'])
+        page_token = calendar_list.get('nextPageToken')
+        if not page_token:
+            break
+    return calendar_list['items']
+
+
+def call_gmail_api(service_gmail):
+    # Call the Gmail API
+
+    # results = service_gmail.users().labels().list(userId='me').execute()
+    profile = service_gmail.users().getProfile(userId='me').execute()
+    address = profile['emailAddress']
+    # labels = results.get('labels', [])
+    print("EMAIL ADDRESS IS:", address)
+    return address
+
+    # if not labels:
+    #     print('No labels found.')
+    # else:
+    #     print('Labels:')
+    #     for label in labels:
+    #         print(label['name'])
+
+
+# def call_people_api(people_service):
+#     profile = people_service.people().get('people/me', personFields='names,emailAddresses')
+#     # profile = json.dumps(profile_result, indent=4)
+#     # profile = people_service.people().get('people/me') #, personFields='names,emailAddresses,resourceName'
+#     # p_id = profile['resourceName']
+#     print(profile.resourceName)
+#     print("PROFILE:")
+#     print(type(profile))
+#     print(profile)
+#
+#     p_id = profile.get('resourceName')
+#     # p_name = profile['names'][0]['givenName']
+#     p_name = (profile.get('names', [])[0]).get('givenName')
+#     # p_address = profile['emailAddresses'][0]
+#     p_address = (profile.get('emailAddresses', [])[0]).get('value')
+#     print("PROFILE:")
+#     print(p_id)
+#     print(p_name)
+#     print(p_address)
+#     return p_address, p_id, p_name
 
 
 def main():
@@ -167,5 +255,7 @@ def original_quickstart():
         start = event['start'].get('dateTime', event['start'].get('date'))
         print(start, event['summary'])
 
+
 if __name__ == '__main__':
     main()
+
