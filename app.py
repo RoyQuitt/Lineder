@@ -564,7 +564,7 @@ def logout ():
 
 if __name__ == "__main__":
     # app.run(host="10.50.1.146")
-    app.run (ssl_context="adhoc")
+    app.run (ssl_context="adhoc", host="10.50.1.149")
 
 # TODO:
 #   getting events using browser:
