@@ -29,10 +29,16 @@ import Lineder_logging
 import quickstart
 from classes.Event import MyEvent as dbEvent
 # Internal imports
+import OneSignalConfig
 from db import init_db_command
 from dbUser import MyUser as DbUser
 from freebusy_range import Freebusy as Range
 from user import User
+
+from onesignal import OneSignal
+
+one_signal_client = OneSignal(OneSignalConfig.onesignal_app_id, OneSignalConfig.onesignal_rest_api_key)
+
 
 my_logger = Lineder_logging.get_logger("App")
 my_logger.debug("\n--------------------------- NEW ---------------------------\n")
@@ -544,9 +550,9 @@ return value is JSON
     """
     params = flask.request.args
     user_address = params.get('user_address')
-    my_logger.debug("User address in get user schedule:" + user_address)
+    print("User address in get user schedule:" + user_address)
     user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges(user_address)
-    my_logger.debug("type of start:" + type(user_ranges[1]))
+    # print("type of start:", type(user_ranges[1]))
     is_available: bool = DbUser.is_available(user_address)
     next_available: datetime = DbUser.next_available(user_address)
     res = flask.jsonify(
