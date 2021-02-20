@@ -3,13 +3,13 @@ CREATE TABLE myUser (
     email TEXT UNIQUE
 );
 
-CREATE TABLE myEvent (
-  event_id TEXT PRIMARY KEY,
-  owner_id INTEGER NOT NULL,
-  title TEXT,
-  start_time timestamp NOT NULL,
-  end_time timestamp NOT NULL
-);
+--CREATE TABLE myEvent (
+--  event_id TEXT PRIMARY KEY,
+--  owner_id INTEGER NOT NULL,
+--  title TEXT,
+--  start_time timestamp NOT NULL,
+--  end_time timestamp NOT NULL
+--);
 
 CREATE TABLE freebusy (
     owner_id INTEGER NOT NULL,
