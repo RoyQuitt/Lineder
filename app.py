@@ -34,6 +34,7 @@ from db import init_db_command
 from dbUser import MyUser as DbUser
 from freebusy_range import Freebusy as Range
 from user import User
+from ques import Ques
 
 from onesignal import OneSignal
 
@@ -541,8 +542,8 @@ def new_range():
 #     return s
 
 
-@app.route ("/get_user_schedule")
-def get_user_schedule ():
+@app.route("/get_user_schedule")
+def get_user_schedule():
     """
 Retrieve the availability of the user
 return value is JSON
@@ -562,6 +563,47 @@ return value is JSON
     )
     # Range.clean_db()
     Range.print_table()
+    return res
+
+
+@app.route("/join_que")
+@login_required
+def join():
+    params = flask.request.args
+    callee_address = params.get('user_address')
+    waiter_address = current_user.email
+    # calle_id = DbUser.get_id_by_email(callee_address)
+    # waiter_id = DbUser.get_id_by_email(waiter_address)
+    place_in_line = Ques.create_que_item(callee_address, waiter_address)
+    success = place_in_line != 0
+    res = flask.jsonify(
+        success=success,
+        place_in_line=place_in_line
+    )
+    return res
+
+
+@app.route("/move_to_top")
+@login_required
+def move_to_top():
+    params = flask.request.args
+    callee_address = params.get('callee_address')
+    waiter_address = current_user.email
+    success = Ques.move_to_top(waiter_address, callee_address)
+    res = flask.jsonify(
+        success=success
+    )
+    return res
+
+
+@app.route("/get_update")
+@login_required
+def get_update():
+    user_address = current_user.email
+    notifications = Ques.get_notifications(user_address)
+    res = flask.jsonify(
+        notifications=notifications
+    )
     return res
 
 
