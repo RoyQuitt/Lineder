@@ -136,6 +136,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 # Naive database setup
 try:
+    print("creating DB")
     init_db_command()
     # db = get_db()
     # db.execute("DROP TABLE myUser")
@@ -144,6 +145,7 @@ try:
     # print("dropped all")
 except sqlite3.OperationalError:
     # Assume it's already been created
+    print("DB already created")
     pass
 
 # OAuth 2 client setup
