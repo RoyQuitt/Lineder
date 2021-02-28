@@ -41,6 +41,7 @@ class Freebusy(UserMixin):
         new_range = Freebusy(owner_id, start_time, end_time)
         print(type(new_range), type(ranges))
         time.sleep(API_DELAY)
+        # print(new_range in ranges)
         if ranges is None or new_range not in ranges:  # if the new range is not in the database
             db.execute(
                 "INSERT INTO freebusy (owner_id, start_time, end_time) VALUES (?, ?, ?)",
@@ -48,15 +49,21 @@ class Freebusy(UserMixin):
             )
             db.commit()
             cur = db.cursor()  # cursor to find last rowid
-            last_id = cur.lastrowid
+            print(cur.lastrowid)
+            last_rowid = cur.lastrowid
             # start_time.strftime("%m/%d/%Y, %H:%M:%S")
             # end_time.strftime("%m/%d/%Y, %H:%M:%S")
             print("\nADDED NEW RANGE!")
             print(str(owner_id) + ", " + str(start_time) + ", " + str(end_time))
-            if not Freebusy.get_range(last_id):  # check if range was created successfully
-                return False
+            # print(last_rowid)
+            # print(Freebusy.get_range(last_rowid))
+            # if not Freebusy.get_range(last_rowid):  # check if range was created successfully
+            #     print("returning 'False'")
+            #     return False
+            print("returning 'True'")
             return True
         else:  # range already in database
+            print("returning 'True'")
             return True
 
     @staticmethod

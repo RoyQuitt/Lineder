@@ -10,14 +10,14 @@ from datetime import datetime
 from datetime import timedelta
 
 from google.auth.transport.requests import Request
-# from google_auth_oauthlib.flow import InstalledAppFlow
+from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from Override_Files.flow import InstalledAppFlow
+# from Override_Files.flow import InstalledAppFlow
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/userinfo.profile',
-          'https://www.googleapis.com/auth/gmail.readonly']
-  
+          'https://www.googleapis.com/auth/user.emails.read', 'https://www.googleapis.com/auth/user.phonenumbers.read']
+#   'https://www.googleapis.com/auth/gmail.readonly',
 token = None
 creds = None
 results_from_thread = [None] * 2  # index 0 = creds, index 1 = url
@@ -47,7 +47,7 @@ def until_url():
                 "credentials_flow.json", SCOPES)
             auth_url, local_server, wsgi_app = flow.run_local_server_1(port=0)
             # auth_url.replace("localhost", "10.50.1.149")
-            print("MSG:", auth_url)
+            print("URL:", auth_url)
             new_thread = threading.Thread(target=flow.run_local_server_2, args=(auth_url, local_server, wsgi_app, results_from_thread))  # , port=0
             new_thread.start()
             # creds, auth_response = flow.run_local_server_2(auth_url, local_server, wsgi_app, port=0)
@@ -71,7 +71,7 @@ def after_url():  # creds, token
     global token
     global creds
     global results_from_thread
-    print(str(datetime.now()) + " creds before while: ", creds)
+    # print(str(datetime.now()) + " creds before while: ", creds)
     # print(auth_url)
     creds = results_from_thread[0]
     auth_url = results_from_thread[1]
@@ -86,9 +86,11 @@ def after_url():  # creds, token
     print(datetime.now(), "building calendar")
     service = build('calendar', 'v3', credentials=creds)
     # build service for gmail API in order to get user email address
-    print(datetime.now(), "building gmail")
-    # people_service = build('people', 'v1', credentials=creds)
-    service_gmail = build('gmail', 'v1', credentials=creds)
+    # print(datetime.now(), "building gmail")
+    # service_gmail = build('gmail', 'v1', credentials=creds)
+    # build service for people API in order to get user phone number and email address
+    print(datetime.now(), "building people")
+    people_service = build('people', 'v1', credentials=creds)
     print(datetime.now(), "finished building")
     # Call the Calendar API
     now = datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
@@ -99,19 +101,10 @@ def after_url():  # creds, token
     # all_calendars_events_list = []
 
 
-    print("Getting This Week's Events From All Calendars")
-    # events_result = (service.events().list(calendarId='otfnarbn0008p8cnthk9976gtsgp1auc@import.calendar.google.com', timeMin=now,  # calendarId='primary' / otfnarbn0008p8cnthk9976gtsgp1auc@import.calendar.google.com
-    #                                        timeMax=time_max_text, singleEvents=True,
-    #                                        orderBy='startTime').execute())
-    #
-    # events_result_json = json.dumps(events_result, indent=4)
-    # # with open("sample.txt", "w", encoding="utf-8") as text_file:
-    # #     text_file.write(events_result_json)
-    # events = events_result.get('items', [])
-    # # events[]
-    # print("\nevents:", events)
-    user_address = call_gmail_api(service_gmail)
-    # # user_address, user_id, user_name = call_people_api(people_service)
+
+    # user_address = call_gmail_api(service_gmail)
+    print("getting user's name, email and phone")
+    user_name, user_address, user_phone = call_people_api(people_service)
     # return events, user_address
     calendars = [
         {
@@ -126,18 +119,18 @@ def after_url():  # creds, token
         "timeMax": time_max_text,
         "items": calendars
     }
-
+    print("Getting This Week's Events From All Calendars")
     freebusy_result = service.freebusy().query(body=body).execute()
-    print(freebusy_result)
+    # print(freebusy_result)
     freebusy = []
     # calendars = freebusy_result['calendars']
     calendars = freebusy_result[u'calendars']
     for calendar in calendars:
-        print(calendar)
+        # print(calendar)
         if (calendars[calendar])[u'busy']:
             freebusy.extend((calendars[calendar])[u'busy'])
-        print(freebusy)
-    return freebusy, user_address
+        # print(freebusy)
+    return freebusy, user_address, user_name, user_phone
 
 
 def get_all_calendars(service):
@@ -159,7 +152,7 @@ def call_gmail_api(service_gmail):
     profile = service_gmail.users().getProfile(userId='me').execute()
     address = profile['emailAddress']
     # labels = results.get('labels', [])
-    print("EMAIL ADDRESS IS:", address)
+    # print("EMAIL ADDRESS IS:", address)
     return address
 
     # if not labels:
@@ -170,26 +163,26 @@ def call_gmail_api(service_gmail):
     #         print(label['name'])
 
 
-# def call_people_api(people_service):
-#     profile = people_service.people().get('people/me', personFields='names,emailAddresses')
-#     # profile = json.dumps(profile_result, indent=4)
-#     # profile = people_service.people().get('people/me') #, personFields='names,emailAddresses,resourceName'
-#     # p_id = profile['resourceName']
-#     print(profile.resourceName)
-#     print("PROFILE:")
-#     print(type(profile))
-#     print(profile)
-#
-#     p_id = profile.get('resourceName')
-#     # p_name = profile['names'][0]['givenName']
-#     p_name = (profile.get('names', [])[0]).get('givenName')
-#     # p_address = profile['emailAddresses'][0]
-#     p_address = (profile.get('emailAddresses', [])[0]).get('value')
-#     print("PROFILE:")
-#     print(p_id)
-#     print(p_name)
-#     print(p_address)
-#     return p_address, p_id, p_name
+def call_people_api(people_service):
+    result = people_service.people().get(
+        resourceName='people/me',
+        personFields='names,emailAddresses,phoneNumbers').execute(),
+
+    print("result:\n", result)
+    name = result[0]['names'][0]['displayName']
+    print("name:", name)
+    email_address = result[0]['emailAddresses'][0]['value']
+    print("email_address:", email_address)
+    try:
+        phone_number = result[0]['phoneNumbers'][0]['value']
+        print("phone_number:", phone_number)
+    except KeyError:
+        print("user has no phone setup")
+        phone_number = ""
+        pass
+    # print("\nRESULTS:")
+
+    return name, email_address, phone_number
 
 
 def main():

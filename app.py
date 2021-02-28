@@ -149,8 +149,8 @@ except sqlite3.OperationalError:
     pass
 
 # OAuth 2 client setup
-print(GOOGLE_CLIENT_ID)
-print(GOOGLE_CLIENT_SECRET)
+# print(GOOGLE_CLIENT_ID)
+# print(GOOGLE_CLIENT_SECRET)
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 
@@ -224,8 +224,8 @@ class EventsList:
 # Flask-Login helper to retrieve a user from our db
 @login_manager.user_loader
 def load_user(user_id):  # actually gets email instead of id
-    user_address = user_id
-    user_id = DbUser.get_id_by_email(user_address)
+    # user_id = DbUser.get_id_by_email(user_address)
+    print("\nLOAD USER", DbUser.get(user_id))
     return DbUser.get(user_id)
 
 
@@ -239,19 +239,20 @@ def json_test():
 
 @app.route("/")
 def index():
-    if current_user.is_authenticated:
-        return (
-            "<p>Hello, {}! You're logged in! Email: {}</p>"
-            "<div><p>Google Profile Picture:</p>"
-            '<img src="{}" alt="Google profile pic"></img></div>'
-            '<div><a class="button" href="/getEvents">Get Events</a></div>'
-            '<div><p></p></div>'
-            '<a class="button" href="/logout">Logout</a>'.format(
-                current_user.name, current_user.email, current_user.profile_pic
-            )
-        )
-    else:
-        return '<a class="button" href="/login">Google Login</a>'
+    # if current_user.is_authenticated:
+    #     return (
+    #         "<p>Hello, {}! You're logged in! Email: {}</p>"
+    #         "<div><p>Google Profile Picture:</p>"
+    #         '<img src="{}" alt="Google profile pic"></img></div>'
+    #         '<div><a class="button" href="/getEvents">Get Events</a></div>'
+    #         '<div><p></p></div>'
+    #         '<a class="button" href="/logout">Logout</a>'.format(
+    #             current_user.name, current_user.email, current_user.profile_pic
+    #         )
+    #     )
+    # else:
+    #     return '<a class="button" href="/login">Google Login</a>'
+    return redirect(url_for("login_flow"))
 
 
 def get_google_provider_cfg():
@@ -283,8 +284,8 @@ def login_flow():
         The redirect response
     """
     token, creds, url = quickstart.until_url()  # arrow 2 + 3
-    print(url)
-    print("creds in login:", creds)
+    # print(url)
+    # print("creds in login:", creds)
     # return url
     return redirect(url, code=302)  # arrow 4 + 5
 
@@ -399,22 +400,26 @@ def add_new_event ():
 
 @app.route("/login/new_callback")
 def ranges_callback():
+    # phone = flask.request.args.get('phone')
     my_logger.debug("ranges callback")
-    freebusy, user_address = quickstart.after_url()
-    cUser = DbUser(user_address)  # current user
+    freebusy, user_address, name, phone = quickstart.after_url()
+    cur_user = DbUser(user_address,name, phone)  # current user
     print("cUser after constructor:")
-    print(cUser)
-    cUser.id = DbUser.get_id_by_email(user_address)
-    print("user.id in callback:", cUser.id)
-    if not cUser.id:
-        cUser_id = DbUser.create(cUser.email)
+    print(cur_user)
+    cur_user.id = DbUser.get_id_by_email(user_address)
+    print("user.id in callback:", cur_user.id)
+    if not cur_user.id:
+        cUser_id = DbUser.create(cur_user.email)
     # Begin user session by logging the user in
-    login_user(cUser)
+    login_user(cur_user)
+    print("LOGGED IN NEW USER!")
+    print(cur_user.email)
+    print(cur_user.id)
     print("\nUser:", user_address)
     print(freebusy)
     for range in freebusy:
-        Range.create_range(current_user.id, range['start'], range['end'])
-    res = flask.jsonify(freebusy=freebusy)
+        Range.create_range(cur_user.id, range['start'], range['end'])
+    res = flask.jsonify(freebusy=freebusy, name=name, phone=phone)
     my_logger.debug("callback response: " + res.get_data(as_text=True))
     return res
 
@@ -529,8 +534,9 @@ def new_range():
     params = flask.request.args
     start = params.get('start')
     end = params.get('end')
-    owner_id = DbUser.get_id_by_email(current_user.email)
-    # owner_id = current_user.id
+    # owner_id = DbUser.get_id_by_email(current_user.email)
+    # owner_id = DbUser.get_id_by_email("roy.quitt@googlemail.com")
+    owner_id = current_user.id
     success = Range.create_range(owner_id, start, end)
     res = flask.jsonify(success=success)
     return res
@@ -558,10 +564,14 @@ return value is JSON
     # print("type of start:", type(user_ranges[1]))
     is_available: bool = DbUser.is_available(user_address)
     next_available: datetime = DbUser.next_available(user_address)
+    phone = DbUser.get_user_phone(user_address)
+    name = DbUser.get_user_name(user_address)
     res = flask.jsonify(
+        name=name,
         ranges=user_ranges,
         is_available=is_available,
-        next_available=next_available
+        next_available=next_available,
+        phone=phone
     )
     # Range.clean_db()
     Range.print_table()
@@ -574,6 +584,10 @@ def join():
     params = flask.request.args
     callee_address = params.get('user_address')
     waiter_address = current_user.email
+    # waiter_address = "roy.quitt@googlemail.com"
+    # waiter_address = "maibasis@gmail.com"
+    # waiter_address = "R0586868610@gmail.com"
+    print("adding", waiter_address, "to", callee_address + "'s que")
     # calle_id = DbUser.get_id_by_email(callee_address)
     # waiter_id = DbUser.get_id_by_email(waiter_address)
     place_in_line = Ques.create_que_item(callee_address, waiter_address)
@@ -591,9 +605,26 @@ def move_to_top():
     params = flask.request.args
     callee_address = params.get('callee_address')
     waiter_address = current_user.email
+    # waiter_address = "roy.quitt@googlemail.com"
+    # waiter_address = "maibasis@gmail.com"
+    # waiter_address = "R0586868610@gmail.com"
     success = Ques.move_to_top(waiter_address, callee_address)
     res = flask.jsonify(
         success=success
+    )
+    return res
+
+
+@app.route("/get_my_que")
+# @login_required
+def get_my_que():
+    address = current_user.email
+    # address = "roy.quitt@googlemail.com"
+    # address = "maibasis@gmail.com"
+    # address = "R0586868610@gmail.com"
+    user_que = Ques.get_my_que(address)
+    res = flask.jsonify(
+        que=[waiter.serialize() for waiter in user_que]
     )
     return res
 
@@ -602,9 +633,12 @@ def move_to_top():
 @login_required
 def get_update():
     user_address = current_user.email
+    # user_address = "roy.quitt@googlemail.com"
+    # user_address = "maibasis@gmail.com"
+    # user_address = "R0586868610@gmail.com"
     notifications = Ques.get_notifications(user_address)
     res = flask.jsonify(
-        notifications=notifications
+        notifications=[notification.serialize() for notification in notifications]
     )
     return res
 
@@ -612,6 +646,9 @@ def get_update():
 @app.route("/logout")
 @login_required
 def logout():
+    print("logging user out...")
+    print(current_user.email)
+    print(current_user.id)
     logout_user()
     return redirect(url_for("index"))
 

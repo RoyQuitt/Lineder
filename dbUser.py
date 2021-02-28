@@ -11,21 +11,40 @@ The User class has methods to get an existing user from the database and create 
 
 
 class MyUser(UserMixin):
-    def __init__(self, email):
+    def __init__(self, email, name, phone):
         self.id = None
         self.email = email
-        self.events = []
+        self.name = name
+        self.phone = phone
         if self.id is None:
             self.id = MyUser.get_id_by_email(self.email)
             if self.id is None:
-                self.id = MyUser.create(self.email)
+                self.id = MyUser.create(self.email, name, phone)
 
     def set_id(self, new_id):
         self.id = new_id
 
     @staticmethod
+    def get_user_name(user_address):
+        user_id = MyUser.get_id_by_email(user_address)
+        db = get_db()
+        name = db.execute(
+            "SELECT real_name FROM myUser WHERE user_id = ?", (user_id,)
+        ).fetchone()
+        return name[0]
+
+    @staticmethod
+    def get_user_phone(user_address):
+        user_id = MyUser.get_id_by_email(user_address)
+        db = get_db()
+        phone = db.execute(
+            "SELECT phone FROM myUser WHERE user_id = ?", (user_id,)
+        ).fetchone()
+        return phone[0]
+
+    @staticmethod
     def get_user_ranges(user_address) -> list[tuple[datetime.datetime, datetime.datetime]]:
-        print("User address in get ranges:", user_address)
+        # print("User address in get ranges:", user_address)
         user_id = MyUser.get_id_by_email(user_address)
         db = get_db()
         ranges = db.execute(
@@ -33,18 +52,14 @@ class MyUser(UserMixin):
         ).fetchall()
         final_ranges: list[tuple[datetime.datetime, datetime.datetime]] = []
         for c_range in ranges:
-            # start: datetime.datetime = datetime.datetime.strptime(c_range[1], "%Y-%m-%dT%H:%M:%S.ssZ")
-            # end: datetime.datetime = datetime.datetime.fromisoformat(c_range[2])
-            start = dateutil.parser.parse(c_range[1])
-            end = dateutil.parser.parse(c_range[2])
+            start = dateutil.parser.parse(c_range[2])
+            end = dateutil.parser.parse(c_range[3])
             temp_range = (start, end)
             final_ranges.append(temp_range)
         return final_ranges
 
     @staticmethod
     def is_available(user_address, time=(datetime.datetime.now(tz=timezone(timedelta(hours=2), 'IST')))) -> bool:
-        # time_object = datetime.datetime.fromisoformat(time)
-        # now = datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time (1985-04-12T23:20:50.52Z)
         user_ranges: list[tuple] = MyUser.get_user_ranges(user_address)
         is_available = True
         for c_range in user_ranges:
@@ -66,9 +81,12 @@ class MyUser(UserMixin):
     def next_available(user_address) -> datetime:
         if MyUser.is_available(user_address):
             return datetime.datetime.utcnow().isoformat()  # (now)
+
         ranges: list[tuple[datetime, datetime]] = MyUser.get_user_ranges(user_address)
-        ranges_end: list[datetime] = [range[2] for range in ranges]
+        # print("ranges in 'next_available':", ranges)
+        ranges_end: list[datetime] = [range[1] for range in ranges]
         ranges_end.sort()
+        # print(ranges_end)
         # check if first end time in 'ranges_end' is not inside another range
         overlapping: bool = not MyUser.is_available(user_address, time=ranges_end[0])
         next_available: datetime = ranges_end[0]
@@ -90,7 +108,7 @@ class MyUser(UserMixin):
         if gotUser is None:
             return None  # not in DB
         user_id = gotUser[0]
-        print("User in get by email:", gotUser[0], gotUser[1])
+        # print("User in get by email:", gotUser[0], gotUser[1])
         return user_id
 
     @staticmethod
@@ -126,27 +144,35 @@ class MyUser(UserMixin):
             return False
 
         user = MyUser(
-            email=user[1]
+            email=user[2],
+            name=user[1],
+            phone=user[3]
         )
         user.id = user_id
         return user
 
     @staticmethod
-    def create(email):
+    def create(email, name, phone):
         db = get_db()
         db.execute(
-            "INSERT INTO myUser (email) "
-            "VALUES (?)",
-            (email,),
+            "INSERT INTO myUser (real_name, email, phone) "
+            "VALUES (?, ?, ?)",
+            (name, email, phone),
         )
         db.commit()
         cur = db.cursor()  # cursor to find last rowid
         last_id = cur.lastrowid
         # self.id = last_id  # set 'self.id' to last rowid
         print("\nNEW USER ADDED TO DB!")
-        print(last_id, email)
+        print(name, email, phone)
         return last_id
 
+    def serialize(self):
+        return {
+            'name': self.name,
+            'email': self.email,
+            'phone': self.phone
+        }
 
 """
 The code executes SQL statements against the database, which is retrieved from the
