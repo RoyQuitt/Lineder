@@ -30,7 +30,7 @@ import quickstart
 from classes.Event import MyEvent as dbEvent
 # Internal imports
 import OneSignalConfig
-from db import init_db_command
+from db import init_db_command, get_db
 from dbUser import MyUser as DbUser
 from freebusy_range import Freebusy as Range
 from user import User
@@ -127,6 +127,8 @@ GOOGLE_DISCOVERY_URL = (
 # Flask app setup
 app = Flask(__name__)
 app.config['supports_credentials'] = True
+# app.config['SESSION_COOKIE_HTTPONLY'] = False
+print("app config:", app.config)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 
@@ -134,13 +136,15 @@ app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 # https://flask-login.readthedocs.io/en/latest
 login_manager = LoginManager()
 login_manager.init_app(app)
+print("Going to initialize DB")
 # Naive database setup
 try:
     print("creating DB")
     init_db_command()
     # db = get_db()
-    # db.execute("DROP TABLE myUser")
-    # db.execute("DROP TABLE events")
+    #
+    # db.execute("DROP TABLE MyUser")
+    # db.execute("DROP TABLE Ques")
     # db.execute("DROP TABLE freebusy")
     # print("dropped all")
 except sqlite3.OperationalError:

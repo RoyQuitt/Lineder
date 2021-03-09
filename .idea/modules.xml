@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Lineder - Git.iml" filepath="$PROJECT_DIR$/.idea/Lineder - Git.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Lineder.iml" filepath="$PROJECT_DIR$/.idea/Lineder.iml" />
     </modules>
   </component>
 </project>
