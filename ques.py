@@ -20,7 +20,7 @@ class Ques:
             "SELECT * FROM ques WHERE callee_id = ?",
             (user_id,)
         ).fetchall()
-        print(que_ids)
+        # print(que_ids)
         que: list[Waiter] = []
         for waiter in que_ids:
             c_id = waiter[1]
@@ -35,10 +35,10 @@ class Ques:
                 place=waiter[2]
             )
             que.append(c_waiter)
-        print("que:", que)
+        # print("que:", que)
         # sort 'que' according to the 'place' attribute of waiter
         que.sort(key=lambda x: x.place)
-        print("que:", que)
+        # print("que:", que)
         return que
 
     @staticmethod

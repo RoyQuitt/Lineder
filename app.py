@@ -283,11 +283,14 @@ def login_flow():
     :return:
         The redirect response
     """
-    token, creds, url = quickstart.until_url()  # arrow 2 + 3
-    # print(url)
-    # print("creds in login:", creds)
-    # return url
-    return redirect(url, code=302)  # arrow 4 + 5
+    if current_user.is_anonymous:
+        token, creds, url = quickstart.until_url()  # arrow 2 + 3
+        # print(url)
+        # print("creds in login:", creds)
+        # return url
+        return redirect(url, code=302)  # arrow 4 + 5
+    else:
+        return "You are already logged in. You can close this window"
 
 
 """ Original 'login' code """
@@ -400,6 +403,7 @@ def add_new_event ():
 
 @app.route("/login/new_callback")
 def ranges_callback():
+    # print("headers:", flask.request.headers)
     # phone = flask.request.args.get('phone')
     my_logger.debug("ranges callback")
     freebusy, user_address, name, phone = quickstart.after_url()
@@ -603,8 +607,8 @@ def join():
 @login_required
 def move_to_top():
     params = flask.request.args
-    callee_address = params.get('callee_address')
-    waiter_address = current_user.email
+    callee_address = current_user.email
+    waiter_address = params.get('callee_address')
     # waiter_address = "roy.quitt@googlemail.com"
     # waiter_address = "maibasis@gmail.com"
     # waiter_address = "R0586868610@gmail.com"
@@ -616,9 +620,10 @@ def move_to_top():
 
 
 @app.route("/get_my_que")
-# @login_required
+@login_required
 def get_my_que():
     address = current_user.email
+    print("getting que of:", address)
     # address = "roy.quitt@googlemail.com"
     # address = "maibasis@gmail.com"
     # address = "R0586868610@gmail.com"
