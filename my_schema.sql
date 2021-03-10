@@ -5,13 +5,6 @@ CREATE TABLE myUser (
     phone TEXT UNIQUE
 );
 
---CREATE TABLE myEvent (
---  event_id TEXT PRIMARY KEY,
---  owner_id INTEGER NOT NULL,
---  title TEXT,
---  start_time timestamp NOT NULL,
---  end_time timestamp NOT NULL
---);
 
 CREATE TABLE freebusy (
     range_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,6 +20,6 @@ CREATE TABLE ques (
     place_in_line INTEGER NOT NULL -- the waiter's place in the calle's queue
 );
 
-/*
-YYYY-MM-DDTHH:MM:SS - "2021-01-03T15:15:00Z"
-*/
+--/*
+--YYYY-MM-DDTHH:MM:SS - "2021-01-03T15:15:00Z"
+--*/

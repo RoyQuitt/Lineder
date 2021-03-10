@@ -47,7 +47,7 @@ def until_url():
             # flow = InstalledAppFlow.from_client_secrets_file(
             #     'credentials_flow.json', SCOPES)
             flow = InstalledAppFlow.from_client_secrets_file(
-                "credentials_flow.json", SCOPES)
+                r"C:\Users\royqu\PycharmProjects\Lineder\credentials_flow.json", SCOPES)
             auth_url, local_server, wsgi_app = flow.run_local_server_1(port=0)
             # auth_url.replace("localhost", "10.50.1.149")
             print("URL:", auth_url)

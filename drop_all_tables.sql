@@ -1,0 +1,3 @@
+DROP TABLE MyUser
+DROP TABLE freebusy
+DROP TABLE QuesA
