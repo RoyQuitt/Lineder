@@ -29,6 +29,7 @@ import Lineder_logging
 import quickstart
 from classes.Event import MyEvent as dbEvent
 # Internal imports
+from session_managment import SessionManagement
 import OneSignalConfig
 from db import init_db_command
 from dbUser import MyUser as DbUser
@@ -38,6 +39,8 @@ from ques import Ques
 
 from onesignal import OneSignal
 
+
+session = SessionManagement()
 one_signal_client = OneSignal(OneSignalConfig.onesignal_app_id, OneSignalConfig.onesignal_rest_api_key)
 
 
@@ -421,8 +424,8 @@ def ranges_callback():
     print(cur_user.id)
     print("\nUser:", user_address)
     print(freebusy)
-    for range in freebusy:
-        Range.create_range(cur_user.id, range['start'], range['end'])
+    for c_range in freebusy:
+        Range.create_range(cur_user.id, c_range['start'], c_range['end'])
     res = flask.jsonify(freebusy=freebusy, name=name, phone=phone)
     my_logger.debug("callback response: " + res.get_data(as_text=True))
     return res
@@ -583,11 +586,15 @@ return value is JSON
 
 
 @app.route("/join_que")
-@login_required
+# @login_required
 def join():
     params = flask.request.args
+    session_id = params.get('session_id')
+    if not session.is_logged_in(session_id):
+        return 401  # unauthorized
+    waiter_address = session.get_address_by_session_id(session_id)
     callee_address = params.get('user_address')
-    waiter_address = current_user.email
+    # waiter_address = current_user.email
     # waiter_address = "roy.quitt@googlemail.com"
     # waiter_address = "maibasis@gmail.com"
     # waiter_address = "R0586868610@gmail.com"
