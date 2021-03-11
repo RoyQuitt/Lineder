@@ -422,7 +422,10 @@ def ranges_callback():
     if not cur_user.id:
         cUser_id = DbUser.create(cur_user.email)
     # Begin user session by logging the user in
-    login_user(cur_user)
+    # login_user(cur_user)
+    # logging in the user
+    session_id = session.login_user(user_address)
+    print(session.users_dict)
     print("LOGGED IN NEW USER!")
     print(cur_user.email)
     print(cur_user.id)
@@ -430,7 +433,7 @@ def ranges_callback():
     print(freebusy)
     for c_range in freebusy:
         Range.create_range(cur_user.id, c_range['start'], c_range['end'])
-    res = flask.jsonify(freebusy=freebusy, name=name, phone=phone)
+    res = flask.jsonify(freebusy=freebusy, name=name, phone=phone, session_id=session_id)
     my_logger.debug("callback response: " + res.get_data(as_text=True))
     return res
 
@@ -540,14 +543,19 @@ def og_callback():
 # /new_range?start=1985-04-12T23:20:50.52Z&end=1985-05-12T23:20:50.52Z
 # from 12.04.1985, 23:20:50.52 until 12.05.1985, 23:20:50.52
 @app.route("/new_range")
-@login_required
+# @login_required
 def new_range():
     params = flask.request.args
+    session_id = params.get('session_id')
+    if not session.is_logged_in(session_id):
+        return 401  # unauthorized
     start = params.get('start')
     end = params.get('end')
     # owner_id = DbUser.get_id_by_email(current_user.email)
     # owner_id = DbUser.get_id_by_email("roy.quitt@googlemail.com")
-    owner_id = current_user.id
+    # owner_id = current_user.id
+    owner_address = session.get_address_by_session_id(session_id)
+    owner_id = DbUser.get_id_by_email(owner_address)
     success = Range.create_range(owner_id, start, end)
     res = flask.jsonify(success=success)
     return res
