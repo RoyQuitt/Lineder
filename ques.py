@@ -140,7 +140,7 @@ class Ques:
             callee_que_waiter_ids = [item[1] for item in callee_que]
             if waiter_id in callee_que_waiter_ids:
                 print("already in que")
-                return 0  # return value for "already in the que"
+                return Ques.get_place_in_line(waiter_id, callee_id)  # return value for "already in the que"
             db = get_db()
             place_in_line = Ques.get_que_size(callee_id) + 1
             db.execute(
