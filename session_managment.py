@@ -1,5 +1,17 @@
 import typing
 import uuid
+from dbUser import MyUser
+
+
+class Error(Exception):
+    """Base class for other exceptions"""
+    pass
+
+
+class Unauthorized(Error):
+    """Raised when the input value is too small"""
+    print("User unauthorized")
+    pass
 
 
 class SessionManagement:
@@ -27,3 +39,16 @@ class SessionManagement:
 
     def log_out(self, session_id):
         del self.users_dict[session_id]
+
+    def handle_user(self, session_id):
+        if not self.is_logged_in(session_id):
+            raise Unauthorized
+        return self.get_address_by_session_id(session_id)
+
+    def handle_user_user_id(self, session_id):
+        if not self.is_logged_in(session_id):
+            raise Unauthorized
+        return self.get_user_id_by_session_id(session_id)
+
+    def get_user_id_by_session_id(self, session_id):
+        return MyUser.get_id_by_email(self.get_address_by_session_id(session_id))

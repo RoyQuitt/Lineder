@@ -29,7 +29,7 @@ import Lineder_logging
 import quickstart
 from classes.Event import MyEvent as dbEvent
 # Internal imports
-from session_managment import SessionManagement
+from session_managment import SessionManagement, Unauthorized
 import OneSignalConfig
 from db import init_db_command, get_db
 from dbUser import MyUser as DbUser
@@ -107,6 +107,9 @@ my_logger.debug("Starting Logging")
 #                 user.event_list = new_event_list
 
 HEX32_MAX = 111111111
+message = {'error': 'Unauthorized'}
+UNAUTHORIZED_RES = flask.jsonify(message)
+UNAUTHORIZED_RES.status_code = 401
 
 # Configuration
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -547,15 +550,17 @@ def og_callback():
 def new_range():
     params = flask.request.args
     session_id = params.get('session_id')
-    if not session.is_logged_in(session_id):
-        return 401  # unauthorized
+    try:
+        owner_id = session.handle_user_user_id()
+    except Unauthorized:
+        return UNAUTHORIZED_RES
     start = params.get('start')
     end = params.get('end')
     # owner_id = DbUser.get_id_by_email(current_user.email)
     # owner_id = DbUser.get_id_by_email("roy.quitt@googlemail.com")
     # owner_id = current_user.id
-    owner_address = session.get_address_by_session_id(session_id)
-    owner_id = DbUser.get_id_by_email(owner_address)
+    # owner_address = session.get_address_by_session_id(session_id)
+    # owner_id = DbUser.get_id_by_email(owner_address)
     success = Range.create_range(owner_id, start, end)
     res = flask.jsonify(success=success)
     return res
@@ -602,17 +607,12 @@ return value is JSON
 def join():
     params = flask.request.args
     session_id = params.get('session_id')
-    if not session.is_logged_in(session_id):
-        return 401  # unauthorized
-    waiter_address = session.get_address_by_session_id(session_id)
+    try:
+        waiter_address = session.handle_user(session_id)
+    except Unauthorized:
+        return UNAUTHORIZED_RES
     callee_address = params.get('user_address')
-    # waiter_address = current_user.email
-    # waiter_address = "roy.quitt@googlemail.com"
-    # waiter_address = "maibasis@gmail.com"
-    # waiter_address = "R0586868610@gmail.com"
     print("adding", waiter_address, "to", callee_address + "'s que")
-    # calle_id = DbUser.get_id_by_email(callee_address)
-    # waiter_id = DbUser.get_id_by_email(waiter_address)
     place_in_line = Ques.create_que_item(callee_address, waiter_address)
     success = place_in_line != 0
     res = flask.jsonify(
