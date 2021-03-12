@@ -352,32 +352,32 @@ def after_request(response):
 #     return response
 
 
-@app.route("/login/callback")
-def callback():
-    """
-    Callback is being called by Google API when the user is authenticated. Once the user is authenticated,
-    it arranges the events and created the JSON response with the list of events
-    """
-    global users
-    print("CALLBACK")
-    after_url_events, user_address = quickstart.after_url()  # get user events + email address
-    events_list = EventsList(after_url_events)  # creds, token
-    events_list.arrange_events()
-    # print(len(events_list.events_list_arranged))
-    final_events = events_list.events_list_arranged
-
-    print("\nResponse:\n", final_events)
-    user = MyUser(user_address, final_events)
-
-    res = flask.jsonify(
-        events=[event.serialize() for event in user.event_list]
-    )
-    print("\nuser events:", user.event_list)
-    # set a cookie with the username so that we can use it later in the 'new_event' endpoint
-    res.set_cookie('user_address', user.username)
-    users.insert_new_user(user)
-    # print(res)
-    return res
+# @app.route("/login/callback")
+# def callback():
+#     """
+#     Callback is being called by Google API when the user is authenticated. Once the user is authenticated,
+#     it arranges the events and created the JSON response with the list of events
+#     """
+#     global users
+#     print("CALLBACK")
+#     after_url_events, user_address = quickstart.after_url()  # get user events + email address
+#     events_list = EventsList(after_url_events)  # creds, token
+#     events_list.arrange_events()
+#     # print(len(events_list.events_list_arranged))
+#     final_events = events_list.events_list_arranged
+#
+#     print("\nResponse:\n", final_events)
+#     user = MyUser(user_address, final_events)
+#
+#     res = flask.jsonify(
+#         events=[event.serialize() for event in user.event_list]
+#     )
+#     print("\nuser events:", user.event_list)
+#     # set a cookie with the username so that we can use it later in the 'new_event' endpoint
+#     res.set_cookie('user_address', user.username)
+#     users.insert_new_user(user)
+#     # print(res)
+#     return res
 
 
 @app.route("/show_cookie")
@@ -391,24 +391,24 @@ def show_cookie():
 
 # http://127.0.0.1:5000/new_event?title=text&start=1000&end=1100
 # @app.route("/new_event")  # , methods=['POST']
-def add_new_event ():
-    # global users
-    username = flask.request.cookies.get ('user_address')
-    if not username:
-        print("Username Not Found")
-        return flask.jsonify(success=False)
-    print(username)
-    params = flask.request.args
-    title = params.get('title')
-    start = params.get('start')
-    end = params.get('end')
-    new_event = Event(title, start, end)
-    print("\nNEW EVENT ADDED:", new_event)
-    my_current_user = users.get_user_by_username(username)
-    my_current_user.insert_new_event(new_event)
-    # print(users)
-    print("\nmy events:", my_current_user.event_list)
-    return flask.jsonify(success=True)
+# def add_new_event ():
+#     # global users
+#     username = flask.request.cookies.get ('user_address')
+#     if not username:
+#         print("Username Not Found")
+#         return flask.jsonify(success=False)
+#     print(username)
+#     params = flask.request.args
+#     title = params.get('title')
+#     start = params.get('start')
+#     end = params.get('end')
+#     new_event = Event(title, start, end)
+#     print("\nNEW EVENT ADDED:", new_event)
+#     my_current_user = users.get_user_by_username(username)
+#     my_current_user.insert_new_event(new_event)
+#     # print(users)
+#     print("\nmy events:", my_current_user.event_list)
+#     return flask.jsonify(success=True)
 
 
 @app.route("/login/new_callback")
@@ -417,7 +417,7 @@ def ranges_callback():
     # phone = flask.request.args.get('phone')
     my_logger.debug("ranges callback")
     freebusy, user_address, name, phone = quickstart.after_url()
-    cur_user = DbUser(user_address,name, phone)  # current user
+    cur_user = DbUser(user_address, name, phone)  # current user
     print("cUser after constructor:")
     print(cur_user)
     cur_user.id = DbUser.get_id_by_email(user_address)
@@ -551,7 +551,7 @@ def new_range():
     params = flask.request.args
     session_id = params.get('session_id')
     try:
-        owner_id = session.handle_user_user_id()
+        owner_id = session.handle_user_user_id(session_id)
     except Unauthorized:
         return UNAUTHORIZED_RES
     start = params.get('start')
@@ -623,10 +623,15 @@ def join():
 
 
 @app.route("/move_to_top")
-@login_required
+# @login_required
 def move_to_top():
     params = flask.request.args
-    callee_address = current_user.email
+    session_id = params.get('session_id')
+    try:
+        callee_address = session.handle_user(session_id)
+    except Unauthorized:
+        return UNAUTHORIZED_RES
+    # callee_address = current_user.email
     waiter_address = params.get('callee_address')
     # waiter_address = "roy.quitt@googlemail.com"
     # waiter_address = "maibasis@gmail.com"
@@ -639,9 +644,15 @@ def move_to_top():
 
 
 @app.route("/get_my_que")
-@login_required
+# @login_required
 def get_my_que():
-    address = current_user.email
+    params = flask.request.args
+    session_id = params.get('session_id')
+    try:
+        address = session.handle_user(session_id)
+    except Unauthorized:
+        return UNAUTHORIZED_RES
+    # address = current_user.email
     print("getting que of:", address)
     # address = "roy.quitt@googlemail.com"
     # address = "maibasis@gmail.com"
@@ -654,12 +665,15 @@ def get_my_que():
 
 
 @app.route("/get_update")
-@login_required
+# @login_required
 def get_update():
-    user_address = current_user.email
-    # user_address = "roy.quitt@googlemail.com"
-    # user_address = "maibasis@gmail.com"
-    # user_address = "R0586868610@gmail.com"
+    params = flask.request.args
+    session_id = params.get('session_id')
+    try:
+        user_address = session.handle_user(session_id)
+    except Unauthorized:
+        return UNAUTHORIZED_RES
+    # user_address = current_user.email
     notifications = Ques.get_notifications(user_address)
     res = flask.jsonify(
         notifications=[notification.serialize() for notification in notifications]
@@ -668,13 +682,24 @@ def get_update():
 
 
 @app.route("/logout")
-@login_required
+# @login_required
 def logout():
+    params = flask.request.args
+    session_id = params.get('session_id')
+    try:
+        address = session.handle_user(session_id)
+    except Unauthorized:
+        return UNAUTHORIZED_RES
     print("logging user out...")
-    print(current_user.email)
-    print(current_user.id)
-    logout_user()
-    return redirect(url_for("index"))
+    print(address)
+    session.log_out(session_id)
+    # logout_user()
+    # return redirect(url_for("index"))
+    success = not session.is_logged_in()
+    res = flask.jsonify(
+        success=success
+    )
+    return res
 
 
 if __name__ == "__main__":

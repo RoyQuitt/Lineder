@@ -22,12 +22,12 @@ token = None
 creds = None
 results_from_thread = [None] * 2  # index 0 = creds, index 1 = url
 
+
 def until_url():
     global token
     global creds
     # creds = None
     global results_from_thread
-
 
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -70,7 +70,7 @@ def until_url():
         return token, creds, auth_url
 
 
-def after_url():  # creds, token
+def after_url():
     global token
     global creds
     global results_from_thread
@@ -102,8 +102,6 @@ def after_url():  # creds, token
     # all_calendars = get_all_calendars(service)
     events_result = {}
     # all_calendars_events_list = []
-
-
 
     # user_address = call_gmail_api(service_gmail)
     print("getting user's name, email and phone")
