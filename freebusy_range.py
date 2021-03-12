@@ -41,15 +41,20 @@ class Freebusy(UserMixin):
         new_range = Freebusy(owner_id, start_time, end_time)
         print(type(new_range), type(ranges))
         time.sleep(API_DELAY)
-        # print(new_range in ranges)
         if ranges is None or new_range not in ranges:  # if the new range is not in the database
+            # db.execute(
+            #     "INSERT INTO freebusy (owner_id, start_time, end_time) VALUES (?, ?, ?)",
+            #     (owner_id, start_time, end_time)
+            # )
             db.execute(
-                "INSERT INTO freebusy (owner_id, start_time, end_time) VALUES (?, ?, ?)",
-                (owner_id, start_time, end_time)
+                "INSERT INTO freebusy (owner_id, start_time, end_time)"
+                "SELECT ?, ?, ?"
+                "WHERE NOT EXISTS (SELECT * FROM freebusy WHERE owner_id = ? AND (start_time = ? OR end_time = ?))"
+                , (owner_id, start_time, end_time, owner_id, start_time, end_time)
             )
             db.commit()
             cur = db.cursor()  # cursor to find last rowid
-            print(cur.lastrowid)
+            # print(cur.lastrowid)
             last_rowid = cur.lastrowid
             # start_time.strftime("%m/%d/%Y, %H:%M:%S")
             # end_time.strftime("%m/%d/%Y, %H:%M:%S")

@@ -44,10 +44,14 @@ def until_url():
             """
             ADD TRY EXCEPT TO HANDLE BOTH PC AND LAPTOP CREDENTIALS FILE LOCATION
             """
-            # flow = InstalledAppFlow.from_client_secrets_file(
-            #     'credentials_flow.json', SCOPES)
-            flow = InstalledAppFlow.from_client_secrets_file(
-                r"C:\Users\royqu\PycharmProjects\Lineder\credentials_flow.json", SCOPES)
+            try:
+                print("trying to run on PC")
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    'credentials_flow.json', SCOPES)
+            except FileNotFoundError:
+                print("running on laptop")
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    r"C:\Users\royqu\PycharmProjects\Lineder\credentials_flow.json", SCOPES)
             auth_url, local_server, wsgi_app = flow.run_local_server_1(port=0)
             # auth_url.replace("localhost", "10.50.1.149")
             print("URL:", auth_url)
@@ -115,6 +119,19 @@ def after_url():
             "id": 'otfnarbn0008p8cnthk9976gtsgp1auc'
         }
         ]
+    calendars = get_all_calendars(service)
+    # calendars = []
+    # for calendar_id in calendar_ids:
+    #     calendars.append({"id": calendar_id})
+    # print(calendars)
+    # print(len(calendars))
+    calendars.remove({  # 'Classes'
+            "id": 'ugs0a6bnjfss4dj1mv48rj0p24@group.calendar.google.com'
+        })
+    calendars.remove({  # 'Mai'
+        "id": 'lep2jr4t8qupvqh4h4t29qrnf0@group.calendar.google.com'
+    })
+    # print(len(calendars))
     body = {
         "timeMin": now,
         "timeMax": time_max_text,
@@ -122,7 +139,7 @@ def after_url():
     }
     print("Getting This Week's Events From All Calendars")
     freebusy_result = service.freebusy().query(body=body).execute()
-    # print(freebusy_result)
+    # print("result", freebusy_result)
     freebusy = []
     # calendars = freebusy_result['calendars']
     calendars = freebusy_result[u'calendars']
@@ -135,27 +152,28 @@ def after_url():
 
 
 def get_all_calendars(service):
-    page_token = None
-    while True:
-        calendar_list = service.calendarList().list(pageToken=page_token, minAccessRole="writer").execute()
-        for calendar_list_entry in calendar_list['items']:
-            print(calendar_list_entry['summary'])
-        page_token = calendar_list.get('nextPageToken')
-        if not page_token:
-            break
-    return calendar_list['items']
+    calendar_list = service.calendarList().list(minAccessRole="writer").execute()
+    print("list:")
+    print(calendar_list)
+    for calendar_list_entry in calendar_list['items']:
+        print(calendar_list_entry['summary'], calendar_list_entry['id'])
+    calendar_id_list = [calendar['id'] for calendar in calendar_list['items']]
+    calendars = []
+    for calendar_id in calendar_id_list:
+        calendars.append({"id": calendar_id})
+    # print("ids:")
+    # print(calendars)
+    return calendars
 
 
 def call_gmail_api(service_gmail):
     # Call the Gmail API
-
     # results = service_gmail.users().labels().list(userId='me').execute()
     profile = service_gmail.users().getProfile(userId='me').execute()
     address = profile['emailAddress']
     # labels = results.get('labels', [])
     # print("EMAIL ADDRESS IS:", address)
     return address
-
     # if not labels:
     #     print('No labels found.')
     # else:

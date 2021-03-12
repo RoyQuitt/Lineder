@@ -107,9 +107,7 @@ my_logger.debug("Starting Logging")
 #                 user.event_list = new_event_list
 
 HEX32_MAX = 111111111
-message = {'error': 'Unauthorized'}
-UNAUTHORIZED_RES = flask.jsonify(message)
-UNAUTHORIZED_RES.status_code = 401
+
 
 # Configuration
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -137,6 +135,9 @@ app.config['supports_credentials'] = True
 print("app config:", app.config)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
+unauthorized_resp = None
+
+
 
 # User session management setup
 # https://flask-login.readthedocs.io/en/latest
@@ -249,6 +250,10 @@ def json_test():
 
 @app.route("/")
 def index():
+    global unauthorized_resp
+    message = {'error': 'Unauthorized'}
+    unauthorized_resp = flask.jsonify(message)
+    unauthorized_resp.status_code = 401
     # if current_user.is_authenticated:
     #     return (
     #         "<p>Hello, {}! You're logged in! Email: {}</p>"
@@ -553,7 +558,7 @@ def new_range():
     try:
         owner_id = session.handle_user_user_id(session_id)
     except Unauthorized:
-        return UNAUTHORIZED_RES
+        return unauthorized_resp
     start = params.get('start')
     end = params.get('end')
     # owner_id = DbUser.get_id_by_email(current_user.email)
@@ -610,7 +615,7 @@ def join():
     try:
         waiter_address = session.handle_user(session_id)
     except Unauthorized:
-        return UNAUTHORIZED_RES
+        return unauthorized_resp
     callee_address = params.get('user_address')
     print("adding", waiter_address, "to", callee_address + "'s que")
     place_in_line = Ques.create_que_item(callee_address, waiter_address)
@@ -630,7 +635,7 @@ def move_to_top():
     try:
         callee_address = session.handle_user(session_id)
     except Unauthorized:
-        return UNAUTHORIZED_RES
+        return unauthorized_resp
     # callee_address = current_user.email
     waiter_address = params.get('callee_address')
     # waiter_address = "roy.quitt@googlemail.com"
@@ -651,13 +656,14 @@ def get_my_que():
     try:
         address = session.handle_user(session_id)
     except Unauthorized:
-        return UNAUTHORIZED_RES
+        return unauthorized_resp
     # address = current_user.email
     print("getting que of:", address)
     # address = "roy.quitt@googlemail.com"
     # address = "maibasis@gmail.com"
     # address = "R0586868610@gmail.com"
     user_que = Ques.get_my_que(address)
+    print([waiter.serialize() for waiter in user_que])
     res = flask.jsonify(
         que=[waiter.serialize() for waiter in user_que]
     )
@@ -672,7 +678,7 @@ def get_update():
     try:
         user_address = session.handle_user(session_id)
     except Unauthorized:
-        return UNAUTHORIZED_RES
+        return unauthorized_resp
     # user_address = current_user.email
     notifications = Ques.get_notifications(user_address)
     res = flask.jsonify(
@@ -689,7 +695,7 @@ def logout():
     try:
         address = session.handle_user(session_id)
     except Unauthorized:
-        return UNAUTHORIZED_RES
+        return unauthorized_resp
     print("logging user out...")
     print(address)
     session.log_out(session_id)
