@@ -26,9 +26,9 @@ results_from_thread = [None] * 2  # index 0 = creds, index 1 = url
 def until_url():
     global token
     global creds
-    # creds = None
-    global results_from_thread
 
+    global results_from_thread
+    creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
@@ -125,12 +125,13 @@ def after_url():
     #     calendars.append({"id": calendar_id})
     # print(calendars)
     # print(len(calendars))
-    calendars.remove({  # 'Classes'
-            "id": 'ugs0a6bnjfss4dj1mv48rj0p24@group.calendar.google.com'
+    if user_address == "roy.quitt@googlemail.com":
+        calendars.remove({  # 'Classes'
+                "id": 'ugs0a6bnjfss4dj1mv48rj0p24@group.calendar.google.com'
+            })
+        calendars.remove({  # 'Mai'
+            "id": 'lep2jr4t8qupvqh4h4t29qrnf0@group.calendar.google.com'
         })
-    calendars.remove({  # 'Mai'
-        "id": 'lep2jr4t8qupvqh4h4t29qrnf0@group.calendar.google.com'
-    })
     # print(len(calendars))
     body = {
         "timeMin": now,
