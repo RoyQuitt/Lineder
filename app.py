@@ -298,8 +298,8 @@ def login_flow():
     :return:
         The redirect response
     """
-    params = flask.request
-    session_id = params['session_id']
+    params = flask.request.args
+    session_id = params.get('session_id')
     if not session_id:
         token, creds, url = quickstart.until_url()
         return redirect(url, code=302)
