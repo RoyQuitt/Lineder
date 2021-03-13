@@ -40,7 +40,7 @@ class Freebusy(UserMixin):
         ranges = Freebusy.get_user_ranges(owner_id)
         new_range = Freebusy(owner_id, start_time, end_time)
         print(type(new_range), type(ranges))
-        time.sleep(API_DELAY)
+        # time.sleep(API_DELAY)
         if ranges is None or new_range not in ranges:  # if the new range is not in the database
             # db.execute(
             #     "INSERT INTO freebusy (owner_id, start_time, end_time) VALUES (?, ?, ?)",

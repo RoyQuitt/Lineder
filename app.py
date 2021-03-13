@@ -298,17 +298,18 @@ def login_flow():
     :return:
         The redirect response
     """
-    if current_user.is_anonymous:
-        token, creds, url = quickstart.until_url()  # arrow 2 + 3
-        # print(url)
-        # print("creds in login:", creds)
-        # return url
-        return redirect(url, code=302)  # arrow 4 + 5
-    else:
+    params = flask.request
+    session_id = params['session_id']
+    if not session_id:
+        token, creds, url = quickstart.until_url()
+        return redirect(url, code=302)
+    if session.is_logged_in(session_id):
         return "You are already logged in. You can close this window"
+    token, creds, url = quickstart.until_url()
+    return redirect(url, code=302)  # arrow 4 + 5
 
 
-""" Original 'login' code """
+# Original 'login' code
 def login():
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
