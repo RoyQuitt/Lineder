@@ -73,6 +73,7 @@ class MyUser(UserMixin):
             # print(type(c_range[0]), type(c_range[1]))
             # print(type(c_start), type(time), type(c_end))
             # print(c_start, time, c_end)
+            print(c_start, time, c_end)
             if c_start < time < c_end:  # 0 = start, 1 = end
                 is_available = False
         return is_available
