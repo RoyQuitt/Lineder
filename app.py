@@ -158,7 +158,7 @@ try:
 except sqlite3.OperationalError:
     # Assume it's already been created
     print("DB already created")
-    pass
+
 
 # OAuth 2 client setup
 # print(GOOGLE_CLIENT_ID)
@@ -176,6 +176,10 @@ class Event:
         return str(self.start) + "  -  " + str(self.end) + "   |   " + str(self.title)
 
     def make_json(self):
+        """
+        Serializes the event as a JSON
+        :return: the JSON in a string
+        """
         # return "title:" + str(self.title) + ", \n" + "start:"
         return str(flask.jsonify(
             title=self.title,
@@ -203,10 +207,15 @@ class EventsList:
         self.events_list_json = []
 
     def __repr__(self):
-        s = ""
+        """
+        Represent the class as a string
+        :return: 
+        A string with a list of events
+        """
+        events_string: str = ""
         for i, event in enumerate(self.events_list_arranged):
-            s += event.__repr__() + ", "
-        return s
+            events_string += event.__repr__() + ", "
+        return events_string
 
     def make_json(self):
         # return json.dumps(self.events_list_arranged)
@@ -741,11 +750,9 @@ def logout():
         address = session.handle_user(session_id)
     except Unauthorized:
         return unauthorized_resp
-    print("logging user out...")
-    print(address)
+    my_logger.debug("logging user out...")
+    my_logger.debug(address)
     session.log_out(session_id)
-    # logout_user()
-    # return redirect(url_for("index"))
     success = not session.is_logged_in()
     res = flask.jsonify(
         success=success
