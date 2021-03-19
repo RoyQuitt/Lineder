@@ -246,7 +246,7 @@ class EventsList:
 @login_manager.user_loader
 def load_user(user_id):  # actually gets email instead of id
     # user_id = DbUser.get_id_by_email(user_address)
-    print("\nLOAD USER", DbUser.get(user_id))
+    my_logger.debug("\nLOAD USER %s", DbUser.get(user_id))
     return DbUser.get(user_id)
 
 
@@ -290,11 +290,11 @@ def get_events():
     now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
     url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=5&timeMin=' + now
     req = requests.Session()
-    print(client.token)
+    my_logger.debug(client.token)
     token = client.token.get("access_token")
-    print(token)
+    my_logger.debug(token)
     req = requests.get(url, headers={'Authorization': 'Bearer %s' % token}, data=None)
-    print("\nresponse:", req.text)
+    my_logger.debug("\nresponse: %s", req.text)
     with open("sample.txt", "w", encoding="utf-8") as text_file:
         text_file.write(req.text)
     return redirect(url_for("index"))
@@ -350,7 +350,7 @@ def login():
 
 @app.after_request
 def after_request(response):
-    print("after request")
+    my_logger.debug("after request")
     response.headers.add('Access-Control-Allow-Origin', '*')
     # response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,Access-Control-Allow-Origin')
     response.headers.add('Access-Control-Allow-Headers', '*')
@@ -401,7 +401,7 @@ def show_cookie():
     # return "hello"
     username = flask.request.cookies.get('user_address')
     res = flask.jsonify(username=username)
-    print(username)
+    my_logger.debug(username)
     return res
 
 
@@ -434,114 +434,123 @@ def ranges_callback():
     my_logger.debug("ranges callback")
     freebusy, user_address, name, phone = quickstart.after_url()
     cur_user = DbUser(user_address, name, phone)  # current user
-    print("cUser after constructor:")
-    print(cur_user)
+    my_logger.debug("cUser after constructor:")
+    my_logger.debug(cur_user)
     cur_user.id = DbUser.get_id_by_email(user_address)
-    print("user.id in callback:", cur_user.id)
+    my_logger.debug("user.id in callback:", cur_user.id)
     if not cur_user.id:
+        # TODO:
+        # You are missing two parameters here for create: name and phone
         cUser_id = DbUser.create(cur_user.email)
+
     # Begin user session by logging the user in
     # login_user(cur_user)
     # logging in the user
     session_id = session.login_user(user_address)
-    print(session.users_dict)
-    print("LOGGED IN NEW USER!")
-    print(cur_user.email)
-    print(cur_user.id)
-    print("\nUser:", user_address)
-    print(freebusy)
+    my_logger.debug(session.users_dict)
+    my_logger.debug("LOGGED IN NEW USER!")
+    my_logger.debug("email: %s",cur_user.email)
+    my_logger.debug("user_id: %s",cur_user.id)
+    my_logger.debug("\nUser: %s", user_address)
+    my_logger.debug(freebusy)
+
+    # Create the ranges in our database
     for c_range in freebusy:
         Range.create_range(cur_user.id, c_range['start'], c_range['end'])
+
+    # Build the HTTP response
     res = flask.jsonify(freebusy=freebusy, name=name, phone=phone, session_id=session_id)
-    my_logger.debug("callback response: " + res.get_data(as_text=True))
+    my_logger.debug("callback response: %s", res.get_data(as_text=True))
     return res
 
 
-@app.route("/login/og_callback")
-def og_callback():
-    print("OG CALLBACK")
-    # Get authorization code Google sent back to you
-    code = request.args.get("code")
-    print("code:", code)
-    # Find out what URL to hit to get tokens that allow you to ask for
-    # things on behalf of a user
-    google_provider_cfg = get_google_provider_cfg()
-    token_endpoint = google_provider_cfg["token_endpoint"]
-
-    # Prepare and send a request to get tokens! Yay tokens!
-    token_url, headers, body = client.prepare_token_request(
-        token_endpoint,
-        authorization_response=request.url,
-        redirect_url=request.base_url,
-        code=code
-    )
-    token_response = requests.post(
-        token_url,
-        headers=headers,
-        data=body,
-        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-    )
-    # Parse the tokens!
-    client.parse_request_body_response(json.dumps(token_response.json()))
-
-    # Now that you have tokens (yay) let's find and hit the URL
-    # from Google that gives you the user's profile information,
-    # including their Google profile image and email
-    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-    uri, headers, body = client.add_token (userinfo_endpoint)
-    userinfo_response = requests.get (uri, headers=headers, data=body)
-    # You want to make sure their email is verified.
-    # The user authenticated with Google, authorized your
-    # app, and now you've verified their email through Google!
-    if userinfo_response.json ().get ("email_verified"):
-        unique_id = userinfo_response.json ()["sub"]
-        users_email = userinfo_response.json ()["email"]
-        picture = userinfo_response.json ()["picture"]
-        users_name = userinfo_response.json ()["given_name"]
-    else:
-        return "User email not available or not verified by Google.", 400
-
-    # Create a user in your db with the information provided
-    # by Google
-    user = User(
-        id_=unique_id, name=users_name, email=users_email, profile_pic=picture
-    )
-    # Doesn't exist? Add it to the database.
-    if not User.get(unique_id):
-        User.create(unique_id, users_name, users_email, picture)
-    # Begin user session by logging the user in
-    login_user(user)
-
-    """ Get the user's calendar events (same as the userinfo but with a different endpoint) """
-    # Get user events + gmail address
-    after_url_events, user_address = quickstart.after_url ()
-    with open ("sample.txt", "w", encoding="utf-8") as text_file:
-        text_file.write (str (after_url_events))
-    c_user = DbUser (user_address)  # current user
-    if not c_user.get ():
-        c_user.create ()
-    # Begin user session by logging the user in
-    login_user (c_user)
-    events = EventsList (after_url_events)
-    events.arrange_events (user_address)
-    final_events = events.events_list_arranged
-    print("FINAL EVENTS in new:\n", final_events)
-    """ Insert new events to db """
-    for event in final_events:
-        if not dbEvent.get_event(event.event_id):
-            dbEvent.create(event.event_id, current_user.id, event.title, event.start, event.end)
-    #  construct response
-    res = flask.jsonify(
-        events=[event.serialize() for event in final_events]
-    )
-    return res
-    # google_calendar_endpoint = SCOPES
-    # uri, headers, body = client.add_token(google_calendar_endpoint)
-    # calendar_response = requests.get(uri, headers=headers, data=body)
-    # events_list = EventsList(calendar_response)  # creds, token
-    # events_list.arrange_events()
-    # # print(len(events_list.events_list_arranged))
-    # final_events = events_list.events_list_arranged
+# @app.route("/login/og_callback")
+# def og_callback():
+#     my_logger.debug("OG CALLBACK")
+#
+#     # Get authorization code Google sent back to you
+#     code = request.args.get("code")
+#     my_logger.debug("code:", code)
+#
+#     # Find out what URL to hit to get tokens that allow you to ask for
+#     # things on behalf of a user
+#     google_provider_cfg = get_google_provider_cfg()
+#     token_endpoint = google_provider_cfg["token_endpoint"]
+#
+#     # Prepare and send a request to get tokens! Yay tokens!
+#     token_url, headers, body = client.prepare_token_request(
+#         token_endpoint,
+#         authorization_response=request.url,
+#         redirect_url=request.base_url,
+#         code=code
+#     )
+#     token_response = requests.post(
+#         token_url,
+#         headers=headers,
+#         data=body,
+#         auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+#     )
+#     # Parse the tokens!
+#     client.parse_request_body_response(json.dumps(token_response.json()))
+#
+#     # Now that you have tokens (yay) let's find and hit the URL
+#     # from Google that gives you the user's profile information,
+#     # including their Google profile image and email
+#     userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+#     uri, headers, body = client.add_token (userinfo_endpoint)
+#     userinfo_response = requests.get (uri, headers=headers, data=body)
+#     # You want to make sure their email is verified.
+#     # The user authenticated with Google, authorized your
+#     # app, and now you've verified their email through Google!
+#     if userinfo_response.json ().get ("email_verified"):
+#         unique_id = userinfo_response.json ()["sub"]
+#         users_email = userinfo_response.json ()["email"]
+#         picture = userinfo_response.json ()["picture"]
+#         users_name = userinfo_response.json ()["given_name"]
+#     else:
+#         return "User email not available or not verified by Google.", 400
+#
+#     # Create a user in your db with the information provided
+#     # by Google
+#     user = User(
+#         id_=unique_id, name=users_name, email=users_email, profile_pic=picture
+#     )
+#     # Doesn't exist? Add it to the database.
+#     if not User.get(unique_id):
+#         User.create(unique_id, users_name, users_email, picture)
+#     # Begin user session by logging the user in
+#     login_user(user)
+#
+#     """ Get the user's calendar events (same as the userinfo but with a different endpoint) """
+#     # Get user events + gmail address
+#     after_url_events, user_address = quickstart.after_url ()
+#     with open ("sample.txt", "w", encoding="utf-8") as text_file:
+#         text_file.write (str (after_url_events))
+#     c_user = DbUser (user_address)  # current user
+#     if not c_user.get ():
+#         c_user.create ()
+#     # Begin user session by logging the user in
+#     login_user (c_user)
+#     events = EventsList (after_url_events)
+#     events.arrange_events (user_address)
+#     final_events = events.events_list_arranged
+#     print("FINAL EVENTS in new:\n", final_events)
+#     """ Insert new events to db """
+#     for event in final_events:
+#         if not dbEvent.get_event(event.event_id):
+#             dbEvent.create(event.event_id, current_user.id, event.title, event.start, event.end)
+#     #  construct response
+#     res = flask.jsonify(
+#         events=[event.serialize() for event in final_events]
+#     )
+#     return res
+#     # google_calendar_endpoint = SCOPES
+#     # uri, headers, body = client.add_token(google_calendar_endpoint)
+#     # calendar_response = requests.get(uri, headers=headers, data=body)
+#     # events_list = EventsList(calendar_response)  # creds, token
+#     # events_list.arrange_events()
+#     # # print(len(events_list.events_list_arranged))
+#     # final_events = events_list.events_list_arranged
 
 
 # @app.route("/new_event")
@@ -744,6 +753,11 @@ def get_update():
 @app.route("/logout")
 # @login_required
 def logout():
+    """
+    Logs the user out erases their session
+    :rtype:
+        Http Response
+    """
     params = flask.request.args
     session_id = params.get('session_id')
     try:
