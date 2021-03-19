@@ -8,7 +8,6 @@ import os.path
 import random
 import sqlite3
 from datetime import datetime, time
-import Lineder_logging
 
 # Third-party libraries
 # import base32hex
@@ -311,6 +310,8 @@ def login_flow():
     params = flask.request.args
     session_id = params.get('session_id')
     if not session_id:
+        # TODO:
+        # token, creds - not used below
         token, creds, url = quickstart.until_url()
         return redirect(url, code=302)
     if session.is_logged_in(session_id):
@@ -437,7 +438,7 @@ def ranges_callback():
     my_logger.debug("cUser after constructor:")
     my_logger.debug(cur_user)
     cur_user.id = DbUser.get_id_by_email(user_address)
-    my_logger.debug("user.id in callback:", cur_user.id)
+    my_logger.debug("user.id in callback: %s", cur_user.id)
     if not cur_user.id:
         # TODO:
         # You are missing two parameters here for create: name and phone
@@ -767,6 +768,8 @@ def logout():
     my_logger.debug("logging user out...")
     my_logger.debug(address)
     session.log_out(session_id)
+    # TODO:
+    # You are supposed to call is_logged_in with session_id
     success = not session.is_logged_in()
     res = flask.jsonify(
         success=success

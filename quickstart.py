@@ -69,6 +69,10 @@ def until_url():
     else:
         auth_url = "!"
     if auth_url is None:
+        # TODO:
+        # Note the you return less return values in case auth_url is none. This is very unhalthy.
+        # Better return an empty auth_url here
+        # or return a list [] instead of tuple
         return token, creds
     else:
         return token, creds, auth_url
