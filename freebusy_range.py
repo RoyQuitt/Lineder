@@ -1,7 +1,7 @@
 import time
 
 from flask_login import UserMixin
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from db import get_db
 import pandas as pd
 
@@ -33,6 +33,18 @@ class Freebusy(UserMixin):
         if not range:
             return None
         return range
+
+    @staticmethod
+    def busy_for(owner_id, hours: int, mins: int) -> bool:
+        hours = int(hours)
+        mins = int(mins)
+        # now = datetime.utcnow()
+        now = datetime.now(tz=timezone(timedelta(hours=hours)))
+        end = datetime.utcnow() + timedelta(hours=hours, minutes=mins)
+        success = Freebusy.create_range(owner_id, now, end)
+        print(now, end, success)
+        return success
+
 
     @staticmethod
     def create_range(owner_id, start_time: datetime, end_time: datetime):

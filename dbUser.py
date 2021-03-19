@@ -36,10 +36,13 @@ class MyUser(UserMixin):
     @staticmethod
     def get_user_phone(user_address):
         user_id = MyUser.get_id_by_email(user_address)
+        # print(user_address, user_id)
         db = get_db()
         phone = db.execute(
             "SELECT phone FROM myUser WHERE user_id = ?", (user_id,)
         ).fetchone()
+        if phone is None:
+            return None
         return phone[0]
 
     @staticmethod
@@ -100,6 +103,7 @@ class MyUser(UserMixin):
 
     @staticmethod
     def get_id_by_email(email):
+        # print("get by id")
         db = get_db()
         # print("User address in get id:", email)
         gotUser = db.execute(
@@ -107,8 +111,10 @@ class MyUser(UserMixin):
         ).fetchone()
         # print(gotUser, type(gotUser))
         if gotUser is None:
+            # print("not in db")
             return None  # not in DB
         user_id = gotUser[0]
+        # print(user_id)
         # print("User in get by email:", gotUser[0], gotUser[1])
         return user_id
 

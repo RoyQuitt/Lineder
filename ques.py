@@ -13,6 +13,27 @@ class Ques:
         self.place_in_line = None
 
     @staticmethod
+    def remove_from_que(callee_address, waiter_address) -> bool:
+        callee_id = MyUser.get_id_by_email(callee_address)
+        waiter_id = MyUser.get_id_by_email(waiter_address)
+        waiter_place = Ques.get_place_in_line(waiter_id, callee_id)
+        db = get_db()
+        db.execute(
+            "DELETE from Ques WHERE callee_id = ? AND waiter_id = ?",
+            (callee_id, waiter_id)
+        )
+        if Ques.get_place_in_line(waiter_id, callee_id) is None:
+            db.execute(
+                "UPDATE ques SET place_in_line = place_in_line - 1"
+                " WHERE place_in_line > ? AND callee_id =?",
+                (waiter_place, callee_id)
+            )
+        else:
+            return False
+        db.commit()
+        return Ques.get_place_in_line(waiter_id, callee_id) is None
+
+    @staticmethod
     def get_my_que(user_address):
         user_id = MyUser.get_id_by_email(user_address)
         db = get_db()
@@ -94,6 +115,8 @@ class Ques:
             "SELECT place_in_line FROM ques WHERE callee_id = ? AND waiter_id = ?",
             (callee_id, waiter_id)
         ).fetchone()
+        if place is None:
+            return None
         return place[0]
 
     @staticmethod

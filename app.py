@@ -549,6 +549,20 @@ def og_callback():
 #     return res
 
 
+@app.route("/busy_for")
+def busy_for():
+    params = flask.request.args
+    session_id = params.get('session_id')
+    try:
+        owner_id = session.handle_user_user_id(session_id)
+    except Unauthorized:
+        return unauthorized_resp
+    hours = int(params.get('hours'))
+    mins = int(params.get('mins'))
+    success = Range.busy_for(owner_id, hours, mins)
+    res = flask.jsonify(success=success)
+    return res
+
 # /new_range?start=1985-04-12T23:20:50.52Z&end=1985-05-12T23:20:50.52Z
 # from 12.04.1985, 23:20:50.52 until 12.05.1985, 23:20:50.52
 @app.route("/new_range")
@@ -643,6 +657,22 @@ def move_to_top():
     # waiter_address = "maibasis@gmail.com"
     # waiter_address = "R0586868610@gmail.com"
     success = Ques.move_to_top(waiter_address, callee_address)
+    res = flask.jsonify(
+        success=success
+    )
+    return res
+
+
+@app.route("/remove_from_que")
+def remove():
+    params = flask.request.args
+    session_id = params.get('session_id')
+    try:
+        callee_address = session.handle_user(session_id)
+    except Unauthorized:
+        return unauthorized_resp
+    waiter_address = params.get('waiter_address')
+    success = Ques.remove_from_que(callee_address, waiter_address)
     res = flask.jsonify(
         success=success
     )
