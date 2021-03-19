@@ -2,7 +2,7 @@ CREATE TABLE myUser (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
     real_name TEXT,
     email TEXT UNIQUE,
-    phone TEXT UNIQUE
+    phone TEXT
 );
 
 

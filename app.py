@@ -1,12 +1,13 @@
 from __future__ import print_function
 
 import datetime
+from datetime import timezone, timedelta
 # Python standard libraries
 import json
 import os.path
 import random
 import sqlite3
-from datetime import datetime
+from datetime import datetime, time
 import Lineder_logging
 
 # Third-party libraries
@@ -574,14 +575,23 @@ def new_range():
         owner_id = session.handle_user_user_id(session_id)
     except Unauthorized:
         return unauthorized_resp
-    start = params.get('start')
-    end = params.get('end')
+    start: datetime = params.get('start')
+    end: datetime = params.get('end')
     # owner_id = DbUser.get_id_by_email(current_user.email)
     # owner_id = DbUser.get_id_by_email("roy.quitt@googlemail.com")
     # owner_id = current_user.id
     # owner_address = session.get_address_by_session_id(session_id)
     # owner_id = DbUser.get_id_by_email(owner_address)
-    success = Range.create_range(owner_id, start, end)
+    print(start, end)
+    now = datetime.now(tz=timezone(timedelta(hours=2), 'IST'))
+    new_start: datetime = datetime.strptime(start, "%H:%M")
+    final_start = datetime(now.year, now.month, now.day, new_start.hour, new_start.minute).isoformat() + 'Z'
+    new_end: datetime = datetime.strptime(end, "%H:%M")
+    final_end = datetime(now.year, now.month, now.day, new_end.hour, new_end.minute).isoformat() + 'Z'
+    # final_start: datetime = datetime.strptime(start, "%H:%M %Y-%m-%dT%H:%M:%SZ")
+    # final_end: datetime = datetime.strptime(end, "%H:%M %Y-%m-%dT%H:%M:%SZ")
+    print(final_start, final_end)
+    success = Range.create_range(owner_id, final_start, final_end)
     res = flask.jsonify(success=success)
     return res
 
@@ -604,7 +614,11 @@ return value is JSON
     params = flask.request.args
     user_address = params.get('user_address')
     print("User address in get user schedule:" + user_address)
-    user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges(user_address)
+    try:
+        user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges(user_address)
+    except TypeError:
+        print("type error")
+        return flask.jsonify(error="type error")
     # print("type of start:", type(user_ranges[1]))
     is_available: bool = DbUser.is_available(user_address)
     next_available: datetime = DbUser.next_available(user_address)
@@ -618,7 +632,7 @@ return value is JSON
         phone=phone
     )
     # Range.clean_db()
-    Range.print_table()
+    # Range.print_table()
     return res
 
 

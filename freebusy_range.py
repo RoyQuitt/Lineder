@@ -39,8 +39,9 @@ class Freebusy(UserMixin):
         hours = int(hours)
         mins = int(mins)
         # now = datetime.utcnow()
-        now = datetime.now(tz=timezone(timedelta(hours=hours)))
-        end = datetime.utcnow() + timedelta(hours=hours, minutes=mins)
+        now = datetime.now(tz=timezone(timedelta(hours=2), 'IST'))
+        # now = datetime.now(tz=timezone(timedelta(hours=hours)))
+        end = now + timedelta(hours=hours, minutes=mins)
         success = Freebusy.create_range(owner_id, now, end)
         print(now, end, success)
         return success

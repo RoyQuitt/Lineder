@@ -76,8 +76,9 @@ class MyUser(UserMixin):
             # print(type(c_range[0]), type(c_range[1]))
             # print(type(c_start), type(time), type(c_end))
             # print(c_start, time, c_end)
-            print(c_start, time, c_end)
-            if c_start < time < c_end:  # 0 = start, 1 = end
+            # print("is:", c_start, time, c_end)
+            if c_start <= time <= c_end:  # 0 = start, 1 = end
+                # print(c_start, time, c_end)
                 is_available = False
         return is_available
 
@@ -90,14 +91,21 @@ class MyUser(UserMixin):
         # print("ranges in 'next_available':", ranges)
         ranges_end: list[datetime] = [range[1] for range in ranges]
         ranges_end.sort()
+        # print("ranges end:", ranges_end)
         # print(ranges_end)
         # check if first end time in 'ranges_end' is not inside another range
-        overlapping: bool = not MyUser.is_available(user_address, time=ranges_end[0])
+        overlapping: bool = not MyUser.is_available(user_address, time=ranges_end[0] + timedelta(seconds=1))
+        # print("overlapping:", overlapping)
         next_available: datetime = ranges_end[0]
         i = 1
+        now = datetime.datetime.now(tz=timezone(timedelta(hours=2), 'IST'))
         while overlapping and i < len(ranges_end):
-            overlapping = MyUser.is_available(user_address, time=ranges_end[i])
-            next_available = ranges_end[i]
+            # print(ranges_end[i], ranges_end[i] > now)
+            if ranges_end[i] > now:
+                # print("future")
+                overlapping = not MyUser.is_available(user_address, time=ranges_end[i] + timedelta(seconds=1))
+                # print(ranges_end[i], overlapping)
+                next_available = ranges_end[i]
             i += 1
         return next_available
 
