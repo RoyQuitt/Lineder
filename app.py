@@ -34,11 +34,12 @@ import OneSignalConfig
 from db import init_db_command, get_db
 from dbUser import MyUser as DbUser
 from freebusy_range import Freebusy as Range
+from freebusy_range import TZ_DELTA, LOCAL_TIME_ZONE
 from user import User
 from ques import Ques
 
-# from onesignal import OneSignal
-
+WAITER_ADDRESS_HTTP_PARAM_NAME = 'waiter_address'
+SESSION_ID_HTTP_PARAM_NAME = 'session_id'
 
 session = SessionManagement ()
 
@@ -301,7 +302,7 @@ def login_flow ():
         The redirect response
     """
     params = flask.request.args
-    session_id = params.get ('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     if not session_id:
         # TODO:
         # token, creds - not used below
@@ -565,7 +566,7 @@ def ranges_callback ():
 @app.route ("/busy_for")
 def busy_for ():
     params = flask.request.args
-    session_id = params.get ('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         owner_id = session.handle_user_user_id (session_id)
     except Unauthorized:
@@ -583,7 +584,7 @@ def busy_for ():
 # @login_required
 def new_range ():
     params = flask.request.args
-    session_id = params.get ('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         owner_id = session.handle_user_user_id (session_id)
     except Unauthorized:
@@ -596,7 +597,7 @@ def new_range ():
     # owner_address = session.get_address_by_session_id(session_id)
     # owner_id = DbUser.get_id_by_email(owner_address)
     print (start, end)
-    now = datetime.now (tz=timezone (timedelta (hours=2), 'IST'))
+    now = datetime.now (tz=timezone (timedelta (hours=TZ_DELTA), LOCAL_TIME_ZONE))
     new_start: datetime = datetime.strptime (start, "%H:%M")
     final_start = datetime (now.year, now.month, now.day, new_start.hour, new_start.minute).isoformat () + 'Z'
     new_end: datetime = datetime.strptime (end, "%H:%M")
@@ -653,7 +654,7 @@ return value is JSON
 # @login_required
 def join ():
     params = flask.request.args
-    session_id = params.get ('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         waiter_address = session.handle_user (session_id)
     except Unauthorized:
@@ -673,13 +674,13 @@ def join ():
 # @login_required
 def move_to_top ():
     params = flask.request.args
-    session_id = params.get ('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         callee_address = session.handle_user (session_id)
     except Unauthorized:
         return unauthorized_resp
     # callee_address = current_user.email
-    waiter_address = params.get ('waiter_address')
+    waiter_address = params.get (WAITER_ADDRESS_HTTP_PARAM_NAME)
     # waiter_address = "roy.quitt@googlemail.com"
     # waiter_address = "maibasis@gmail.com"
     # waiter_address = "R0586868610@gmail.com"
@@ -693,12 +694,12 @@ def move_to_top ():
 @app.route ("/remove_from_que")
 def remove ():
     params = flask.request.args
-    session_id = params.get ('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         callee_address = session.handle_user (session_id)
     except Unauthorized:
         return unauthorized_resp
-    waiter_address = params.get ('waiter_address')
+    waiter_address = params.get (WAITER_ADDRESS_HTTP_PARAM_NAME)
     success = Ques.remove_from_que (callee_address, waiter_address)
     res = flask.jsonify (
         success=success
@@ -710,7 +711,7 @@ def remove ():
 # @login_required
 def get_my_que ():
     params = flask.request.args
-    session_id = params.get ('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         address = session.handle_user (session_id)
     except Unauthorized:
@@ -732,7 +733,7 @@ def get_my_que ():
 # @login_required
 def get_update ():
     params = flask.request.args
-    session_id = params.get ('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         user_address = session.handle_user (session_id)
     except Unauthorized:
@@ -754,7 +755,7 @@ def logout ():
         Http Response
     """
     params = flask.request.args
-    session_id = params.get ('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         address = session.handle_user (session_id)
     except Unauthorized:
