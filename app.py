@@ -37,11 +37,11 @@ from freebusy_range import Freebusy as Range
 from user import User
 from ques import Ques
 
-from onesignal import OneSignal
+# from onesignal import OneSignal
 
 
 session = SessionManagement()
-one_signal_client = OneSignal(OneSignalConfig.onesignal_app_id, OneSignalConfig.onesignal_rest_api_key)
+# one_signal_client = OneSignal(OneSignalConfig.onesignal_app_id, OneSignalConfig.onesignal_rest_api_key)
 
 
 my_logger = Lineder_logging.get_logger("App")
