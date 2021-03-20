@@ -40,13 +40,11 @@ from ques import Ques
 # from onesignal import OneSignal
 
 
-session = SessionManagement()
-# one_signal_client = OneSignal(OneSignalConfig.onesignal_app_id, OneSignalConfig.onesignal_rest_api_key)
+session = SessionManagement ()
 
-
-my_logger = Lineder_logging.get_logger("App")
-my_logger.debug("\n--------------------------- NEW ---------------------------\n")
-my_logger.debug("Starting Logging")
+my_logger = Lineder_logging.get_logger ("App")
+my_logger.debug ("\n--------------------------- NEW ---------------------------\n")
+my_logger.debug ("Starting Logging")
 
 # My custom classes
 # from classes.Users import Users
@@ -108,7 +106,6 @@ my_logger.debug("Starting Logging")
 
 HEX32_MAX = 111111111
 
-
 # Configuration
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
@@ -123,31 +120,28 @@ GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
 
-
 # In memory DB initialization
 # users = Users([])
 
 
 # Flask app setup
-app = Flask(__name__)
+app = Flask (__name__)
 app.config['supports_credentials'] = True
 # app.config['SESSION_COOKIE_HTTPONLY'] = False
-print("app config:", app.config)
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
-app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
+print ("app config:", app.config)
+cors = CORS (app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+app.secret_key = os.environ.get ("SECRET_KEY") or os.urandom (24)
 unauthorized_resp = None
-
-
 
 # User session management setup
 # https://flask-login.readthedocs.io/en/latest
-login_manager = LoginManager()
-login_manager.init_app(app)
-print("Going to initialize DB")
+login_manager = LoginManager ()
+login_manager.init_app (app)
+my_logger.debug("Going to initialize DB")
 # Naive database setup
 try:
-    print("creating DB")
-    init_db_command()
+    my_logger.debug("creating DB")
+    init_db_command ()
     # db = get_db()
     #
     # db.execute("DROP TABLE MyUser")
@@ -156,37 +150,36 @@ try:
     # print("dropped all")
 except sqlite3.OperationalError:
     # Assume it's already been created
-    print("DB already created")
-
+    my_logger.debug("DB already created")
 
 # OAuth 2 client setup
 # print(GOOGLE_CLIENT_ID)
 # print(GOOGLE_CLIENT_SECRET)
-client = WebApplicationClient(GOOGLE_CLIENT_ID)
+client = WebApplicationClient (GOOGLE_CLIENT_ID)
 
 
 class Event:
-    def __init__(self,  title, start, end):
+    def __init__ (self, title, start, end):
         self.start = start
         self.end = end
         self.title = title
 
-    def __repr__(self):
-        return str(self.start) + "  -  " + str(self.end) + "   |   " + str(self.title)
+    def __repr__ (self):
+        return str (self.start) + "  -  " + str (self.end) + "   |   " + str (self.title)
 
-    def make_json(self):
+    def make_json (self):
         """
         Serializes the event as a JSON
         :return: the JSON in a string
         """
         # return "title:" + str(self.title) + ", \n" + "start:"
-        return str(flask.jsonify(
+        return str (flask.jsonify (
             title=self.title,
             start=self.start,
             end=self.end
         ))
 
-    def serialize(self):
+    def serialize (self):
         """
 This is where the JSON magic happens.
 This is the dictionary that specifies how to serialized the class.
@@ -200,68 +193,68 @@ This is the dictionary that specifies how to serialized the class.
 
 
 class EventsList:
-    def __init__(self, events):
+    def __init__ (self, events):
         self.events_list = events
         self.events_list_arranged = []
         self.events_list_json = []
 
-    def __repr__(self):
+    def __repr__ (self):
         """
         Represent the class as a string
         :return: 
         A string with a list of events
         """
         events_string: str = ""
-        for i, event in enumerate(self.events_list_arranged):
-            events_string += event.__repr__() + ", "
+        for i, event in enumerate (self.events_list_arranged):
+            events_string += event.__repr__ () + ", "
         return events_string
 
-    def make_json(self):
+    def make_json (self):
         # return json.dumps(self.events_list_arranged)
         for event in self.events_list_arranged:
-            self.events_list_json.append(event.make_json())
-        return flask.jsonify(
+            self.events_list_json.append (event.make_json ())
+        return flask.jsonify (
             events=self.events_list_json
         )
 
-    def arrange_events(self, owner_id):
+    def arrange_events (self, owner_id):
         if not self.events_list:
-            print('No upcoming events found.')
+            my_logger.debug('No upcoming events found.')
 
-        for i, event in enumerate(self.events_list):
+        for i, event in enumerate (self.events_list):
             event_id = event['id']
-            start = event['start'].get('dateTime', event['start'].get('date'))
-            end = event['end'].get('dateTime', event['start'].get('date'))
+            start = event['start'].get ('dateTime', event['start'].get ('date'))
+            end = event['end'].get ('dateTime', event['start'].get ('date'))
             title = event['summary']
-            new_event = dbEvent(event_id, owner_id, title, start, end)
-            print("\nevent number:", i)
-            print(new_event)
-            self.events_list_arranged.append(new_event)
+            new_event = dbEvent (event_id, owner_id, title, start, end)
+            print ("\nevent number:", i)
+            print (new_event)
+            self.events_list_arranged.append (new_event)
             # print(start, " - ", end, " | ", event['summary'])
-        print("\n\nevents list arranged in arrange_events:\n" + self.__repr__())
+        print ("\n\nevents list arranged in arrange_events:\n" + self.__repr__ ())
 
 
 # Flask-Login helper to retrieve a user from our db
 @login_manager.user_loader
-def load_user(user_id):  # actually gets email instead of id
+def load_user (user_id):  # actually gets email instead of id
     # user_id = DbUser.get_id_by_email(user_address)
-    my_logger.debug("\nLOAD USER %s", DbUser.get(user_id))
-    return DbUser.get(user_id)
+    my_logger.debug ("\nLOAD USER %s", DbUser.get (user_id))
+    return DbUser.get (user_id)
 
 
-@app.route("/json_test")
-def json_test():
-    return flask.jsonify(
+@app.route ("/json_test")
+def json_test ():
+    return flask.jsonify (
         redirect_url="hello",
         code=302
     )
 
 
-@app.route("/")
-def index():
+@app.route ("/")
+def index ():
     global unauthorized_resp
     message = {'error': 'Unauthorized'}
-    unauthorized_resp = flask.jsonify(message)
+    unauthorized_resp = flask.jsonify (message)
     unauthorized_resp.status_code = 401
     # if current_user.is_authenticated:
     #     return (
@@ -276,31 +269,31 @@ def index():
     #     )
     # else:
     #     return '<a class="button" href="/login">Google Login</a>'
-    return redirect(url_for("login_flow"))
+    return redirect (url_for ("login_flow"))
 
 
-def get_google_provider_cfg():
-    return requests.get(GOOGLE_DISCOVERY_URL).json()
+def get_google_provider_cfg ():
+    return requests.get (GOOGLE_DISCOVERY_URL).json ()
 
 
-@app.route("/getEvents")
+@app.route ("/getEvents")
 @login_required
-def get_events():
-    now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
+def get_events ():
+    now = datetime.datetime.utcnow ().isoformat () + 'Z'  # 'Z' indicates UTC time
     url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=5&timeMin=' + now
-    req = requests.Session()
-    my_logger.debug(client.token)
-    token = client.token.get("access_token")
-    my_logger.debug(token)
-    req = requests.get(url, headers={'Authorization': 'Bearer %s' % token}, data=None)
-    my_logger.debug("\nresponse: %s", req.text)
-    with open("sample.txt", "w", encoding="utf-8") as text_file:
-        text_file.write(req.text)
-    return redirect(url_for("index"))
+    req = requests.Session ()
+    my_logger.debug (client.token)
+    token = client.token.get ("access_token")
+    my_logger.debug (token)
+    req = requests.get (url, headers={'Authorization': 'Bearer %s' % token}, data=None)
+    my_logger.debug ("\nresponse: %s", req.text)
+    with open ("sample.txt", "w", encoding="utf-8") as text_file:
+        text_file.write (req.text)
+    return redirect (url_for ("index"))
 
 
-@app.route("/login")  # arrow 1
-def login_flow():
+@app.route ("/login")  # arrow 1
+def login_flow ():
     """
     login_flow starts the login process and then redirects the user to the next stage by sending a 302 redirect
     response with the URL received from quickstart
@@ -308,31 +301,31 @@ def login_flow():
         The redirect response
     """
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get ('session_id')
     if not session_id:
         # TODO:
         # token, creds - not used below
-        token, creds, url = quickstart.until_url()
-        return redirect(url, code=302)
-    if session.is_logged_in(session_id):
+        token, creds, url = quickstart.until_url ()
+        return redirect (url, code=302)
+    if session.is_logged_in (session_id):
         return "You are already logged in. You can close this window"
-    token, creds, url = quickstart.until_url()
-    return redirect(url, code=302)  # arrow 4 + 5
+    token, creds, url = quickstart.until_url ()
+    return redirect (url, code=302)  # arrow 4 + 5
 
 
 # Original 'login' code
-def login():
+def login ():
     # Find out what URL to hit for Google login
-    google_provider_cfg = get_google_provider_cfg()
+    google_provider_cfg = get_google_provider_cfg ()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
     # Use library to construct the request for Google login and provide
     # scopes that let you retrieve user's profile from Google
-    request_uri = client.prepare_request_uri(
+    request_uri = client.prepare_request_uri (
         authorization_endpoint,
         redirect_uri=request.base_url + "/new_callback",
         scope=["openid", "email", "profile", 'https://www.googleapis.com/auth/calendar.readonly'],
     )
-    return redirect(request_uri)
+    return redirect (request_uri)
 
 
 # @app.route("/login/callback", methods=['OPTIONS'])
@@ -350,13 +343,13 @@ def login():
 
 
 @app.after_request
-def after_request(response):
-    my_logger.debug("after request")
-    response.headers.add('Access-Control-Allow-Origin', '*')
+def after_request (response):
+    my_logger.debug ("after request")
+    response.headers.add ('Access-Control-Allow-Origin', '*')
     # response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,Access-Control-Allow-Origin')
-    response.headers.add('Access-Control-Allow-Headers', '*')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add ('Access-Control-Allow-Headers', '*')
+    response.headers.add ('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    response.headers.add ('Access-Control-Allow-Credentials', 'true')
     return response
     # return response
 
@@ -397,12 +390,12 @@ def after_request(response):
 #     return res
 
 
-@app.route("/show_cookie")
-def show_cookie():
+@app.route ("/show_cookie")
+def show_cookie ():
     # return "hello"
-    username = flask.request.cookies.get('user_address')
-    res = flask.jsonify(username=username)
-    my_logger.debug(username)
+    username = flask.request.cookies.get ('user_address')
+    res = flask.jsonify (username=username)
+    my_logger.debug (username)
     return res
 
 
@@ -428,40 +421,40 @@ def show_cookie():
 #     return flask.jsonify(success=True)
 
 
-@app.route("/login/new_callback")
-def ranges_callback():
+@app.route ("/login/new_callback")
+def ranges_callback ():
     # print("headers:", flask.request.headers)
     # phone = flask.request.args.get('phone')
-    my_logger.debug("ranges callback")
-    freebusy, user_address, name, phone = quickstart.after_url()
-    cur_user = DbUser(user_address, name, phone)  # current user
-    my_logger.debug("cUser after constructor:")
-    my_logger.debug(cur_user)
-    cur_user.id = DbUser.get_id_by_email(user_address)
-    my_logger.debug("user.id in callback: %s", cur_user.id)
+    my_logger.debug ("ranges callback")
+    freebusy, user_address, name, phone = quickstart.after_url ()
+    cur_user = DbUser (user_address, name, phone)  # current user
+    my_logger.debug ("cUser after constructor:")
+    my_logger.debug (cur_user)
+    cur_user.id = DbUser.get_id_by_email (user_address)
+    my_logger.debug ("user.id in callback: %s", cur_user.id)
     if not cur_user.id:
         # TODO:
-        # You are missing two parameters here for create: name and phone
-        cUser_id = DbUser.create(cur_user.email)
+        # We are missing two parameters here for create: name and phone
+        cUser_id = DbUser.create (cur_user.email)
 
     # Begin user session by logging the user in
     # login_user(cur_user)
     # logging in the user
-    session_id = session.login_user(user_address)
-    my_logger.debug(session.users_dict)
-    my_logger.debug("LOGGED IN NEW USER!")
-    my_logger.debug("email: %s",cur_user.email)
-    my_logger.debug("user_id: %s",cur_user.id)
-    my_logger.debug("\nUser: %s", user_address)
-    my_logger.debug(freebusy)
+    session_id = session.login_user (user_address)
+    my_logger.debug (session.users_dict)
+    my_logger.debug ("LOGGED IN NEW USER!")
+    my_logger.debug ("email: %s", cur_user.email)
+    my_logger.debug ("user_id: %s", cur_user.id)
+    my_logger.debug ("\nUser: %s", user_address)
+    my_logger.debug (freebusy)
 
     # Create the ranges in our database
     for c_range in freebusy:
-        Range.create_range(cur_user.id, c_range['start'], c_range['end'])
+        Range.create_range (cur_user.id, c_range['start'], c_range['end'])
 
     # Build the HTTP response
-    res = flask.jsonify(freebusy=freebusy, name=name, phone=phone, session_id=session_id)
-    my_logger.debug("callback response: %s", res.get_data(as_text=True))
+    res = flask.jsonify (freebusy=freebusy, name=name, phone=phone, session_id=session_id)
+    my_logger.debug ("callback response: %s", res.get_data (as_text=True))
     return res
 
 
@@ -569,49 +562,50 @@ def ranges_callback():
 #     return res
 
 
-@app.route("/busy_for")
-def busy_for():
+@app.route ("/busy_for")
+def busy_for ():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get ('session_id')
     try:
-        owner_id = session.handle_user_user_id(session_id)
+        owner_id = session.handle_user_user_id (session_id)
     except Unauthorized:
         return unauthorized_resp
-    hours = int(params.get('hours'))
-    mins = int(params.get('mins'))
-    success = Range.busy_for(owner_id, hours, mins)
-    res = flask.jsonify(success=success)
+    hours = int (params.get ('hours'))
+    mins = int (params.get ('mins'))
+    success = Range.busy_for (owner_id, hours, mins)
+    res = flask.jsonify (success=success)
     return res
+
 
 # /new_range?start=1985-04-12T23:20:50.52Z&end=1985-05-12T23:20:50.52Z
 # from 12.04.1985, 23:20:50.52 until 12.05.1985, 23:20:50.52
-@app.route("/new_range")
+@app.route ("/new_range")
 # @login_required
-def new_range():
+def new_range ():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get ('session_id')
     try:
-        owner_id = session.handle_user_user_id(session_id)
+        owner_id = session.handle_user_user_id (session_id)
     except Unauthorized:
         return unauthorized_resp
-    start: datetime = params.get('start')
-    end: datetime = params.get('end')
+    start: datetime = params.get ('start')
+    end: datetime = params.get ('end')
     # owner_id = DbUser.get_id_by_email(current_user.email)
     # owner_id = DbUser.get_id_by_email("roy.quitt@googlemail.com")
     # owner_id = current_user.id
     # owner_address = session.get_address_by_session_id(session_id)
     # owner_id = DbUser.get_id_by_email(owner_address)
-    print(start, end)
-    now = datetime.now(tz=timezone(timedelta(hours=2), 'IST'))
-    new_start: datetime = datetime.strptime(start, "%H:%M")
-    final_start = datetime(now.year, now.month, now.day, new_start.hour, new_start.minute).isoformat() + 'Z'
-    new_end: datetime = datetime.strptime(end, "%H:%M")
-    final_end = datetime(now.year, now.month, now.day, new_end.hour, new_end.minute).isoformat() + 'Z'
+    print (start, end)
+    now = datetime.now (tz=timezone (timedelta (hours=2), 'IST'))
+    new_start: datetime = datetime.strptime (start, "%H:%M")
+    final_start = datetime (now.year, now.month, now.day, new_start.hour, new_start.minute).isoformat () + 'Z'
+    new_end: datetime = datetime.strptime (end, "%H:%M")
+    final_end = datetime (now.year, now.month, now.day, new_end.hour, new_end.minute).isoformat () + 'Z'
     # final_start: datetime = datetime.strptime(start, "%H:%M %Y-%m-%dT%H:%M:%SZ")
     # final_end: datetime = datetime.strptime(end, "%H:%M %Y-%m-%dT%H:%M:%SZ")
-    print(final_start, final_end)
-    success = Range.create_range(owner_id, final_start, final_end)
-    res = flask.jsonify(success=success)
+    print (final_start, final_end)
+    success = Range.create_range (owner_id, final_start, final_end)
+    res = flask.jsonify (success=success)
     return res
 
 
@@ -623,27 +617,27 @@ def new_range():
 #     return s
 
 
-@app.route("/get_user_schedule")
-def get_user_schedule():
+@app.route ("/get_user_schedule")
+def get_user_schedule ():
     """
 Retrieve the availability of the user
 return value is JSON
     @rtype: object
     """
     params = flask.request.args
-    user_address = params.get('user_address')
-    print("User address in get user schedule:" + user_address)
+    user_address = params.get ('user_address')
+    print ("User address in get user schedule:" + user_address)
     try:
-        user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges(user_address)
+        user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges (user_address)
     except TypeError:
-        print("type error")
-        return flask.jsonify(error="type error")
+        print ("type error")
+        return flask.jsonify (error="type error")
     # print("type of start:", type(user_ranges[1]))
-    is_available: bool = DbUser.is_available(user_address)
-    next_available: datetime = DbUser.next_available(user_address)
-    phone = DbUser.get_user_phone(user_address)
-    name = DbUser.get_user_name(user_address)
-    res = flask.jsonify(
+    is_available: bool = DbUser.is_available (user_address)
+    next_available: datetime = DbUser.next_available (user_address)
+    phone = DbUser.get_user_phone (user_address)
+    name = DbUser.get_user_name (user_address)
+    res = flask.jsonify (
         name=name,
         ranges=user_ranges,
         is_available=is_available,
@@ -655,123 +649,123 @@ return value is JSON
     return res
 
 
-@app.route("/join_que")
+@app.route ("/join_que")
 # @login_required
-def join():
+def join ():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get ('session_id')
     try:
-        waiter_address = session.handle_user(session_id)
+        waiter_address = session.handle_user (session_id)
     except Unauthorized:
         return unauthorized_resp
-    callee_address = params.get('user_address')
-    print("adding", waiter_address, "to", callee_address + "'s que")
-    place_in_line = Ques.create_que_item(callee_address, waiter_address)
+    callee_address = params.get ('user_address')
+    print ("adding", waiter_address, "to", callee_address + "'s que")
+    place_in_line = Ques.create_que_item (callee_address, waiter_address)
     success = place_in_line != 0
-    res = flask.jsonify(
+    res = flask.jsonify (
         success=success,
         place_in_line=place_in_line
     )
     return res
 
 
-@app.route("/move_to_top")
+@app.route ("/move_to_top")
 # @login_required
-def move_to_top():
+def move_to_top ():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get ('session_id')
     try:
-        callee_address = session.handle_user(session_id)
+        callee_address = session.handle_user (session_id)
     except Unauthorized:
         return unauthorized_resp
     # callee_address = current_user.email
-    waiter_address = params.get('waiter_address')
+    waiter_address = params.get ('waiter_address')
     # waiter_address = "roy.quitt@googlemail.com"
     # waiter_address = "maibasis@gmail.com"
     # waiter_address = "R0586868610@gmail.com"
-    success = Ques.move_to_top(waiter_address, callee_address)
-    res = flask.jsonify(
+    success = Ques.move_to_top (waiter_address, callee_address)
+    res = flask.jsonify (
         success=success
     )
     return res
 
 
-@app.route("/remove_from_que")
-def remove():
+@app.route ("/remove_from_que")
+def remove ():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get ('session_id')
     try:
-        callee_address = session.handle_user(session_id)
+        callee_address = session.handle_user (session_id)
     except Unauthorized:
         return unauthorized_resp
-    waiter_address = params.get('waiter_address')
-    success = Ques.remove_from_que(callee_address, waiter_address)
-    res = flask.jsonify(
+    waiter_address = params.get ('waiter_address')
+    success = Ques.remove_from_que (callee_address, waiter_address)
+    res = flask.jsonify (
         success=success
     )
     return res
 
 
-@app.route("/get_my_que")
+@app.route ("/get_my_que")
 # @login_required
-def get_my_que():
+def get_my_que ():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get ('session_id')
     try:
-        address = session.handle_user(session_id)
+        address = session.handle_user (session_id)
     except Unauthorized:
         return unauthorized_resp
     # address = current_user.email
-    print("getting que of:", address)
+    print ("getting que of:", address)
     # address = "roy.quitt@googlemail.com"
     # address = "maibasis@gmail.com"
     # address = "R0586868610@gmail.com"
-    user_que = Ques.get_my_que(address)
-    print([waiter.serialize() for waiter in user_que])
-    res = flask.jsonify(
-        que=[waiter.serialize() for waiter in user_que]
+    user_que = Ques.get_my_que (address)
+    print ([waiter.serialize () for waiter in user_que])
+    res = flask.jsonify (
+        que=[waiter.serialize () for waiter in user_que]
     )
     return res
 
 
-@app.route("/get_update")
+@app.route ("/get_update")
 # @login_required
-def get_update():
+def get_update ():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get ('session_id')
     try:
-        user_address = session.handle_user(session_id)
+        user_address = session.handle_user (session_id)
     except Unauthorized:
         return unauthorized_resp
     # user_address = current_user.email
-    notifications = Ques.get_notifications(user_address)
-    res = flask.jsonify(
-        notifications=[notification.serialize() for notification in notifications]
+    notifications = Ques.get_notifications (user_address)
+    res = flask.jsonify (
+        notifications=[notification.serialize () for notification in notifications]
     )
     return res
 
 
-@app.route("/logout")
+@app.route ("/logout")
 # @login_required
-def logout():
+def logout ():
     """
     Logs the user out erases their session
     :rtype:
         Http Response
     """
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get ('session_id')
     try:
-        address = session.handle_user(session_id)
+        address = session.handle_user (session_id)
     except Unauthorized:
         return unauthorized_resp
-    my_logger.debug("logging user out...")
-    my_logger.debug(address)
-    session.log_out(session_id)
+    my_logger.debug ("logging user out...")
+    my_logger.debug (address)
+    session.log_out (session_id)
     # TODO:
     # You are supposed to call is_logged_in with session_id
-    success = not session.is_logged_in()
-    res = flask.jsonify(
+    success = not session.is_logged_in ()
+    res = flask.jsonify (
         success=success
     )
     return res
@@ -779,7 +773,7 @@ def logout():
 
 if __name__ == "__main__":
     # app.run(host="10.50.1.146")
-    app.run(ssl_context="adhoc")
+    app.run (ssl_context="adhoc")
 
 # TODO:
 #   getting events using browser:
