@@ -12,9 +12,13 @@ from datetime import timedelta
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+
 # from Override_Files.flow import InstalledAppFlow
 
 # If modifying these scopes, delete the file token.pickle.
+CREDENTIALS_FILE_PATH = r"C:\Users\royqu\PycharmProjects\Lineder\credentials_flow.json"
+TOCKEN_FILE_NAME = 'token.pickle'
+CREDENTIALS_FLOW_JSON = 'credentials_flow.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/userinfo.profile',
           'https://www.googleapis.com/auth/user.emails.read', 'https://www.googleapis.com/auth/user.phonenumbers.read']
 #   'https://www.googleapis.com/auth/gmail.readonly',
@@ -32,8 +36,8 @@ def until_url():
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
+    if os.path.exists(TOCKEN_FILE_NAME):
+        with open(TOCKEN_FILE_NAME, 'rb') as token:
             creds = pickle.load(token)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
@@ -47,11 +51,11 @@ def until_url():
             try:
                 print("trying to run on PC")
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials_flow.json', SCOPES)
+                    CREDENTIALS_FLOW_JSON, SCOPES)
             except FileNotFoundError:
                 print("running on laptop")
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    r"C:\Users\royqu\PycharmProjects\Lineder\credentials_flow.json", SCOPES)
+                    r"%s" % CREDENTIALS_FILE_PATH, SCOPES)
             auth_url, local_server, wsgi_app = flow.run_local_server_1(port=0)
             # auth_url.replace("localhost", "10.50.1.149")
             print("URL:", auth_url)
@@ -70,7 +74,7 @@ def until_url():
         auth_url = "!"
     if auth_url is None:
         # TODO:
-        # Note the you return less return values in case auth_url is none. This is very unhalthy.
+        # Note the you return less return values in case auth_url is none. This is very unhealthy.
         # Better return an empty auth_url here
         # or return a list [] instead of tuple
         return token, creds
