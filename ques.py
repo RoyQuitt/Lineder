@@ -8,6 +8,7 @@ import Lineder_logging
 
 my_logger = Lineder_logging.get_logger ('Ques')
 
+DEBUG = False
 
 class Ques:
     def __init__ (self, callee_id, waiter_id):
