@@ -1,4 +1,10 @@
-import typing
+"""
+Session management is the process of securely handling multiple requests from one user
+to the application at the same time. A session is a set of consecutive HTTP requests
+initiated by the same user. A user's session is initiated when they authenticate via oAuth.
+All sessions have a unique id that must be provided as a parameter in every HTTP request.
+If the userid is valid, then the HTTP request will go through. If not, then it will be rejected.
+"""
 import uuid
 from dbUser import MyUser
 
@@ -16,6 +22,9 @@ class Unauthorized(Error):
 
 class SessionManagement:
     def __init__(self):
+        """
+        Creates the users dictionary which is a key->value mapping of session ID to email addresses
+        """
         self.users_dict: dict[str: str] = {}
 
     @staticmethod
@@ -29,6 +38,11 @@ class SessionManagement:
         return list(self.users_dict.keys())[list(self.users_dict.values()).index(user_address)]
 
     def login_user(self, user_address: str) -> str:
+        """
+        Logins a user by generating a unique session ID and mapping it to the user's email addresss
+        :param user_address: The email address to map
+        :return: the session ID created
+        """
         new_session_id: str = str(self.generate_random_uuid())
         self.users_dict[new_session_id] = user_address
         # return
