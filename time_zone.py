@@ -1,9 +1,9 @@
 from datetime import time, tzinfo, timedelta
-
+from freebusy_range import TZ_DELTA
 
 class IST(tzinfo):
     def utcoffset(self, dt):
-        return timedelta(hours=2)
+        return timedelta(hours=TZ_DELTA)
 
     def dst(self, dt):
         return timedelta(0)
