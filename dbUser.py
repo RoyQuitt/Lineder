@@ -21,8 +21,8 @@ class MyUser(UserMixin):
             if self.id is None:
                 self.id = MyUser.create(self.email, name, phone)
 
-    def set_id(self, new_id):
-        self.id = new_id
+    # def set_id(self, new_id):
+    #     self.id = new_id
 
     @staticmethod
     def get_user_name(user_address):
@@ -76,7 +76,7 @@ class MyUser(UserMixin):
             # print(type(c_range[0]), type(c_range[1]))
             # print(type(c_start), type(time), type(c_end))
             # print(c_start, time, c_end)
-            # print("is:", c_start, time, c_end)
+            print("is:", c_start, time, c_end)
             if c_start <= time <= c_end:  # 0 = start, 1 = end
                 # print(c_start, time, c_end)
                 is_available = False
@@ -126,27 +126,20 @@ class MyUser(UserMixin):
         # print("User in get by email:", gotUser[0], gotUser[1])
         return user_id
 
-    @staticmethod
-    def update_all_events_from_db():
-        db = get_db()
-        all_users = db.execute("SELECT * FROM myUser")
-        for instance in all_users:  # for every instance of the class
-            MyUser.get_user_events(instance.id)  # get updated events from the db
-        print("updated all events")
+    # @staticmethod
+    # def update_all_events_from_db():
+    #     db = get_db()
+    #     all_users = db.execute("SELECT * FROM myUser")
+    #     for instance in all_users:  # for every instance of the class
+    #         MyUser.get_user_events(instance.id)  # get updated events from the db
+    #     print("updated all events")
 
-    def update_user_events(self):
-        db = get_db()
-        self.events = db.execute(
-            "SELECT * FROM events WHERE owner_id = ?", (self.id,)
-        ).fetchall()
-        print("updated user events:", self.id + ":", self.events)
-
-    @staticmethod
-    def get_user_events(user_id):
-        db = get_db()
-        return db.execute(
-            "SELECT * FROM events WHERE owner_id = ?", (user_id,)
-        ).fetchall()
+    # def update_user_events(self):
+    #     db = get_db()
+    #     self.events = db.execute(
+    #         "SELECT * FROM events WHERE owner_id = ?", (self.id,)
+    #     ).fetchall()
+    #     print("updated user events:", self.id + ":", self.events)
 
     @staticmethod
     def get(user_id):

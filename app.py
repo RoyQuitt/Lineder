@@ -351,7 +351,7 @@ def login():
 
 @app.after_request
 def after_request(response):
-    my_logger.debug("after request")
+    # my_logger.debug("after request")
     response.headers.add('Access-Control-Allow-Origin', '*')
     # response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,Access-Control-Allow-Origin')
     response.headers.add('Access-Control-Allow-Headers', '*')
@@ -440,12 +440,8 @@ def ranges_callback():
     cur_user.id = DbUser.get_id_by_email(user_address)
     my_logger.debug("user.id in callback: %s", cur_user.id)
     if not cur_user.id:
-        # TODO:
-        # You are missing two parameters here for create: name and phone
-        cUser_id = DbUser.create(cur_user.email)
+        cUser_id = DbUser.create(cur_user.email, name, phone)
 
-    # Begin user session by logging the user in
-    # login_user(cur_user)
     # logging in the user
     session_id = session.login_user(user_address)
     my_logger.debug(session.users_dict)
@@ -650,7 +646,6 @@ return value is JSON
         next_available=next_available,
         phone=phone
     )
-    # Range.clean_db()
     # Range.print_table()
     return res
 

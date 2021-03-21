@@ -118,20 +118,3 @@ class Freebusy (UserMixin):
         """
         database = get_db ()
         my_logger.debug (pd.read_sql_query ("SELECT * FROM freebusy", database))
-
-    @staticmethod
-    def clean_db ():
-        """
-        Clean the db from users free/busy information
-        """
-        db = get_db()
-        db.execute(
-            "DELETE FROM freebusy"
-            "WHERE start_time NOT IN"
-            "("
-            "SELECT MIN(start_time) start_time"
-            "FROM freebusy"
-            "GROUP BY start_time, end_time"
-            ")"
-        )
-        db.commit()
