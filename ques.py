@@ -3,7 +3,11 @@ import pandas as pd
 from dbUser import MyUser
 from waiter import Waiter
 from notification import Notification
+import Lineder_logging
 
+my_logger = Lineder_logging.get_logger ('Ques')
+
+DEBUG = False
 
 class Ques:
     def __init__(self, callee_id, waiter_id):
@@ -13,12 +17,19 @@ class Ques:
         self.place_in_line = None
 
     @staticmethod
-    def remove_from_que(callee_address, waiter_address) -> bool:
-        callee_id = MyUser.get_id_by_email(callee_address)
-        waiter_id = MyUser.get_id_by_email(waiter_address)
-        waiter_place = Ques.get_place_in_line(waiter_id, callee_id)
-        db = get_db()
-        db.execute(
+    def remove_from_que (callee_address, waiter_address) -> bool:
+        """
+        Removes the waiter_address from the callee que
+        Used when the waiter does not want or should not wait anymore for the callee
+        :param callee_address:
+        :param waiter_address:
+        :return:
+        """
+        callee_id = MyUser.get_id_by_email (callee_address)
+        waiter_id = MyUser.get_id_by_email (waiter_address)
+        waiter_place = Ques.get_place_in_line (waiter_id, callee_id)
+        db = get_db ()
+        db.execute (
             "DELETE from Ques WHERE callee_id = ? AND waiter_id = ?",
             (callee_id, waiter_id)
         )

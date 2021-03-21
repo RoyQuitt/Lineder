@@ -34,19 +34,18 @@ import OneSignalConfig
 from db import init_db_command, get_db
 from dbUser import MyUser as DbUser
 from freebusy_range import Freebusy as Range
+from freebusy_range import TZ_DELTA, LOCAL_TIME_ZONE
 from user import User
 from ques import Ques
 
-# from onesignal import OneSignal
+WAITER_ADDRESS_HTTP_PARAM_NAME = 'waiter_address'
+SESSION_ID_HTTP_PARAM_NAME = 'session_id'
 
+session = SessionManagement ()
 
-session = SessionManagement()
-# one_signal_client = OneSignal(OneSignalConfig.onesignal_app_id, OneSignalConfig.onesignal_rest_api_key)
-
-
-my_logger = Lineder_logging.get_logger("App")
-my_logger.debug("\n--------------------------- NEW ---------------------------\n")
-my_logger.debug("Starting Logging")
+my_logger = Lineder_logging.get_logger ("App")
+my_logger.debug ("\n--------------------------- NEW ---------------------------\n")
+my_logger.debug ("Starting Logging")
 
 # My custom classes
 # from classes.Users import Users
@@ -108,7 +107,6 @@ my_logger.debug("Starting Logging")
 
 HEX32_MAX = 111111111
 
-
 # Configuration
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
@@ -122,7 +120,6 @@ GOOGLE_CLIENT_SECRET = os.environ.get ("GOOGLE_CLIENT_SECRET", None)
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
-
 
 # In memory DB initialization
 # users = Users([])
@@ -141,13 +138,13 @@ unauthorized_resp = None
 
 # User session management setup
 # https://flask-login.readthedocs.io/en/latest
-login_manager = LoginManager()
-login_manager.init_app(app)
-print("Going to initialize DB")
+login_manager = LoginManager ()
+login_manager.init_app (app)
+my_logger.debug("Going to initialize DB")
 # Naive database setup
 try:
-    print("creating DB")
-    init_db_command()
+    my_logger.debug("creating DB")
+    init_db_command ()
     # db = get_db()
     #
     # db.execute("DROP TABLE MyUser")
@@ -156,8 +153,7 @@ try:
     # print("dropped all")
 except sqlite3.OperationalError:
     # Assume it's already been created
-    print("DB already created")
-
+    my_logger.debug("DB already created")
 
 # OAuth 2 client setup
 # print(GOOGLE_CLIENT_ID)
@@ -226,7 +222,7 @@ class EventsList:
 
     def arrange_events(self, owner_id):
         if not self.events_list:
-            print('No upcoming events found.')
+            my_logger.debug('No upcoming events found.')
 
         for i, event in enumerate(self.events_list):
             event_id = event['id']
@@ -440,7 +436,9 @@ def ranges_callback():
     cur_user.id = DbUser.get_id_by_email(user_address)
     my_logger.debug("user.id in callback: %s", cur_user.id)
     if not cur_user.id:
-        cUser_id = DbUser.create(cur_user.email, name, phone)
+        # TODO:
+        # You are missing two parameters here for create: name and phone
+        cUser_id = DbUser.create(cur_user.email)
 
     # logging in the user
     session_id = session.login_user(user_address)
@@ -568,7 +566,7 @@ def ranges_callback():
 @app.route("/busy_for")
 def busy_for():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         owner_id = session.handle_user_user_id(session_id)
     except Unauthorized:
@@ -585,7 +583,7 @@ def busy_for():
 # @login_required
 def new_range():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         owner_id = session.handle_user_user_id(session_id)
     except Unauthorized:
@@ -646,6 +644,7 @@ return value is JSON
         next_available=next_available,
         phone=phone
     )
+    # Range.clean_db()
     # Range.print_table()
     return res
 
@@ -654,7 +653,7 @@ return value is JSON
 # @login_required
 def join():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         waiter_address = session.handle_user(session_id)
     except Unauthorized:
@@ -674,13 +673,13 @@ def join():
 # @login_required
 def move_to_top():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         callee_address = session.handle_user(session_id)
     except Unauthorized:
         return unauthorized_resp
     # callee_address = current_user.email
-    waiter_address = params.get('waiter_address')
+    waiter_address = params.get (WAITER_ADDRESS_HTTP_PARAM_NAME)
     # waiter_address = "roy.quitt@googlemail.com"
     # waiter_address = "maibasis@gmail.com"
     # waiter_address = "R0586868610@gmail.com"
@@ -694,14 +693,14 @@ def move_to_top():
 @app.route("/remove_from_que")
 def remove():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         callee_address = session.handle_user(session_id)
     except Unauthorized:
         return unauthorized_resp
-    waiter_address = params.get('waiter_address')
-    success = Ques.remove_from_que(callee_address, waiter_address)
-    res = flask.jsonify(
+    waiter_address = params.get (WAITER_ADDRESS_HTTP_PARAM_NAME)
+    success = Ques.remove_from_que (callee_address, waiter_address)
+    res = flask.jsonify (
         success=success
     )
     return res
@@ -711,7 +710,7 @@ def remove():
 # @login_required
 def get_my_que():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         address = session.handle_user(session_id)
     except Unauthorized:
@@ -733,7 +732,7 @@ def get_my_que():
 # @login_required
 def get_update():
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         user_address = session.handle_user(session_id)
     except Unauthorized:
@@ -755,7 +754,7 @@ def logout():
         Http Response
     """
     params = flask.request.args
-    session_id = params.get('session_id')
+    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
     try:
         address = session.handle_user(session_id)
     except Unauthorized:

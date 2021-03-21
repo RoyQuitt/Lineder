@@ -12,12 +12,19 @@ from datetime import timedelta
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-# from Override_Files.flow import InstalledAppFlow
 
-# If modifying these scopes, delete the file token.pickle.
+UTC_TIMEZONE_INDICATOR = 'Z'
+PEOPLE_API_VERSION = 'v1'
+DAYS_LOOK_AHEAD = 7
+
+DEBUG = False
+
+CREDENTIALS_FILE_PATH = r"C:\Users\royqu\PycharmProjects\Lineder\credentials_flow.json"
+TOCKEN_FILE_NAME = 'token.pickle'
+CREDENTIALS_FLOW_JSON = 'credentials_flow.json'
+
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/userinfo.profile',
           'https://www.googleapis.com/auth/user.emails.read', 'https://www.googleapis.com/auth/user.phonenumbers.read']
-#   'https://www.googleapis.com/auth/gmail.readonly',
 token = None
 creds = None
 results_from_thread = [None] * 2  # index 0 = creds, index 1 = url
@@ -32,8 +39,8 @@ def until_url():
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
+    if os.path.exists(TOCKEN_FILE_NAME):
+        with open(TOCKEN_FILE_NAME, 'rb') as token:
             creds = pickle.load(token)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
@@ -47,15 +54,18 @@ def until_url():
             try:
                 print("trying to run on PC")
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials_flow.json', SCOPES)
+                    CREDENTIALS_FLOW_JSON, SCOPES)
             except FileNotFoundError:
                 print("running on laptop")
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    r"C:\Users\royqu\PycharmProjects\Lineder\credentials_flow.json", SCOPES)
+                    r"%s" % CREDENTIALS_FILE_PATH, SCOPES)
             auth_url, local_server, wsgi_app = flow.run_local_server_1(port=0)
             # auth_url.replace("localhost", "10.50.1.149")
             print("URL:", auth_url)
-            new_thread = threading.Thread(target=flow.run_local_server_2, args=(auth_url, local_server, wsgi_app, results_from_thread))  # , port=0
+
+            # Create a new thread to wait on for the Google response
+            new_thread = threading.Thread(target=flow.run_local_server_2,
+                                          args=(auth_url, local_server, wsgi_app, results_from_thread))  # , port=0
             new_thread.start()
             # creds, auth_response = flow.run_local_server_2(auth_url, local_server, wsgi_app, port=0)
             # return auth_url
@@ -70,7 +80,7 @@ def until_url():
         auth_url = "!"
     if auth_url is None:
         # TODO:
-        # Note the you return less return values in case auth_url is none. This is very unhalthy.
+        # Note the you return less return values in case auth_url is none. This is very unhealthy.
         # Better return an empty auth_url here
         # or return a list [] instead of tuple
         return token, creds
@@ -101,12 +111,12 @@ def after_url():
     # service_gmail = build('gmail', 'v1', credentials=creds)
     # build service for people API in order to get user phone number and email address
     print(datetime.now(), "building people")
-    people_service = build('people', 'v1', credentials=creds)
+    people_service = build('people', PEOPLE_API_VERSION, credentials=creds)
     print(datetime.now(), "finished building")
     # Call the Calendar API
-    now = datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
-    time_max = datetime.utcnow() + timedelta(days=7)
-    time_max_text = time_max.isoformat() + 'Z' # 'Z' indicates UTC time
+    now = datetime.utcnow().isoformat() + UTC_TIMEZONE_INDICATOR  # 'Z' indicates UTC time
+    time_max = datetime.utcnow() + timedelta(days=DAYS_LOOK_AHEAD)
+    time_max_text = time_max.isoformat() + UTC_TIMEZONE_INDICATOR  # 'Z' indicates UTC time
     # all_calendars = get_all_calendars(service)
     events_result = {}
     # all_calendars_events_list = []
@@ -115,28 +125,7 @@ def after_url():
     print("getting user's name, email and phone")
     user_name, user_address, user_phone = call_people_api(people_service)
     # return events, user_address
-    calendars = [
-        {
-            "id": 'primary'
-        },
-        {
-            "id": 'otfnarbn0008p8cnthk9976gtsgp1auc'
-        }
-        ]
     calendars = get_all_calendars(service)
-    # calendars = []
-    # for calendar_id in calendar_ids:
-    #     calendars.append({"id": calendar_id})
-    # print(calendars)
-    # print(len(calendars))
-    if user_address == "roy.quitt@googlemail.com":
-        calendars.remove({  # 'Classes'
-                "id": 'ugs0a6bnjfss4dj1mv48rj0p24@group.calendar.google.com'
-            })
-        calendars.remove({  # 'Mai'
-            "id": 'lep2jr4t8qupvqh4h4t29qrnf0@group.calendar.google.com'
-        })
-    # print(len(calendars))
     body = {
         "timeMin": now,
         "timeMax": time_max_text,
@@ -158,16 +147,14 @@ def after_url():
 
 def get_all_calendars(service):
     calendar_list = service.calendarList().list(minAccessRole="writer").execute()
-    print("list:")
-    print(calendar_list)
-    for calendar_list_entry in calendar_list['items']:
-        print(calendar_list_entry['summary'], calendar_list_entry['id'])
+
+    if DEBUG:
+        for calendar_list_entry in calendar_list['items']:
+            print(calendar_list_entry['summary'], calendar_list_entry['id'])
     calendar_id_list = [calendar['id'] for calendar in calendar_list['items']]
     calendars = []
     for calendar_id in calendar_id_list:
         calendars.append({"id": calendar_id})
-    # print("ids:")
-    # print(calendars)
     return calendars
 
 
@@ -179,12 +166,6 @@ def call_gmail_api(service_gmail):
     # labels = results.get('labels', [])
     # print("EMAIL ADDRESS IS:", address)
     return address
-    # if not labels:
-    #     print('No labels found.')
-    # else:
-    #     print('Labels:')
-    #     for label in labels:
-    #         print(label['name'])
 
 
 def call_people_api(people_service):
@@ -207,73 +188,4 @@ def call_people_api(people_service):
     # print("\nRESULTS:")
 
     return name, email_address, phone_number
-
-
-def main():
-    """Shows basic usage of the Google Calendar API.
-    Prints the start and name of the next 10 events on the user's calendar.
-    """
-    token, creds, url = until_url()
-    print(token)
-    print(creds)
-    after_url(creds, token)
-
-
-def original_quickstart():
-    """Shows basic usage of the Google Calendar API.
-    Prints the start and name of the next 10 events on the user's calendar.
-    """
-    creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds, msg = flow.run_local_server(port=0)
-            print("MSG:", msg)
-        # Save the credentials for the next run
-        print("Token")
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
-    print(token)
-    print(creds)
-
-    service = build('calendar', 'v3', credentials=creds)
-
-    # Call the Calendar API
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    print('Getting the upcoming 10 events')
-    events_result = service.events().list(calendarId='primary', timeMin=now,
-                                        maxResults=10, singleEvents=True,
-                                        orderBy='startTime').execute()
-    print(type(events_result))
-    events_result_json = json.dumps(events_result, indent=4)
-    print(type(events_result_json))
-    print("JSON:\n", events_result_json)
-    print("RES: ", events_result)
-    with open("sample.txt", "w", encoding="utf-8") as text_file:
-        text_file.write(events_result_json)
-    # print("HELLO: ", events_result.get('items', []))
-    events = events_result.get('items', [])
-    for event in events:
-        print("\nNEW EVENT")
-        print(event)
-
-    if not events:
-        print('No upcoming events found.')
-    for event in events:
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
-
-
-if __name__ == '__main__':
-    main()
 
