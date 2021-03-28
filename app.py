@@ -154,6 +154,7 @@ try:
 except sqlite3.OperationalError:
     # Assume it's already been created
     my_logger.debug("DB already created")
+    # print("DB already created")
 
 # OAuth 2 client setup
 # print(GOOGLE_CLIENT_ID)

@@ -8,7 +8,7 @@ from db import get_db
 import Lineder_logging
 
 # constants
-TZ_DELTA = 2  # The delta of our time zone from GMT
+TZ_DELTA = 3  # The delta of our time zone from GMT
 LOCAL_TIME_ZONE = 'IST'
 API_DELAY = 1
 
