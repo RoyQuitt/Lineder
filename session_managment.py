@@ -15,7 +15,6 @@ class Error(Exception):
 
 
 class Unauthorized(Error):
-    """Raised when the input value is too small"""
     print("User unauthorized")
     pass
 
