@@ -445,8 +445,8 @@ def ranges_callback():
     session_id = session.login_user(user_address)
     my_logger.debug(session.users_dict)
     my_logger.debug("LOGGED IN NEW USER!")
-    my_logger.debug("email: %s",cur_user.email)
-    my_logger.debug("user_id: %s",cur_user.id)
+    my_logger.debug("email: %s", cur_user.email)
+    my_logger.debug("user_id: %s", cur_user.id)
     my_logger.debug("\nUser: %s", user_address)
     my_logger.debug(freebusy)
 
@@ -628,11 +628,28 @@ return value is JSON
     params = flask.request.args
     user_address = params.get('user_address')
     print("User address in get user schedule:" + user_address)
-    try:
-        user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges(user_address)
-    except TypeError:
-        print("type error")
-        return flask.jsonify(error="type error")
+    # check if 'user_address' is a valid email, if it is - treat it like one,
+    # if its not - treat it like a name of a user
+    if '@' in user_address:
+        print("address")
+        try:
+            # try to get the ranges of the user with the address given
+            user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges(user_address)
+        except TypeError:
+            print("type error")
+            return flask.jsonify(error="type error")
+    else:  # its a name
+        print("name")
+        try:
+            user_name = user_address
+            user_name = user_name.title()
+            print(user_name)
+            user_address = DbUser.get_address_by_name(user_name)
+            user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges(user_address)
+        except TypeError:
+            print("type error")
+            return flask.jsonify(error="type error")
+    print("address:", user_address)
     # print("type of start:", type(user_ranges[1]))
     is_available: bool = DbUser.is_available(user_address)
     next_available: datetime = DbUser.next_available(user_address)

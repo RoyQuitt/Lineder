@@ -18,14 +18,14 @@ my_logger = Lineder_logging.get_logger ('Ranges')
 # Freebusy as in interface only class to access the FreeBusy ranges of users,
 # therefore all of the methods are static
 class Freebusy (UserMixin):
-    def __init__ (self, owner_id, start_time, end_time):
+    def __init__(self, owner_id, start_time, end_time):
         self.id = None
         self.owner_id = owner_id
         self.start_time = start_time
         self.end_time = end_time
 
     @staticmethod
-    def get_user_ranges (owner_id):
+    def get_user_ranges(owner_id):
         """
         Returns the ranges of a specific user.
         :param owner_id: The ID of the user to retrieve

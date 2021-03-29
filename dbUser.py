@@ -26,6 +26,18 @@ class MyUser(UserMixin):
     #     self.id = new_id
 
     @staticmethod
+    def get_address_by_name(name):
+        # this function is not so safe because there could
+        # potentially be (though unlikely) two users with the same
+        # meaning the function will return the address of the one
+        # that appears first in th DB
+        db = get_db()
+        address = db.execute(
+            "SELECT email FROM myUser WHERE real_name = ?", (name,)
+        ).fetchone()
+        return address[0]
+
+    @staticmethod
     def get_user_name(user_address):
         user_id = MyUser.get_id_by_email(user_address)
         db = get_db()
