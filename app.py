@@ -437,9 +437,7 @@ def ranges_callback():
     cur_user.id = DbUser.get_id_by_email(user_address)
     my_logger.debug("user.id in callback: %s", cur_user.id)
     if not cur_user.id:
-        # TODO:
-        # You are missing two parameters here for create: name and phone
-        cUser_id = DbUser.create(cur_user.email)
+        cUser_id = DbUser.create(cur_user.email, name, phone)
 
     # logging in the user
     session_id = session.login_user(user_address)
@@ -450,7 +448,10 @@ def ranges_callback():
     my_logger.debug("\nUser: %s", user_address)
     my_logger.debug(freebusy)
 
-    # Create the ranges in our database
+    # Clear all of the "old" ranges the user currently has
+    Range.delete_user_ranges(cur_user.id)
+
+    # Create the new ranges in our database
     for c_range in freebusy:
         Range.create_range(cur_user.id, c_range['start'], c_range['end'])
 

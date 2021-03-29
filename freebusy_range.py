@@ -25,6 +25,13 @@ class Freebusy (UserMixin):
         self.end_time = end_time
 
     @staticmethod
+    def delete_user_ranges(owner_id):
+        db = get_db()
+        db.execute(
+            "DELETE from freebusy WHERE owner_id = ?", (owner_id)
+        )
+
+    @staticmethod
     def get_user_ranges(owner_id):
         """
         Returns the ranges of a specific user.
