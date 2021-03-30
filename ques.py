@@ -9,12 +9,22 @@ my_logger = Lineder_logging.get_logger ('Ques')
 
 DEBUG = False
 
+
 class Ques:
     def __init__(self, callee_id, waiter_id):
         self.id = None
         self.calle_id = callee_id
         self.waiter_id = waiter_id
         self.place_in_line = None
+
+    # @staticmethod
+    # def get_all_ranges():
+    #     all_ranges: list = []
+    #     db = get_db()
+    #     result = db.execute(
+    #         "SELECT * FROM freebusy"
+    #     ).fetchall()
+    #     all_ranges = [range_instance[0] for range_instance in result]
 
     @staticmethod
     def remove_from_que (callee_address, waiter_address) -> bool:

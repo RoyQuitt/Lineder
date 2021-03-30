@@ -28,7 +28,7 @@ class Freebusy (UserMixin):
     def delete_user_ranges(owner_id):
         db = get_db()
         db.execute(
-            "DELETE from freebusy WHERE owner_id = ?", (owner_id)
+            "DELETE from freebusy WHERE owner_id = ?", (owner_id,)
         )
 
     @staticmethod

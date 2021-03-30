@@ -5,7 +5,9 @@
       <w>creds</w>
       <w>freebusy</w>
       <w>gmail</w>
+      <w>jsons</w>
       <w>mins</w>
+      <w>quickstart</w>
     </words>
   </dictionary>
 </component>

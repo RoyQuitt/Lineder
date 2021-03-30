@@ -8,11 +8,16 @@ import os.path
 import random
 import sqlite3
 from datetime import datetime, time
+import time
 
 # Third-party libraries
 # import base32hex
 import flask
+import urllib3
 import requests
+import warnings
+
+
 from flask import Flask, redirect, request, url_for
 from flask_cors import CORS
 from flask_login import (
@@ -23,10 +28,12 @@ from flask_login import (
     logout_user,
 )
 from oauthlib.oauth2 import WebApplicationClient
+from apscheduler.schedulers.background import BackgroundScheduler
 import Lineder_logging
 
 # from quickstart import main as flow_main
 import quickstart
+from quickstart import Quickstart
 from classes.Event import MyEvent as dbEvent
 # Internal imports
 from session_managment import SessionManagement, Unauthorized
@@ -37,9 +44,14 @@ from freebusy_range import Freebusy as Range
 from freebusy_range import TZ_DELTA, LOCAL_TIME_ZONE
 from user import User
 from ques import Ques
+from refresh_ranges import RefreshRanges
+
+RANGES_REFRESH_RATE = 10
 
 WAITER_ADDRESS_HTTP_PARAM_NAME = 'waiter_address'
 SESSION_ID_HTTP_PARAM_NAME = 'session_id'
+
+warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 session = SessionManagement ()
 
@@ -133,6 +145,7 @@ print("app config:", app.config)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 unauthorized_resp = None
+current_quickstart_instance = Quickstart()
 
 
 
@@ -144,7 +157,7 @@ my_logger.debug("Going to initialize DB")
 # Naive database setup
 try:
     my_logger.debug("creating DB")
-    init_db_command ()
+    init_db_command()
     # db = get_db()
     #
     # db.execute("DROP TABLE MyUser")
@@ -260,6 +273,8 @@ def index():
     message = {'error': 'Unauthorized'}
     unauthorized_resp = flask.jsonify(message)
     unauthorized_resp.status_code = 401
+
+
     # if current_user.is_authenticated:
     #     return (
     #         "<p>Hello, {}! You're logged in! Email: {}</p>"
@@ -304,16 +319,21 @@ def login_flow():
     :return:
         The redirect response
     """
+    global current_quickstart_instance
+
     params = flask.request.args
     session_id = params.get('session_id')
     if not session_id:
         # TODO:
         # token, creds - not used below
-        token, creds, url = quickstart.until_url()
+        current_quickstart_instance = Quickstart()
+        # token, creds, url = quickstart.until_url()
+        token, creds, url = current_quickstart_instance.get_auth_url()
         return redirect(url, code=302)
     if session.is_logged_in(session_id):
         return "You are already logged in. You can close this window"
-    token, creds, url = quickstart.until_url()
+    # token, creds, url = quickstart.until_url()
+    token, creds, url = current_quickstart_instance.get_auth_url()
     return redirect(url, code=302)  # arrow 4 + 5
 
 
@@ -427,17 +447,19 @@ def show_cookie():
 
 @app.route("/login/new_callback")
 def ranges_callback():
+    global current_quickstart_instance
     # print("headers:", flask.request.headers)
     # phone = flask.request.args.get('phone')
     my_logger.debug("ranges callback")
-    freebusy, user_address, name, phone = quickstart.after_url()
-    cur_user = DbUser(user_address, name, phone)  # current user
+    # freebusy, user_address, name, phone, user_credentials = quickstart.after_url()
+    freebusy, user_address, name, phone, user_credentials = current_quickstart_instance.make_requests()
+    cur_user = DbUser(user_address, name, phone, user_credentials)  # current user
     my_logger.debug("cUser after constructor:")
     my_logger.debug(cur_user)
     cur_user.id = DbUser.get_id_by_email(user_address)
     my_logger.debug("user.id in callback: %s", cur_user.id)
     if not cur_user.id:
-        cUser_id = DbUser.create(cur_user.email, name, phone)
+        cUser_id = DbUser.create(cur_user.email, name, phone, user_credentials)
 
     # logging in the user
     session_id = session.login_user(user_address)
@@ -789,9 +811,35 @@ def logout():
     )
     return res
 
+
+@app.route("/refresh_all")
+def refresh():
+    # print("refresh")
+    # time.sleep(2)
+    refresh_instance = RefreshRanges()
+    refresh_instance.refresh_all_ranges()
+    return flask.jsonify(success=True)
+
+
+def call_refresh_endpoint():
+    my_logger.debug("making HTTP request")
+    r = requests.get('https://127.0.0.1:5000/refresh_all', verify=False)
+
+
 if __name__ == "__main__":
-    # app.run(host="10.50.1.146")
+    scheduler = BackgroundScheduler()
+    my_logger.debug("adding job")
+    job = scheduler.add_job(call_refresh_endpoint, 'interval', minutes=RANGES_REFRESH_RATE)
+    my_logger.debug("starting scheduler")
+    scheduler.start()
+    print("running")
     app.run(ssl_context="adhoc")
+    # print("after run")
+    # scheduler = BackgroundScheduler()
+    # my_logger.debug("adding job")
+    # job = scheduler.add_job(refresh, 'interval', seconds=3)
+    # my_logger.debug("starting scheduler")
+    # scheduler.start()
 
 # TODO:
 #   getting events using browser:

@@ -5,6 +5,7 @@ from datetime import timezone, timedelta
 from db import get_db
 import dateutil.parser
 from freebusy_range import TZ_DELTA
+from google.oauth2.credentials import Credentials
 
 """
 The User class has methods to get an existing user from the database and create a new user:
@@ -12,18 +13,30 @@ The User class has methods to get an existing user from the database and create 
 
 
 class MyUser(UserMixin):
-    def __init__(self, email, name, phone):
+    def __init__(self, email, name, phone, creds):
         self.id = None
         self.email = email
         self.name = name
         self.phone = phone
+        self.creds = creds
         if self.id is None:
             self.id = MyUser.get_id_by_email(self.email)
             if self.id is None:
-                self.id = MyUser.create(self.email, name, phone)
+                self.id = MyUser.create(self.email, name, phone, creds)
 
     # def set_id(self, new_id):
     #     self.id = new_id
+    @staticmethod
+    def get_all_creds():
+        creds_dict: dict[int: str] = {}
+        db = get_db()
+        result: list = db.execute(
+            "SELECT user_id, creds FROM myUser"
+        ).fetchall()
+        print("result:", result)
+        for user in result:
+            creds_dict[user[0]] = user[1]
+        return creds_dict
 
     @staticmethod
     def get_address_by_name(name):
@@ -172,19 +185,23 @@ class MyUser(UserMixin):
         return user
 
     @staticmethod
-    def create(email, name, phone):
+    def create(email, name, phone, creds):
         db = get_db()
+        creds_json = creds.to_json()
+        print("creds type:", type(creds))
+        print("creds json type:", type(creds_json))
+        print(creds_json)
         db.execute(
-            "INSERT INTO myUser (real_name, email, phone) "
-            "VALUES (?, ?, ?)",
-            (name, email, phone),
+            "INSERT INTO myUser (real_name, email, phone, creds) "
+            "VALUES (?, ?, ?, ?)",
+            (name, email, phone, creds_json),
         )
         db.commit()
         cur = db.cursor()  # cursor to find last rowid
         last_id = cur.lastrowid
         # self.id = last_id  # set 'self.id' to last rowid
         print("\nNEW USER ADDED TO DB!")
-        print(name, email, phone)
+        print(name, email, phone, creds)
         return last_id
 
     def serialize(self):
