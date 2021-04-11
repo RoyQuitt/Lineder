@@ -5,7 +5,7 @@ Logging for Lineder
 import logging
 import sys
 from logging.handlers import TimedRotatingFileHandler
-FORMATTER = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
+FORMATTER = logging.Formatter("%(process)d-%(thread)d-%(asctime)s—(name)s— %(message)s")
 CONSOLE_FORMATTER = logging.Formatter("%(asctime)s — %(message)s")
 LOG_FILE = "./logs/Lineder.log"
 
