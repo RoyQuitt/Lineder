@@ -757,7 +757,7 @@ if __name__ == "__main__":
     my_logger.debug("starting scheduler")
     scheduler.start()
     print("running")
-    app.run(ssl_context="adhoc")
+    app.run(ssl_context="adhoc", host="lineder.herokuapp.com")
     # print("after run")
     # scheduler = BackgroundScheduler()
     # my_logger.debug("adding job")
