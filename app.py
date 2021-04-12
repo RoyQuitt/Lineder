@@ -764,7 +764,6 @@ if __name__ == "__main__":
     # job = scheduler.add_job(refresh, 'interval', seconds=3)
     # my_logger.debug("starting scheduler")
     # scheduler.start()
-
 # TODO:
 #   getting events using browser:
 #       flow - start_response = 127
