@@ -46,6 +46,8 @@ from user import User
 from ques import Ques
 from refresh_ranges import RefreshRanges
 
+LOCAL_SERVER_ADDRESS = 'https://127.0.0.1:5000/refresh_all'
+
 RANGES_REFRESH_RATE = 10
 
 WAITER_ADDRESS_HTTP_PARAM_NAME = 'waiter_address'
@@ -747,7 +749,7 @@ def refresh():
 
 def call_refresh_endpoint():
     my_logger.debug("making HTTP request")
-    r = requests.get('https://127.0.0.1:5000/refresh_all', verify=False)
+    r = requests.get(LOCAL_SERVER_ADDRESS, verify=False)
 
 
 if __name__ == "__main__":
