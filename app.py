@@ -153,8 +153,8 @@ current_quickstart_instance = Quickstart()
 
 # User session management setup
 # https://flask-login.readthedocs.io/en/latest
-login_manager = LoginManager ()
-login_manager.init_app (app)
+# login_manager = LoginManager ()
+# login_manager.init_app (app)
 my_logger.debug("Going to initialize DB")
 # Naive database setup
 try:
@@ -771,18 +771,3 @@ if __name__ == "__main__":
     # job = scheduler.add_job(refresh, 'interval', seconds=3)
     # my_logger.debug("starting scheduler")
     # scheduler.start()
-# TODO:
-#   getting events using browser:
-#       flow - start_response = 127
-#       flow - host = localhost
-#       app - HTTPS, host = none
-#   .
-#   best android:
-#       app - HTTP, host = 10.50.1.146
-#       flow - host = localhost
-#       flow - start_response = 127 / 10.50.1.146
-#   .
-#   ERORR
-#       app - HTTP, host = 10.50.1.146
-#       flow - host = 10.50.1.146
-#       flow - start_response = app.wechange.co.uk
