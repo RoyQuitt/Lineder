@@ -178,8 +178,9 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 
 # Flask-Login helper to retrieve a user from our db
-@login_manager.user_loader
-def load_user(user_id):  # actually gets email instead of id
+# @login_manager.user_loader
+def load_user(user_id):  # a
+    # ctually gets email instead of id
     # user_id = DbUser.get_id_by_email(user_address)
     my_logger.debug("\nLOAD USER %s", DbUser.get(user_id))
     return DbUser.get(user_id)
