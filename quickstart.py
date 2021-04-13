@@ -327,4 +327,3 @@ def call_people_api(people_service):
     # print("\nRESULTS:")
 
     return name, email_address, phone_number
-
