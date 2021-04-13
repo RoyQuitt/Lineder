@@ -747,6 +747,7 @@ def refresh():
     return flask.jsonify(success=True)
 
 
+@app.route("/call_refresh")
 def call_refresh_endpoint():
     my_logger.debug("making HTTP request")
     r = requests.get(LOCAL_SERVER_ADDRESS, verify=False)
@@ -761,7 +762,8 @@ if __name__ == "__main__":
     print("running")
     port = os.environ.get('PORT')
     my_logger.debug("port: %s", port)
-    app.run(ssl_context="adhoc", host="0.0.0.0", port=port)
+    # app.run(ssl_context="adhoc", host="0.0.0.0", port=port)
+    app.run(ssl_context="adhoc")
     # print("after run")
     # scheduler = BackgroundScheduler()
     # my_logger.debug("adding job")md
