@@ -386,7 +386,8 @@ def ranges_callback():
     my_logger.debug("user.id in callback: %s", cur_user.id)
     if not cur_user.id:
         cUser_id = DbUser.create(cur_user.email, name, phone, user_credentials)
-
+    else:
+        DbUser.update_creds(cur_user.id, user_credentials)
     # logging in the user
     session_id = session.login_user(user_address)
     my_logger.debug(session.users_dict)
@@ -762,8 +763,8 @@ if __name__ == "__main__":
     print("running")
     port = os.environ.get('PORT')
     my_logger.debug("port: %s", port)
-    # app.run(ssl_context="adhoc", host="0.0.0.0", port=port)
-    app.run(ssl_context="adhoc")
+    app.run(ssl_context="adhoc", host="0.0.0.0", port=port)
+    # app.run(ssl_context="adhoc")
     # print("after run")
     # scheduler = BackgroundScheduler()
     # my_logger.debug("adding job")md

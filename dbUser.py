@@ -204,6 +204,16 @@ class MyUser(UserMixin):
         print(name, email, phone, creds)
         return last_id
 
+    @staticmethod
+    def update_creds(user_id, creds):
+        db = get_db()
+        creds_json = creds.to_json()
+        db.execute(
+            "UPDATE myUser SET creds = ? WHERE user_id = ?", (creds_json, user_id)
+        )
+        db.commit()
+        print("updated creds")
+
     def serialize(self):
         return {
             'name': self.name,
