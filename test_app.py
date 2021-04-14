@@ -18,7 +18,7 @@ from flask_cors import CORS
 
 from oauthlib.oauth2 import WebApplicationClient
 
-# import Lineder_logging
+import Lineder_logging
 
 from quickstart import Quickstart
 # Internal imports
@@ -36,9 +36,9 @@ SESSION_ID_HTTP_PARAM_NAME = 'session_id'
 
 # session = SessionManagement()
 
-# my_logger = Lineder_logging.get_logger("App")
-# my_logger.debug("\n--------------------------- NEW ---------------------------\n")
-# my_logger.debug("Starting Logging")
+my_logger = Lineder_logging.get_logger("App")
+my_logger.debug("\n--------------------------- NEW ---------------------------\n")
+my_logger.debug("Starting Logging")
 
 HEX32_MAX = 111111111
 
@@ -65,12 +65,13 @@ unauthorized_resp = None
 
 # my_logger.debug("Going to initialize DB")
 # Naive database setup
-# try:
-#     my_logger.debug("creating DB")
-#     # init_db_command()
-# except sqlite3.OperationalError:
-#     # Assume it's already been created
-#     my_logger.debug("DB already created")
+try:
+    # my_logger.debug("creating DB")
+    # init_db_command()
+except sqlite3.OperationalError:
+    print("DB already created")
+    # Assume it's already been created
+    # my_logger.debug("DB already created")
 
 # OAuth 2 client setup
 # client = WebApplicationClient(GOOGLE_CLIENT_ID)
