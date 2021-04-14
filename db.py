@@ -26,7 +26,7 @@ def close_db(e=None):
         db.close()
 
 
-@with_appcontext
+# @with_appcontext
 def init_db():
     db = get_db()
 

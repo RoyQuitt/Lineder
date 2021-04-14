@@ -33,7 +33,7 @@ import Lineder_logging
 from quickstart import Quickstart
 # Internal imports
 from session_managment import SessionManagement, Unauthorized
-from db import init_db_command, get_db
+from db import get_db, init_db  # init_db_command,
 from dbUser import MyUser as DbUser
 from freebusy_range import Freebusy as Range
 from ques import Ques
@@ -82,7 +82,7 @@ my_logger.debug("Going to initialize DB")
 # Naive database setup
 try:
     my_logger.debug("creating DB")
-    init_db_command()
+    init_db()
 except sqlite3.OperationalError:
     # Assume it's already been created
     my_logger.debug("DB already created")
@@ -437,4 +437,4 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     my_logger.debug("port: %s", port)
     # app.run(ssl_context="adhoc", host="0.0.0.0", port=port, debug=False)
-    # app.run(ssl_context="adhoc")
+    app.run(ssl_context="adhoc")
