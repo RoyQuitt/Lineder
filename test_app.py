@@ -34,7 +34,7 @@ SESSION_ID_HTTP_PARAM_NAME = 'session_id'
 
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
-session = SessionManagement()
+# session = SessionManagement()
 
 my_logger = Lineder_logging.get_logger("App")
 my_logger.debug("\n--------------------------- NEW ---------------------------\n")
@@ -43,16 +43,16 @@ my_logger.debug("Starting Logging")
 HEX32_MAX = 111111111
 
 # Configuration
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+# SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 # Google API Credentials
 # The client ID created for the app in the Google Developers Console
 # with the google-signin-client_id meta element
 # GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
 # GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
-GOOGLE_DISCOVERY_URL = (
-    "https://accounts.google.com/.well-known/openid-configuration"
-)
+# GOOGLE_DISCOVERY_URL = (
+#     "https://accounts.google.com/.well-known/openid-configuration"
+# )
 
 # Flask app setup
 app = Flask(__name__)
