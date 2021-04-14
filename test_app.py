@@ -56,12 +56,12 @@ GOOGLE_DISCOVERY_URL = (
 
 # Flask app setup
 app = Flask(__name__)
-# app.config['supports_credentials'] = True
+app.config['supports_credentials'] = True
 print("app config:", app.config)
-# cors = CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
-# app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 unauthorized_resp = None
-current_quickstart_instance = Quickstart()
+# current_quickstart_instance = Quickstart()
 
 my_logger.debug("Going to initialize DB")
 # Naive database setup
