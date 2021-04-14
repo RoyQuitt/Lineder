@@ -53,7 +53,8 @@ warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 session = SessionManagement ()
 
 my_logger = Lineder_logging.get_logger ("App")
-my_logger.debug ("\n--------------------------- NEW ---------------------------\n")
+my_logger.debug ("\n--------------------------- NEW "
+                 "---------------------------\n")
 my_logger.debug ("Starting Logging")
 
 HEX32_MAX = 111111111
@@ -426,11 +427,14 @@ def call_refresh_endpoint():
 
 
 if __name__ == "__main__":
+
+    # Build and start our scheduler so that we can refresh the ranges periodically
     scheduler = BackgroundScheduler()
     my_logger.debug("adding job")
     job = scheduler.add_job(call_refresh_endpoint, 'interval', minutes=RANGES_REFRESH_RATE)
     my_logger.debug("starting scheduler")
     scheduler.start()
+
     print("running")
     port = int(os.environ.get("PORT", 5000))
     my_logger.debug("port: %s", port)
