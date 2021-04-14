@@ -73,7 +73,7 @@ except sqlite3.OperationalError:
     my_logger.debug("DB already created")
 
 # OAuth 2 client setup
-client = WebApplicationClient(GOOGLE_CLIENT_ID)
+# client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 
 @app.route("/")
