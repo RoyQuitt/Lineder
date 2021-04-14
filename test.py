@@ -8,9 +8,10 @@ app.config['supports_credentials'] = True
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 
+
 @app.route("/")
 def index():
-    return "<h1>Index</h1>"
+    return "<h1>Test</h1>"
 
 
 @app.route("/test")
