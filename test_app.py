@@ -1,43 +1,29 @@
 from __future__ import print_function
 
-import datetime
+
 from datetime import timezone, timedelta
 # Python standard libraries
-import json
+
 import os.path
-import random
+
 import sqlite3
-from datetime import datetime, time
-import time
+
 
 # Third-party libraries
 # import base32hex
-import flask
-import urllib3
-import requests
 import warnings
 
 from flask import Flask, redirect, request, url_for
 from flask_cors import CORS
-# from flask_login import (
-#     LoginManager,
-#     current_user,
-#     login_required,
-#     login_user,
-#     logout_user,
-# )
+
 from oauthlib.oauth2 import WebApplicationClient
-from apscheduler.schedulers.background import BackgroundScheduler
+
 import Lineder_logging
 
 from quickstart import Quickstart
 # Internal imports
 from session_managment import SessionManagement, Unauthorized
 from db import init_db_command, get_db
-from dbUser import MyUser as DbUser
-from freebusy_range import Freebusy as Range
-from ques import Ques
-from refresh_ranges import RefreshRanges
 
 LOCAL_SERVER_ADDRESS = 'https://127.0.0.1:5000/refresh_all'
 
@@ -96,11 +82,6 @@ def index():
 
 
 if __name__ == "__main__":
-    # scheduler = BackgroundScheduler()
-    # my_logger.debug("adding job")
-    # # job = scheduler.add_job(call_refresh_endpoint, 'interval', minutes=RANGES_REFRESH_RATE)
-    # my_logger.debug("starting scheduler")
-    # scheduler.start()
     print("running")
     port = int(os.environ.get("PORT", 5000))
     my_logger.debug("port: %s", port)
