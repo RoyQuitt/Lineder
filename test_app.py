@@ -36,9 +36,9 @@ warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 session = SessionManagement()
 
-my_logger = Lineder_logging.get_logger("App")
-my_logger.debug("\n--------------------------- NEW ---------------------------\n")
-my_logger.debug("Starting Logging")
+# my_logger = Lineder_logging.get_logger("App")
+# my_logger.debug("\n--------------------------- NEW ---------------------------\n")
+# my_logger.debug("Starting Logging")
 
 HEX32_MAX = 111111111
 
@@ -63,14 +63,14 @@ app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 unauthorized_resp = None
 current_quickstart_instance = Quickstart()
 
-my_logger.debug("Going to initialize DB")
+# my_logger.debug("Going to initialize DB")
 # Naive database setup
 try:
-    my_logger.debug("creating DB")
+    # my_logger.debug("creating DB")
     init_db_command()
 except sqlite3.OperationalError:
     # Assume it's already been created
-    my_logger.debug("DB already created")
+    # my_logger.debug("DB already created")
 
 # OAuth 2 client setup
 # client = WebApplicationClient(GOOGLE_CLIENT_ID)
@@ -84,6 +84,6 @@ def index():
 if __name__ == "__main__":
     print("running")
     port = int(os.environ.get("PORT", 5000))
-    my_logger.debug("port: %s", port)
+    # my_logger.debug("port: %s", port)
     # app.run(ssl_context="adhoc", host="0.0.0.0", port=port, debug=False)
     app.run(ssl_context="adhoc")
