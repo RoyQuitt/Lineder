@@ -32,7 +32,7 @@ RANGES_REFRESH_RATE = 10
 WAITER_ADDRESS_HTTP_PARAM_NAME = 'waiter_address'
 SESSION_ID_HTTP_PARAM_NAME = 'session_id'
 
-warnings.filterwarnings('ignore', message='Unverified HTTPS request')
+# warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 # session = SessionManagement()
 
@@ -67,7 +67,7 @@ my_logger.debug("Going to initialize DB")
 # Naive database setup
 try:
     my_logger.debug("creating DB")
-    init_db_command()
+    # init_db_command()
 except sqlite3.OperationalError:
     # Assume it's already been created
     my_logger.debug("DB already created")
