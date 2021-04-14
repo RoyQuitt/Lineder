@@ -179,7 +179,8 @@ class MyUser(UserMixin):
         user = MyUser(
             email=user[2],
             name=user[1],
-            phone=user[3]
+            phone=user[3],
+            creds=user[4]
         )
         user.id = user_id
         return user
