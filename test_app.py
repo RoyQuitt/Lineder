@@ -70,9 +70,9 @@ try:
     # my_logger.debug("creating DB")
     # init_db_command()
 except sqlite3.OperationalError:
-    print("DB already created")
+    # print("DB already created")
     # Assume it's already been created
-    # my_logger.debug("DB already created")
+    my_logger.debug("DB already created")
 
 # OAuth 2 client setup
 # client = WebApplicationClient(GOOGLE_CLIENT_ID)
