@@ -86,6 +86,6 @@ def index():
 if __name__ == "__main__":
     print("running")
     port = int(os.environ.get("PORT", 5000))
-    # my_logger.debug("port: %s", port)
+    my_logger.debug("port: %s", port)
     # app.run(ssl_context="adhoc", host="0.0.0.0", port=port, debug=False)
     app.run(ssl_context="adhoc")
