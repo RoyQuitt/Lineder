@@ -66,6 +66,7 @@ unauthorized_resp = None
 # my_logger.debug("Going to initialize DB")
 # Naive database setup
 try:
+    print("trying")
     # my_logger.debug("creating DB")
     # init_db_command()
 except sqlite3.OperationalError:
