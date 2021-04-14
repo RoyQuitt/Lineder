@@ -67,7 +67,7 @@ my_logger.debug("Going to initialize DB")
 # Naive database setup
 try:
     my_logger.debug("creating DB")
-    # init_db_command()
+    init_db_command()
 except sqlite3.OperationalError:
     # Assume it's already been created
     my_logger.debug("DB already created")
