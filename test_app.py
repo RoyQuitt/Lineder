@@ -23,7 +23,7 @@ import Lineder_logging
 from quickstart import Quickstart
 # Internal imports
 from session_managment import SessionManagement, Unauthorized
-from db import init_db_command, get_db
+from db import init_db_command, get_db, init_db
 
 LOCAL_SERVER_ADDRESS = 'https://127.0.0.1:5000/refresh_all'
 
@@ -67,13 +67,15 @@ my_logger.debug("Going to initialize DB")
 # Naive database setup
 try:
     my_logger.debug("creating DB")
-    init_db_command()
+    init_db()
 except sqlite3.OperationalError:
     # Assume it's already been created
     my_logger.debug("DB already created")
 
 # OAuth 2 client setup
 # client = WebApplicationClient(GOOGLE_CLIENT_ID)
+
+database_connection: sqlite3.Connection
 
 
 @app.route("/")
