@@ -17,7 +17,6 @@ import urllib3
 import requests
 import warnings
 
-
 from flask import Flask, redirect, request, url_for
 from flask_cors import CORS
 # from flask_login import (
@@ -30,7 +29,6 @@ from flask_cors import CORS
 from oauthlib.oauth2 import WebApplicationClient
 from apscheduler.schedulers.background import BackgroundScheduler
 import Lineder_logging
-
 
 from quickstart import Quickstart
 # Internal imports
@@ -50,11 +48,11 @@ SESSION_ID_HTTP_PARAM_NAME = 'session_id'
 
 warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
-session = SessionManagement ()
+session = SessionManagement()
 
-my_logger = Lineder_logging.get_logger ("App")
-my_logger.debug ("\n--------------------------- NEW ---------------------------\n")
-my_logger.debug ("Starting Logging")
+my_logger = Lineder_logging.get_logger("App")
+my_logger.debug("\n--------------------------- NEW ---------------------------\n")
+my_logger.debug("Starting Logging")
 
 HEX32_MAX = 111111111
 
@@ -229,12 +227,13 @@ def busy_for():
     res = flask.jsonify(success=success)
     return res
 
+
 # /new_range?start=1985-04-12T23:20:50.52Z&end=1985-05-12T23:20:50.52Z
 # from 12.04.1985, 23:20:50.52 until 12.05.1985, 23:20:50.52
 @app.route("/new_range")
 def new_range():
     params = flask.request.args
-    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
+    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)
     try:
         owner_id = session.handle_user_user_id(session_id)
     except Unauthorized:
@@ -309,7 +308,7 @@ return value is JSON
 @app.route("/join_que")
 def join():
     params = flask.request.args
-    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
+    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)
     try:
         waiter_address = session.handle_user(session_id)
     except Unauthorized:
@@ -328,12 +327,12 @@ def join():
 @app.route("/move_to_top")
 def move_to_top():
     params = flask.request.args
-    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
+    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)
     try:
         callee_address = session.handle_user(session_id)
     except Unauthorized:
         return unauthorized_resp
-    waiter_address = params.get (WAITER_ADDRESS_HTTP_PARAM_NAME)
+    waiter_address = params.get(WAITER_ADDRESS_HTTP_PARAM_NAME)
     success = Ques.move_to_top(waiter_address, callee_address)
     res = flask.jsonify(
         success=success
@@ -344,14 +343,14 @@ def move_to_top():
 @app.route("/remove_from_que")
 def remove():
     params = flask.request.args
-    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
+    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)
     try:
         callee_address = session.handle_user(session_id)
     except Unauthorized:
         return unauthorized_resp
-    waiter_address = params.get (WAITER_ADDRESS_HTTP_PARAM_NAME)
-    success = Ques.remove_from_que (callee_address, waiter_address)
-    res = flask.jsonify (
+    waiter_address = params.get(WAITER_ADDRESS_HTTP_PARAM_NAME)
+    success = Ques.remove_from_que(callee_address, waiter_address)
+    res = flask.jsonify(
         success=success
     )
     return res
@@ -360,7 +359,7 @@ def remove():
 @app.route("/get_my_que")
 def get_my_que():
     params = flask.request.args
-    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
+    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)
     try:
         address = session.handle_user(session_id)
     except Unauthorized:
@@ -377,7 +376,7 @@ def get_my_que():
 @app.route("/get_update")
 def get_update():
     params = flask.request.args
-    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
+    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)
     try:
         user_address = session.handle_user(session_id)
     except Unauthorized:
@@ -397,7 +396,7 @@ def logout():
         Http Response
     """
     params = flask.request.args
-    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
+    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)
     try:
         address = session.handle_user(session_id)
     except Unauthorized:
