@@ -57,6 +57,8 @@ my_logger.debug("Starting Logging")
 
 HEX32_MAX = 111111111
 
+TIMEZONE_OFFSET = 3
+
 # Configuration
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
@@ -109,7 +111,9 @@ def index():
 
 
 def get_google_provider_cfg():
-    return requests.get(GOOGLE_DISCOVERY_URL).json()
+    cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
+    print("config:", cfg)
+    return cfg
 
 
 @app.route("/login")  # arrow 1
@@ -176,6 +180,34 @@ def show_cookie():
     res = flask.jsonify(username=username)
     my_logger.debug(username)
     return res
+
+
+@app.route("/login/my_callback")
+def my_callback():
+    # Get authorization code Google sent back to me
+    code = request.args.get("code")
+    # Find out what URL to hit to get tokens that allow me to ask for
+    # things on behalf of a user
+    google_provider_cfg = get_google_provider_cfg()
+    token_endpoint = google_provider_cfg["token_endpoint"]
+
+    # Prepare and send a request to get tokens! Yay tokens!
+    token_url, headers, body = client.prepare_token_request(
+        token_endpoint,
+        authorization_response=request.url,
+        redirect_url=request.base_url,
+        code=code
+    )
+    token_response = requests.post(
+        token_url,
+        headers=headers,
+        data=body,
+        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+    )
+
+    # Parse the tokens!
+    client.parse_request_body_response(json.dumps(token_response.json()))
+
 
 
 @app.route("/login/new_callback")
@@ -294,6 +326,7 @@ return value is JSON
     print("address:", user_address)
     is_available: bool = DbUser.is_available(user_address)
     next_available: datetime = DbUser.next_available(user_address)
+    new_next_available = next_available
     phone = DbUser.get_user_phone(user_address)
     name = DbUser.get_user_name(user_address)
     res = flask.jsonify(
@@ -304,6 +337,17 @@ return value is JSON
         phone=phone
     )
     return res
+
+
+def change_timezone(s):
+    t = s.split(" ")[-2]
+    print(t)
+    hour_s = t.split(":")[0]
+    hour = int(hour_s)
+    new_hour = hour + TIMEZONE_OFFSET
+    new_hour_s = str(new_hour)
+    new_s = s.replace(hour_s, new_hour_s)
+    return new_s
 
 
 @app.route("/join_que")
@@ -426,6 +470,7 @@ def call_refresh_endpoint():
 
 
 if __name__ == "__main__":
+    config = get_google_provider_cfg()
     # Build and start our scheduler so that we can refresh the ranges periodically
     scheduler = BackgroundScheduler()
     my_logger.debug("adding job")
@@ -437,4 +482,5 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     my_logger.debug("port: %s", port)
     # app.run(ssl_context="adhoc", host="0.0.0.0", port=port, debug=False)
+    print(change_timezone("Mon, 19 Apr 2021 08:00:00 GMT"))
     app.run(ssl_context="adhoc")
