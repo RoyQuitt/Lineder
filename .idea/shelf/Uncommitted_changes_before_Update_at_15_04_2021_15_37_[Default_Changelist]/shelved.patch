@@ -1,0 +1,104 @@
+Index: app.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from __future__ import print_function\r\n\r\nimport datetime\r\nfrom datetime import timezone, timedelta\r\n# Python standard libraries\r\nimport json\r\nimport os.path\r\nimport random\r\nimport sqlite3\r\nfrom datetime import datetime, time\r\nimport time\r\n\r\n# Third-party libraries\r\n# import base32hex\r\nimport flask\r\nimport urllib3\r\nimport requests\r\nimport warnings\r\n\r\n\r\nfrom flask import Flask, redirect, request, url_for\r\nfrom flask_cors import CORS\r\n# from flask_login import (\r\n#     LoginManager,\r\n#     current_user,\r\n#     login_required,\r\n#     login_user,\r\n#     logout_user,\r\n# )\r\nfrom oauthlib.oauth2 import WebApplicationClient\r\nfrom apscheduler.schedulers.background import BackgroundScheduler\r\nimport Lineder_logging\r\n\r\n\r\nfrom quickstart import Quickstart\r\n# Internal imports\r\nfrom session_managment import SessionManagement, Unauthorized\r\nfrom db import init_db_command, get_db\r\nfrom dbUser import MyUser as DbUser\r\nfrom freebusy_range import Freebusy as Range\r\nfrom ques import Ques\r\nfrom refresh_ranges import RefreshRanges\r\n\r\nLOCAL_SERVER_ADDRESS = 'https://127.0.0.1:5000/refresh_all'\r\n\r\nRANGES_REFRESH_RATE = 10\r\n\r\nWAITER_ADDRESS_HTTP_PARAM_NAME = 'waiter_address'\r\nSESSION_ID_HTTP_PARAM_NAME = 'session_id'\r\n\r\nwarnings.filterwarnings('ignore', message='Unverified HTTPS request')\r\n\r\nsession = SessionManagement ()\r\n\r\nmy_logger = Lineder_logging.get_logger(\"App\")\r\nmy_logger.debug(\"\\n--------------------------- NEW ---------------------------\\n\")\r\nmy_logger.debug(\"Starting Logging\")\r\n\r\nHEX32_MAX = 111111111\r\n\r\n# Configuration\r\nSCOPES = ['https://www.googleapis.com/auth/calendar.readonly']\r\n\r\n# Google API Credentials\r\n# The client ID created for the app in the Google Developers Console\r\n# with the google-signin-client_id meta element\r\nGOOGLE_CLIENT_ID = os.environ.get(\"GOOGLE_CLIENT_ID\", None)\r\nGOOGLE_CLIENT_SECRET = os.environ.get(\"GOOGLE_CLIENT_SECRET\", None)\r\nGOOGLE_DISCOVERY_URL = (\r\n    \"https://accounts.google.com/.well-known/openid-configuration\"\r\n)\r\n\r\n# Flask app setup\r\napp = Flask(__name__)\r\napp.config['supports_credentials'] = True\r\nprint(\"app config:\", app.config)\r\ncors = CORS(app, resources={r\"/api/*\": {\"origins\": \"*\"}}, supports_credentials=True)\r\napp.secret_key = os.environ.get(\"SECRET_KEY\") or os.urandom(24)\r\nunauthorized_resp = None\r\ncurrent_quickstart_instance = Quickstart()\r\n\r\nmy_logger.debug(\"Going to initialize DB\")\r\n# Naive database setup\r\ntry:\r\n    my_logger.debug(\"creating DB\")\r\n    init_db_command()\r\nexcept sqlite3.OperationalError:\r\n    # Assume it's already been created\r\n    my_logger.debug(\"DB already created\")\r\n\r\n# OAuth 2 client setup\r\nclient = WebApplicationClient(GOOGLE_CLIENT_ID)\r\n\r\n\r\n@app.route(\"/json_test\")\r\ndef json_test():\r\n    return flask.jsonify(\r\n        redirect_url=\"hello\",\r\n        code=302\r\n    )\r\n\r\n\r\n@app.route(\"/\")\r\ndef index():\r\n    global unauthorized_resp\r\n    message = {'error': 'Unauthorized'}\r\n    unauthorized_resp = flask.jsonify(message)\r\n    unauthorized_resp.status_code = 401\r\n    return redirect(url_for(\"login_flow\"))\r\n\r\n\r\ndef get_google_provider_cfg():\r\n    return requests.get(GOOGLE_DISCOVERY_URL).json()\r\n\r\n\r\n@app.route(\"/login\")  # arrow 1\r\ndef login_flow():\r\n    \"\"\"\r\n    login_flow starts the login process and then redirects the user to the next stage by sending a 302 redirect\r\n    response with the URL received from quickstart\r\n    :return:\r\n        The redirect response\r\n    \"\"\"\r\n    global current_quickstart_instance\r\n    params = flask.request.args\r\n    session_id = params.get('session_id')\r\n    if not session_id:\r\n        # TODO:\r\n        # token, creds - not used below\r\n        current_quickstart_instance = Quickstart()\r\n        token, creds, url = current_quickstart_instance.get_auth_url()\r\n        return redirect(url, code=302)\r\n    if session.is_logged_in(session_id):\r\n        return \"You are already logged in. You can close this window\"\r\n    token, creds, url = current_quickstart_instance.get_auth_url()\r\n    return redirect(url, code=302)  # arrow 4 + 5\r\n\r\n\r\n# @app.route(\"/login/callback\", methods=['OPTIONS'])\r\n# def deal_with_options_request():\r\n#     if request.method == 'OPTIONS':\r\n#         print(\"sent 200 OK\")\r\n#         resp = jsonify(success=True, status_code=200)\r\n#         print(resp)\r\n#         # return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}\r\n#         return resp\r\n\r\n# @app.route(methods=['OPTIONS'])\r\n# def deal_with_options_request():\r\n#     return 201, {'Access-Control-Allow-Origin': '*'}\r\n\r\n\r\n@app.after_request\r\ndef after_request(response):\r\n    # my_logger.debug(\"after request\")\r\n    response.headers.add('Access-Control-Allow-Origin', '*')\r\n    # response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,Access-Control-Allow-Origin')\r\n    response.headers.add('Access-Control-Allow-Headers', '*')\r\n    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')\r\n    response.headers.add('Access-Control-Allow-Credentials', 'true')\r\n    return response\r\n    # return response\r\n\r\n\r\n# @app.after_request\r\n# def after_request(response):\r\n#     response.headers.add('Access-Control-Allow-Origin', '*')\r\n#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')\r\n#     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')\r\n#     return response\r\n\r\n\r\n@app.route(\"/show_cookie\")\r\ndef show_cookie():\r\n    # return \"hello\"\r\n    username = flask.request.cookies.get('user_address')\r\n    res = flask.jsonify(username=username)\r\n    my_logger.debug(username)\r\n    return res\r\n\r\n\r\n@app.route(\"/login/new_callback\")\r\ndef ranges_callback():\r\n    global current_quickstart_instance\r\n    my_logger.debug(\"ranges callback\")\r\n    freebusy, user_address, name, phone, user_credentials = current_quickstart_instance.make_requests()\r\n    cur_user = DbUser(user_address, name, phone, user_credentials)  # current user\r\n    my_logger.debug(\"cUser after constructor:\")\r\n    my_logger.debug(cur_user)\r\n    cur_user.id = DbUser.get_id_by_email(user_address)\r\n    my_logger.debug(\"user.id in callback: %s\", cur_user.id)\r\n    if not cur_user.id:\r\n        cUser_id = DbUser.create(cur_user.email, name, phone, user_credentials)\r\n    else:\r\n        DbUser.update_creds(cur_user.id, user_credentials)\r\n    # logging in the user\r\n    session_id = session.login_user(user_address)\r\n    my_logger.debug(session.users_dict)\r\n    my_logger.debug(\"LOGGED IN NEW USER!\")\r\n    my_logger.debug(\"email: %s\", cur_user.email)\r\n    my_logger.debug(\"user_id: %s\", cur_user.id)\r\n    my_logger.debug(\"\\nUser: %s\", user_address)\r\n    my_logger.debug(freebusy)\r\n\r\n    # Clear all of the \"old\" ranges the user currently has\r\n    Range.delete_user_ranges(cur_user.id)\r\n\r\n    # Create the new ranges in our database\r\n    for c_range in freebusy:\r\n        Range.create_range(cur_user.id, c_range['start'], c_range['end'])\r\n\r\n    # Build the HTTP response\r\n    res = flask.jsonify(freebusy=freebusy, name=name, phone=phone, session_id=session_id)\r\n    my_logger.debug(\"callback response: %s\", res.get_data(as_text=True))\r\n    return res\r\n\r\n\r\n@app.route(\"/busy_for\")\r\ndef busy_for():\r\n    params = flask.request.args\r\n    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)\r\n    try:\r\n        owner_id = session.handle_user_user_id(session_id)\r\n    except Unauthorized:\r\n        return unauthorized_resp\r\n    hours = int(params.get('hours'))\r\n    mins = int(params.get('mins'))\r\n    success = Range.busy_for(owner_id, hours, mins)\r\n    res = flask.jsonify(success=success)\r\n    return res\r\n\r\n# /new_range?start=1985-04-12T23:20:50.52Z&end=1985-05-12T23:20:50.52Z\r\n# from 12.04.1985, 23:20:50.52 until 12.05.1985, 23:20:50.52\r\n@app.route(\"/new_range\")\r\ndef new_range():\r\n    params = flask.request.args\r\n    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)\r\n    try:\r\n        owner_id = session.handle_user_user_id(session_id)\r\n    except Unauthorized:\r\n        return unauthorized_resp\r\n    start: datetime = params.get('start')\r\n    end: datetime = params.get('end')\r\n    # owner_id = DbUser.get_id_by_email(current_user.email)\r\n    # owner_id = DbUser.get_id_by_email(\"roy.quitt@googlemail.com\")\r\n    # owner_id = current_user.id\r\n    # owner_address = session.get_address_by_session_id(session_id)\r\n    # owner_id = DbUser.get_id_by_email(owner_address)\r\n    print(start, end)\r\n    now = datetime.now(tz=timezone(timedelta(hours=2), 'IST'))\r\n    new_start: datetime = datetime.strptime(start, \"%H:%M\")\r\n    final_start = datetime(now.year, now.month, now.day, new_start.hour, new_start.minute).isoformat() + 'Z'\r\n    new_end: datetime = datetime.strptime(end, \"%H:%M\")\r\n    final_end = datetime(now.year, now.month, now.day, new_end.hour, new_end.minute).isoformat() + 'Z'\r\n    # final_start: datetime = datetime.strptime(start, \"%H:%M %Y-%m-%dT%H:%M:%SZ\")\r\n    # final_end: datetime = datetime.strptime(end, \"%H:%M %Y-%m-%dT%H:%M:%SZ\")\r\n    print(final_start, final_end)\r\n    success = Range.create_range(owner_id, final_start, final_end)\r\n    res = flask.jsonify(success=success)\r\n    return res\r\n\r\n\r\n@app.route(\"/get_user_schedule\")\r\ndef get_user_schedule():\r\n    \"\"\"\r\nRetrieve the availability of the user\r\nreturn value is JSON\r\n    @rtype: object\r\n    \"\"\"\r\n    params = flask.request.args\r\n    user_address = params.get('user_address')\r\n    print(\"User address in get user schedule:\" + user_address)\r\n    # check if 'user_address' is a valid email, if it is - treat it like one,\r\n    # if its not - treat it like a name of a user\r\n    if '@' in user_address:\r\n        print(\"address\")\r\n        try:\r\n            # try to get the ranges of the user with the address given\r\n            user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges(user_address)\r\n        except TypeError:\r\n            print(\"type error\")\r\n            return flask.jsonify(error=\"type error\")\r\n    else:  # its a name\r\n        print(\"name\")\r\n        try:\r\n            user_name = user_address\r\n            user_name = user_name.title()\r\n            print(user_name)\r\n            user_address = DbUser.get_address_by_name(user_name)\r\n            user_ranges: list[tuple[datetime, datetime]] = DbUser.get_user_ranges(user_address)\r\n        except TypeError:\r\n            print(\"type error\")\r\n            return flask.jsonify(error=\"type error\")\r\n    print(\"address:\", user_address)\r\n    is_available: bool = DbUser.is_available(user_address)\r\n    next_available: datetime = DbUser.next_available(user_address)\r\n    phone = DbUser.get_user_phone(user_address)\r\n    name = DbUser.get_user_name(user_address)\r\n    res = flask.jsonify(\r\n        name=name,\r\n        ranges=user_ranges,\r\n        is_available=is_available,\r\n        next_available=next_available,\r\n        phone=phone\r\n    )\r\n    return res\r\n\r\n\r\n@app.route(\"/join_que\")\r\ndef join():\r\n    params = flask.request.args\r\n    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)\r\n    try:\r\n        waiter_address = session.handle_user(session_id)\r\n    except Unauthorized:\r\n        return unauthorized_resp\r\n    callee_address = params.get('user_address')\r\n    print(\"adding\", waiter_address, \"to\", callee_address + \"'s que\")\r\n    place_in_line = Ques.create_que_item(callee_address, waiter_address)\r\n    success = place_in_line != 0\r\n    res = flask.jsonify(\r\n        success=success,\r\n        place_in_line=place_in_line\r\n    )\r\n    return res\r\n\r\n\r\n@app.route(\"/move_to_top\")\r\ndef move_to_top():\r\n    params = flask.request.args\r\n    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)\r\n    try:\r\n        callee_address = session.handle_user(session_id)\r\n    except Unauthorized:\r\n        return unauthorized_resp\r\n    waiter_address = params.get(WAITER_ADDRESS_HTTP_PARAM_NAME)\r\n    success = Ques.move_to_top(waiter_address, callee_address)\r\n    res = flask.jsonify(\r\n        success=success\r\n    )\r\n    return res\r\n\r\n\r\n@app.route(\"/remove_from_que\")\r\ndef remove():\r\n    params = flask.request.args\r\n    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)\r\n    try:\r\n        callee_address = session.handle_user(session_id)\r\n    except Unauthorized:\r\n        return unauthorized_resp\r\n    waiter_address = params.get (WAITER_ADDRESS_HTTP_PARAM_NAME)\r\n    success = Ques.remove_from_que (callee_address, waiter_address)\r\n    res = flask.jsonify (\r\n        success=success\r\n    )\r\n    return res\r\n\r\n\r\n@app.route(\"/get_my_que\")\r\ndef get_my_que():\r\n    params = flask.request.args\r\n    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)\r\n    try:\r\n        address = session.handle_user(session_id)\r\n    except Unauthorized:\r\n        return unauthorized_resp\r\n    print(\"getting que of:\", address)\r\n    user_que = Ques.get_my_que(address)\r\n    print([waiter.serialize() for waiter in user_que])\r\n    res = flask.jsonify(\r\n        que=[waiter.serialize() for waiter in user_que]\r\n    )\r\n    return res\r\n\r\n\r\n@app.route(\"/get_update\")\r\ndef get_update():\r\n    params = flask.request.args\r\n    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)\r\n    try:\r\n        user_address = session.handle_user(session_id)\r\n    except Unauthorized:\r\n        return unauthorized_resp\r\n    notifications = Ques.get_notifications(user_address)\r\n    res = flask.jsonify(\r\n        notifications=[notification.serialize() for notification in notifications]\r\n    )\r\n    return res\r\n\r\n\r\n@app.route(\"/logout\")\r\ndef logout():\r\n    \"\"\"\r\n    Logs the user out erases their session\r\n    :rtype:\r\n        Http Response\r\n    \"\"\"\r\n    params = flask.request.args\r\n    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)\r\n    try:\r\n        address = session.handle_user(session_id)\r\n    except Unauthorized:\r\n        return unauthorized_resp\r\n    my_logger.debug(\"logging user out...\")\r\n    my_logger.debug(address)\r\n    session.log_out(session_id)\r\n    success = not session.is_logged_in(session_id)\r\n    res = flask.jsonify(\r\n        success=success\r\n    )\r\n    return res\r\n\r\n\r\n@app.route(\"/refresh_all\")\r\ndef refresh():\r\n    refresh_instance = RefreshRanges()\r\n    refresh_instance.refresh_all_ranges()\r\n    return flask.jsonify(success=True)\r\n\r\n\r\n@app.route(\"/call_refresh\")\r\ndef call_refresh_endpoint():\r\n    my_logger.debug(\"making HTTP request\")\r\n    r = requests.get(LOCAL_SERVER_ADDRESS, verify=False)\r\n\r\n\r\nif __name__ == \"__main__\":\r\n\r\n    # Build and start our scheduler so that we can refresh the ranges periodically\r\n    scheduler = BackgroundScheduler()\r\n    my_logger.debug(\"adding job\")\r\n    job = scheduler.add_job(call_refresh_endpoint, 'interval', minutes=RANGES_REFRESH_RATE)\r\n    my_logger.debug(\"starting scheduler\")\r\n    scheduler.start()\r\n    print(\"running\")\r\n    port = int(os.environ.get(\"PORT\", 5000))\r\n    my_logger.debug(\"port: %s\", port)\r\n    # app.run(ssl_context=\"adhoc\", host=\"0.0.0.0\", port=port, debug=False)\r\n    # app.run(ssl_context=\"adhoc\")\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app.py b/app.py
+--- a/app.py	(revision ba77e8b7ad5dfc6fd1bf2a2fa1dc23aaedf3e958)
++++ b/app.py	(date 1618490205898)
+@@ -17,7 +17,6 @@
+ import requests
+ import warnings
+ 
+-
+ from flask import Flask, redirect, request, url_for
+ from flask_cors import CORS
+ # from flask_login import (
+@@ -31,7 +30,6 @@
+ from apscheduler.schedulers.background import BackgroundScheduler
+ import Lineder_logging
+ 
+-
+ from quickstart import Quickstart
+ # Internal imports
+ from session_managment import SessionManagement, Unauthorized
+@@ -50,7 +48,7 @@
+ 
+ warnings.filterwarnings('ignore', message='Unverified HTTPS request')
+ 
+-session = SessionManagement ()
++session = SessionManagement()
+ 
+ my_logger = Lineder_logging.get_logger("App")
+ my_logger.debug("\n--------------------------- NEW ---------------------------\n")
+@@ -229,12 +227,13 @@
+     res = flask.jsonify(success=success)
+     return res
+ 
++
+ # /new_range?start=1985-04-12T23:20:50.52Z&end=1985-05-12T23:20:50.52Z
+ # from 12.04.1985, 23:20:50.52 until 12.05.1985, 23:20:50.52
+ @app.route("/new_range")
+ def new_range():
+     params = flask.request.args
+-    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
++    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)
+     try:
+         owner_id = session.handle_user_user_id(session_id)
+     except Unauthorized:
+@@ -344,14 +343,14 @@
+ @app.route("/remove_from_que")
+ def remove():
+     params = flask.request.args
+-    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
++    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)
+     try:
+         callee_address = session.handle_user(session_id)
+     except Unauthorized:
+         return unauthorized_resp
+-    waiter_address = params.get (WAITER_ADDRESS_HTTP_PARAM_NAME)
+-    success = Ques.remove_from_que (callee_address, waiter_address)
+-    res = flask.jsonify (
++    waiter_address = params.get(WAITER_ADDRESS_HTTP_PARAM_NAME)
++    success = Ques.remove_from_que(callee_address, waiter_address)
++    res = flask.jsonify(
+         success=success
+     )
+     return res
+@@ -360,7 +359,7 @@
+ @app.route("/get_my_que")
+ def get_my_que():
+     params = flask.request.args
+-    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
++    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)
+     try:
+         address = session.handle_user(session_id)
+     except Unauthorized:
+@@ -377,7 +376,7 @@
+ @app.route("/get_update")
+ def get_update():
+     params = flask.request.args
+-    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
++    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)
+     try:
+         user_address = session.handle_user(session_id)
+     except Unauthorized:
+@@ -397,7 +396,7 @@
+         Http Response
+     """
+     params = flask.request.args
+-    session_id = params.get (SESSION_ID_HTTP_PARAM_NAME)
++    session_id = params.get(SESSION_ID_HTTP_PARAM_NAME)
+     try:
+         address = session.handle_user(session_id)
+     except Unauthorized:
+@@ -433,6 +432,7 @@
+     job = scheduler.add_job(call_refresh_endpoint, 'interval', minutes=RANGES_REFRESH_RATE)
+     my_logger.debug("starting scheduler")
+     scheduler.start()
++
+     print("running")
+     port = int(os.environ.get("PORT", 5000))
+     my_logger.debug("port: %s", port)
