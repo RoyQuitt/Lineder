@@ -209,7 +209,6 @@ def my_callback():
     client.parse_request_body_response(json.dumps(token_response.json()))
 
 
-
 @app.route("/login/new_callback")
 def ranges_callback():
     global current_quickstart_instance
@@ -326,17 +325,24 @@ return value is JSON
     print("address:", user_address)
     is_available: bool = DbUser.is_available(user_address)
     next_available: datetime = DbUser.next_available(user_address)
-    new_next_available = next_available
+    new_next_available: datetime = utc_to_local(next_available)  # change TZ to local
+    print("new:", new_next_available)
+    new_next_available_s = new_next_available.isoformat().split("+")[0].replace("T", " ")
+    print("new_s:", new_next_available_s)
     phone = DbUser.get_user_phone(user_address)
     name = DbUser.get_user_name(user_address)
     res = flask.jsonify(
         name=name,
         ranges=user_ranges,
         is_available=is_available,
-        next_available=next_available,
+        next_available=new_next_available_s,
         phone=phone
     )
     return res
+
+
+def utc_to_local(utc_dt: datetime) -> datetime:
+    return utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=None)
 
 
 def change_timezone(s):
@@ -482,5 +488,6 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     my_logger.debug("port: %s", port)
     # app.run(ssl_context="adhoc", host="0.0.0.0", port=port, debug=False)
-    print(change_timezone("Mon, 19 Apr 2021 08:00:00 GMT"))
+    # print(change_timezone("Mon, 19 Apr 2021 08:00:00 GMT"))
+    print(utc_to_local(datetime.utcnow()))
     app.run(ssl_context="adhoc")
