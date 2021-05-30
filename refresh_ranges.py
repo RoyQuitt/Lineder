@@ -3,6 +3,7 @@ from db import get_db
 import json
 from google.oauth2.credentials import Credentials
 from quickstart import Quickstart
+from request_handler import RequestHandler
 from dbUser import MyUser as DbUser
 from freebusy_range import Freebusy as Range
 
@@ -17,6 +18,7 @@ class RefreshRanges(UserMixin):
         self.convert_all_jsons_to_creds()
 
     def refresh_all_ranges(self):
+        print(self.all_creds)
         if self.all_creds is not None:
             for user_id, user_creds in self.all_creds.items():
                 print("refreshing...")
@@ -26,12 +28,18 @@ class RefreshRanges(UserMixin):
 
     @staticmethod
     def refresh_one_user_ranges(user_id, user_creds):
-        # user_creds: dict[int: Credentials] = self.get_user_creds(user_id)
-        # print("creating quickstart instance")
-        current_quickstart_instance = Quickstart()
-        # print("making the requests")
-        freebusy, user_address, name, phone, user_credentials = \
-            current_quickstart_instance.make_requests(given_creds=user_creds)
+        first = list(user_creds.keys())[0]
+        if type(first) is int:
+            current_handler_instance = RequestHandler(None)
+            name, user_address, phone, pic_url, freebusy, headers = \
+                current_handler_instance.get_user_ranges(authorization=user_creds)
+        else:
+            # user_creds: dict[int: Credentials] = self.get_user_creds(user_id)
+            # print("creating quickstart instance")
+            current_quickstart_instance = Quickstart()
+            # print("making the requests")
+            freebusy, user_address, name, phone, user_credentials = \
+                current_quickstart_instance.make_requests(given_creds=user_creds)
         # print("done")
         # print(freebusy)
         # cur_user = DbUser(user_address, name, phone, user_credentials)
@@ -51,7 +59,13 @@ class RefreshRanges(UserMixin):
         for user_id in self.creds_dict:
             current_user_creds_string = self.creds_dict[user_id]
             current_user_creds_dict = json.loads(current_user_creds_string)
-            self.all_creds[user_id] = Credentials.from_authorized_user_info(current_user_creds_dict)
+            if 'Authorization' in current_user_creds_dict.keys():
+                self.all_creds[user_id] = current_user_creds_dict['Authorization']
+
+            else:
+                self.all_creds[user_id] = Credentials.from_authorized_user_info(current_user_creds_dict)
+        print(self.all_creds)
+
 
     # def get_all_ranges(self):
     #     db = get_db()

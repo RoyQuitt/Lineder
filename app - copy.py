@@ -20,7 +20,7 @@ from oauthlib.oauth2 import WebApplicationClient
 import requests
 
 # Internal imports
-from db import init_db_command
+# from db import init_db_command
 from user import User
 
 from googleapiclient.discovery import build
@@ -61,11 +61,11 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 # Naive database setup
-try:
-    init_db_command()
-except sqlite3.OperationalError:
-    # Assume it's already been created
-    pass
+# try:
+#     init_db_command()
+# except sqlite3.OperationalError:
+#     # Assume it's already been created
+#     pass
 
 # OAuth 2 client setup
 print(GOOGLE_CLIENT_ID)
@@ -174,8 +174,11 @@ def callback():
     # from Google that gives you the user's profile information,
     # including their Google profile image and email
     userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+    print("body:", body)
     uri, headers, body = client.add_token(userinfo_endpoint)
     print("headers:", headers, "\nbody:", body)
+    print("uri:", uri)
+    print("body:", body)
     userinfo_response = requests.get(uri, headers=headers, data=body)
     # url = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
     # events_response = requests.post(url, headers={"authorization":})

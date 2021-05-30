@@ -38,6 +38,7 @@ from dbUser import MyUser as DbUser
 from freebusy_range import Freebusy as Range
 from ques import Ques
 from refresh_ranges import RefreshRanges
+from request_handler import RequestHandler
 
 LOCAL_SERVER_ADDRESS = 'https://127.0.0.1:5000/refresh_all'
 
@@ -79,6 +80,8 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=T
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 unauthorized_resp = None
 current_quickstart_instance = Quickstart()
+current_handler_instance = RequestHandler(request)
+
 
 my_logger.debug("Going to initialize DB")
 # Naive database setup
@@ -91,6 +94,7 @@ except sqlite3.OperationalError:
 
 # OAuth 2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
+
 
 
 @app.route("/json_test")
@@ -107,7 +111,8 @@ def index():
     message = {'error': 'Unauthorized'}
     unauthorized_resp = flask.jsonify(message)
     unauthorized_resp.status_code = 401
-    return redirect(url_for("login_flow"))
+    # return redirect(url_for("login_flow"))
+    return redirect(url_for("login"))
 
 
 def get_google_provider_cfg():
@@ -116,7 +121,7 @@ def get_google_provider_cfg():
     return cfg
 
 
-@app.route("/login")  # arrow 1
+# @app.route("/login")  # arrow 1
 def login_flow():
     """
     login_flow starts the login process and then redirects the user to the next stage by sending a 302 redirect
@@ -138,6 +143,54 @@ def login_flow():
     token, creds, url = current_quickstart_instance.get_auth_url()
     return redirect(url, code=302)  # arrow 4 + 5
 
+
+@app.route("/login")
+def login():
+    global current_handler_instance
+    params = flask.request.args
+    session_id = params.get('session_id')
+    if not session_id:
+        current_handler_instance = RequestHandler(request)
+        uri = current_handler_instance.login_request()
+        print("uri:", uri)
+        return redirect(uri, code=302)
+    if session.is_logged_in(session_id):
+        return "You are already logged in. You can close this window"
+    uri = current_handler_instance.login_request()
+    print("uri:", uri)
+    return redirect(uri, code=302)
+
+
+@app.route("/login/callback")
+def callback():
+    global current_handler_instance
+    name, user_address, phone, pic_url, freebusy, headers = current_handler_instance.callback_handler()
+    print("user info:", name, user_address, phone, pic_url, freebusy[0])
+    cur_user = DbUser(user_address, name, phone, headers)  # current user
+    cur_user.id = DbUser.get_id_by_email(user_address)
+    if not cur_user.id:
+        cUser_id = DbUser.create(cur_user.email, name, phone, headers)
+    else:
+        DbUser.update_creds(cur_user.id, headers)
+    session_id = session.login_user(user_address)
+    my_logger.debug(session.users_dict)
+    my_logger.debug("LOGGED IN NEW USER!")
+    my_logger.debug("email: %s", cur_user.email)
+    my_logger.debug("user_id: %s", cur_user.id)
+    my_logger.debug("\nUser: %s", user_address)
+    my_logger.debug(freebusy)
+
+    # Clear all of the "old" ranges the user currently has
+    Range.delete_user_ranges(cur_user.id)
+
+    # Create the new ranges in our database
+    for c_range in freebusy:
+        Range.create_range(cur_user.id, c_range['start'], c_range['end'])
+
+    # Build the HTTP response
+    res = flask.jsonify(freebusy=freebusy, name=name, phone=phone, session_id=session_id)
+    my_logger.debug("callback response: %s", res.get_data(as_text=True))
+    return res
 
 # @app.route("/login/callback", methods=['OPTIONS'])
 # def deal_with_options_request():

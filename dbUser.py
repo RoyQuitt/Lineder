@@ -1,3 +1,5 @@
+import json
+
 from flask_login import UserMixin
 # from datetime import datetime, timezone
 import datetime
@@ -188,7 +190,10 @@ class MyUser(UserMixin):
     @staticmethod
     def create(email, name, phone, creds):
         db = get_db()
-        creds_json = creds.to_json()
+        if type(creds) is not dict:
+            creds_json = creds.to_json()
+        else:
+            creds_json = json.dumps(creds, indent=4)
         print("creds type:", type(creds))
         print("creds json type:", type(creds_json))
         print(creds_json)
@@ -208,7 +213,10 @@ class MyUser(UserMixin):
     @staticmethod
     def update_creds(user_id, creds):
         db = get_db()
-        creds_json = creds.to_json()
+        if type(creds) is not dict:
+            creds_json = creds.to_json()
+        else:
+            creds_json = json.dumps(creds, indent=4)
         db.execute(
             "UPDATE myUser SET creds = ? WHERE user_id = ?", (creds_json, user_id)
         )
