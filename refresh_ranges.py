@@ -13,18 +13,20 @@ class RefreshRanges(UserMixin):
         # self.db = get_db()
         self.creds_dict: dict[int: str] = {}
         self.all_creds: dict[int: Credentials] = {}
+        self.all_tokens: dict = {}
         self.all_ranges: list = []
         self.get_all_creds()
-        self.convert_all_jsons_to_creds()
+        # self.convert_all_jsons_to_creds()
+        print("Creds Dict:", self.creds_dict)
+        print("All Creds:", self.all_creds)
 
     def refresh_all_ranges(self):
-        print(self.all_creds)
-        if self.all_creds is not None:
-            for user_id, user_creds in self.all_creds.items():
+        if self.all_tokens is not None:
+            for user_id, user_token in self.all_tokens.items():
                 print("refreshing...")
                 # print("user_id:", user_id)
                 # print("user_creds:", user_creds)
-                self.refresh_one_user_ranges(user_id, user_creds)
+                self.refresh_one_user_ranges_token(user_id, user_token)
 
     @staticmethod
     def refresh_one_user_ranges(user_id, user_creds):
@@ -55,6 +57,18 @@ class RefreshRanges(UserMixin):
     def get_user_creds(self, user_id) -> dict[int: Credentials]:
         return self.all_creds[user_id]
 
+    @staticmethod
+    def refresh_one_user_ranges_token(user_id, user_token):
+        current_handler_instance = RequestHandler(None)
+        freebusy = current_handler_instance.get_user_ranges(authorization=user_token)
+
+        # Clear all of the "old" ranges the user currently has
+        Range.delete_user_ranges(user_id)
+
+        # Create the new ranges in our database
+        for c_range in freebusy:
+            Range.create_range(user_id, c_range['start'], c_range['end'])
+
     def convert_all_jsons_to_creds(self):
         for user_id in self.creds_dict:
             current_user_creds_string = self.creds_dict[user_id]
@@ -75,7 +89,8 @@ class RefreshRanges(UserMixin):
     #     self.all_ranges = [range_instance[0] for range_instance in result]
 
     def get_all_creds(self):
-        self.creds_dict = DbUser.get_all_creds()
+        # self.creds_dict = DbUser.get_all_creds()
+        self.all_tokens = DbUser.get_all_creds()
         # db = get_db()
         # # creds_dict: dict[int: str] = {}
         # result: list = db.execute(

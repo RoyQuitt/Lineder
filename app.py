@@ -39,8 +39,10 @@ from freebusy_range import Freebusy as Range
 from ques import Ques
 from refresh_ranges import RefreshRanges
 from request_handler import RequestHandler
+from temp_user import TempUser
 
-LOCAL_SERVER_ADDRESS = 'https://127.0.0.1:5000/refresh_all'
+# LOCAL_SERVER_ADDRESS = 'https://127.0.0.1:5000/refresh_all'
+LOCAL_SERVER_ADDRESS = 'https://10.50.1.146:5000/refresh_all'
 
 RANGES_REFRESH_RATE = 10
 
@@ -80,7 +82,8 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=T
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 unauthorized_resp = None
 current_quickstart_instance = Quickstart()
-current_handler_instance = RequestHandler(request)
+current_handler_instance = RequestHandler(None)
+temp_user = None
 
 
 my_logger.debug("Going to initialize DB")
@@ -164,12 +167,13 @@ def login():
 @app.route("/login/callback")
 def callback():
     global current_handler_instance
-    name, user_address, phone, pic_url, freebusy, headers = current_handler_instance.callback_handler()
-    print("user info:", name, user_address, phone, pic_url, freebusy[0])
+    name, user_address, phone, pic_url, freebusy, headers =\
+        current_handler_instance.callback_handler()
+    print("user info:", name, user_address, phone, pic_url, len(freebusy))
     cur_user = DbUser(user_address, name, phone, headers)  # current user
     cur_user.id = DbUser.get_id_by_email(user_address)
     if not cur_user.id:
-        cUser_id = DbUser.create(cur_user.email, name, phone, headers)
+        c_user_id = DbUser.create(cur_user.email, name, phone, headers)
     else:
         DbUser.update_creds(cur_user.id, headers)
     session_id = session.login_user(user_address)
@@ -189,6 +193,54 @@ def callback():
 
     # Build the HTTP response
     res = flask.jsonify(freebusy=freebusy, name=name, phone=phone, session_id=session_id)
+    my_logger.debug("callback response: %s", res.get_data(as_text=True))
+    return res
+
+
+@app.route("/login/close_window")
+def close_window():
+    global current_handler_instance
+    global temp_user
+    print("code:", request.args.get("code"))
+    current_handler_instance = RequestHandler(request)
+    name, user_address, phone, pic_url, freebusy, headers = \
+        current_handler_instance.callback_handler()
+
+    # Save the info as a global variable until the user requests to update his info
+    temp_user = TempUser(name, user_address, phone, pic_url, freebusy, headers)
+    print("user info:", name, user_address, phone, pic_url, len(freebusy))
+    return "Login Complete! You May Close This Window"
+
+
+@app.route("/get_info")
+def get_info():
+    global temp_user
+    cur_user = DbUser(temp_user.address, temp_user.name,
+                      temp_user.phone, temp_user.headers)
+    cur_user.id = DbUser.get_id_by_email(temp_user.address)
+    if not cur_user.id:
+        DbUser.create(cur_user.email, cur_user.name,
+                      cur_user.phone, cur_user.creds)
+    else:
+        DbUser.update_creds(cur_user.id, cur_user.creds)
+    session_id = session.login_user(temp_user.address)
+    my_logger.debug(session.users_dict)
+    my_logger.debug("LOGGED IN NEW USER!")
+    my_logger.debug("email: %s", cur_user.email)
+    my_logger.debug("user_id: %s", cur_user.id)
+    my_logger.debug("\nUser: %s", temp_user.address)
+    my_logger.debug(temp_user.freebusy)
+
+    # Clear all of the "old" ranges the user currently has
+    Range.delete_user_ranges(cur_user.id)
+
+    # Create the new ranges in our database
+    for c_range in temp_user.freebusy:
+        Range.create_range(cur_user.id, c_range['start'], c_range['end'])
+
+    # Build the HTTP response
+    res = flask.jsonify(freebusy=temp_user.freebusy, name=temp_user.name,
+                        phone=temp_user.phone, session_id=session_id)
     my_logger.debug("callback response: %s", res.get_data(as_text=True))
     return res
 
@@ -273,7 +325,7 @@ def ranges_callback():
     cur_user.id = DbUser.get_id_by_email(user_address)
     my_logger.debug("user.id in callback: %s", cur_user.id)
     if not cur_user.id:
-        cUser_id = DbUser.create(cur_user.email, name, phone, user_credentials)
+        c_user_id = DbUser.create(cur_user.email, name, phone, user_credentials)
     else:
         DbUser.update_creds(cur_user.id, user_credentials)
     # logging in the user
@@ -543,4 +595,4 @@ if __name__ == "__main__":
     # app.run(ssl_context="adhoc", host="0.0.0.0", port=port, debug=False)
     # print(change_timezone("Mon, 19 Apr 2021 08:00:00 GMT"))
     print(utc_to_local(datetime.utcnow()))
-    app.run(ssl_context="adhoc")
+    app.run(ssl_context="adhoc", host="10.50.1.146")

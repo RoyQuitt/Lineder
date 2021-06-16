@@ -32,8 +32,16 @@ class RequestHandler:
     google_provider_cfg = get_google_provider_cfg()
 
     def __init__(self, request):
+        print("\nNEW HANDLER!\n")
         self.user_request = request
         self.headers = {}
+        if self.user_request:
+            self.user_code = request.args.get("code")
+            print(self.user_request)
+            print(self.user_request.args.get("code"))
+            print(self.user_code)
+        else:
+            print("no request yet")
 
     def login_request(self):
         # base_url = request.base_url
@@ -44,13 +52,14 @@ class RequestHandler:
         # scopes that let you retrieve user's profile from Google
         request_uri = client.prepare_request_uri(
             authorization_endpoint,
-            redirect_uri=self.user_request.base_url + "/callback",
+            redirect_uri=self.user_request.base_url + "/close_window",
             scope=["openid", "email", "profile", 'https://www.googleapis.com/auth/calendar.readonly',
                    'https://www.googleapis.com/auth/user.phonenumbers.read'],
         )
         return request_uri
 
     def callback_handler(self):
+        # self.user_request.args.add('code', self.user_code)
         self.get_user_token()
         name, email, phone_number, pic_url = self.get_user_info()
         freebusy = self.get_user_ranges()
@@ -59,8 +68,9 @@ class RequestHandler:
         authorization_dict = {key: self.headers[key] for key in self.headers.keys()
                               & {'Authorization'}}
         print(authorization_dict)
+        token_str = authorization_dict['Authorization']
 
-        return name, email, phone_number, pic_url, freebusy, authorization_dict
+        return name, email, phone_number, pic_url, freebusy, token_str
 
     def get_user_ranges(self, authorization=None):
         print(authorization)
@@ -111,13 +121,20 @@ class RequestHandler:
         if authorization is not None:
             self.headers['Authorization'] = authorization
         # Get authorization code Google sent back to you
-        code = self.user_request.args.get("code")
+        # code = self.user_request.args.get("code")
+        code = self.user_code
+        print("\ncode:", code, "\n")
 
         # Find out what URL to hit to get tokens that allow you to ask for
         # things on behalf of a user
         token_endpoint = self.google_provider_cfg["token_endpoint"]
 
         # Prepare and send a request to get tokens! Yay tokens!
+        client.code = code
+        print(client.code)
+        self.user_request.url += "?code=" + code
+        print(self.user_request.url)
+        print(self.user_request.base_url)
         token_url, self.headers, body = client.prepare_token_request(
             token_endpoint,
             authorization_response=self.user_request.url,
@@ -132,6 +149,7 @@ class RequestHandler:
         )
 
         # Parse the tokens!
+        print(json.dumps(token_response.json()))
         client.parse_request_body_response(json.dumps(token_response.json()))
 
     def get_user_info(self, authorization=None):
@@ -172,5 +190,10 @@ class RequestHandler:
         self.headers['Accept'] = 'application/json'
         body = None
         response = requests.get(people_endpoint, headers=self.headers, data=body)
-        phone_number = response.json()['phoneNumbers'][0]['value']
+        try:
+            phone_number = response.json()['phoneNumbers'][0]['value']
+        except KeyError:
+            print("user has no phone setup")
+            phone_number = ""
+            pass
         return phone_number

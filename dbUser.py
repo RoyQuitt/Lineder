@@ -190,9 +190,14 @@ class MyUser(UserMixin):
     @staticmethod
     def create(email, name, phone, creds):
         db = get_db()
-        if type(creds) is not dict:
+        if type(creds) is str:
+            print("creds is str")
+            creds_json = creds
+        elif type(creds) is not dict:
+            print("creds is not dict")
             creds_json = creds.to_json()
         else:
+            print("else")
             creds_json = json.dumps(creds, indent=4)
         print("creds type:", type(creds))
         print("creds json type:", type(creds_json))
@@ -213,10 +218,16 @@ class MyUser(UserMixin):
     @staticmethod
     def update_creds(user_id, creds):
         db = get_db()
-        if type(creds) is not dict:
+        if type(creds) is str:
+            print("creds is str")
+            creds_json = creds
+        elif type(creds) is not dict:
+            print("creds is not dict")
             creds_json = creds.to_json()
         else:
+            print("else")
             creds_json = json.dumps(creds, indent=4)
+
         db.execute(
             "UPDATE myUser SET creds = ? WHERE user_id = ?", (creds_json, user_id)
         )
