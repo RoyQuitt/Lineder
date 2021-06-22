@@ -25,10 +25,21 @@ class SessionManagement:
         Creates the users dictionary which is a key->value mapping of session ID to email addresses
         """
         self.users_dict: dict[str: str] = {}
+        self.temp_id_dict: dict[str:str] = {}
 
     @staticmethod
     def generate_random_uuid():
         return uuid.uuid4()
+
+    def generate_temp_id(self):
+        return self.generate_random_uuid()
+
+    def add_code_and_temp_id(self, temp_id, code):
+        self.temp_id_dict[temp_id] = code
+        return self.temp_id_dict[temp_id]
+
+    def convert_temp_id_to_code(self, temp_id):
+        return self.temp_id_dict[temp_id]
 
     def get_address_by_session_id(self, session_id):
         return self.users_dict[session_id]

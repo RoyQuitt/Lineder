@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import datetime
+import base64
 from datetime import timezone, timedelta
 # Python standard libraries
 import json
@@ -159,9 +160,16 @@ def login():
         return redirect(uri, code=302)
     if session.is_logged_in(session_id):
         return "You are already logged in. You can close this window"
+    temp_id = session.generate_temp_id()
     uri = current_handler_instance.login_request()
+    temp_id_bytes = temp_id.encode('ascii')
+    base64_bytes = base64.b64encode(temp_id_bytes)
+    base64_temp_id = base64_bytes.decode('ascii')
+    uri += "&state=" + base64_temp_id
     print("uri:", uri)
     return redirect(uri, code=302)
+    # res = flask.jsonify(auth_url=uri, temp_id=temp_id)
+    # return res
 
 
 @app.route("/login/callback")
@@ -430,6 +438,7 @@ return value is JSON
     print("address:", user_address)
     is_available: bool = DbUser.is_available(user_address)
     next_available: datetime = DbUser.next_available(user_address)
+    print("next:", next_available)
     new_next_available: datetime = utc_to_local(next_available)  # change TZ to local
     print("new:", new_next_available)
     new_next_available_s = new_next_available.isoformat().split("+")[0].replace("T", " ")
@@ -470,8 +479,31 @@ def join():
     except Unauthorized:
         return unauthorized_resp
     callee_address = params.get('user_address')
+
+    if '@' in callee_address:
+        print("address")
+        try:
+            place_in_line = Ques.create_que_item(callee_address,
+                                                 waiter_address)
+        except TypeError:
+            print("type error")
+            return flask.jsonify(error="type error")
+    else:  # its a name
+        print("name")
+        try:
+            user_name = callee_address
+            user_name = user_name.title()
+            print(user_name)
+            callee_address = DbUser.get_address_by_name(user_name)
+            place_in_line = Ques.create_que_item(callee_address,
+                                                 waiter_address)
+        except TypeError:
+            print("type error")
+            return flask.jsonify(error="type error")
+    print("address:", callee_address)
+
     print("adding", waiter_address, "to", callee_address + "'s que")
-    place_in_line = Ques.create_que_item(callee_address, waiter_address)
+    # place_in_line = Ques.create_que_item(callee_address, waiter_address)
     success = place_in_line != 0
     res = flask.jsonify(
         success=success,
@@ -503,6 +535,7 @@ def remove():
     try:
         callee_address = session.handle_user(session_id)
     except Unauthorized:
+        print("error, unauthorized")
         return unauthorized_resp
     waiter_address = params.get(WAITER_ADDRESS_HTTP_PARAM_NAME)
     success = Ques.remove_from_que(callee_address, waiter_address)
@@ -580,14 +613,35 @@ def call_refresh_endpoint():
     r = requests.get(LOCAL_SERVER_ADDRESS, verify=False)
 
 
+# @app.route("/login/close_window")
+# def close_window():
+#     params = flask.request.args
+#     temp_id = params.get('temp_id')
+#     code = request.args.get('code')
+#     print(temp_id, code)
+#     if session.add_code_and_temp_id(temp_id, code) == code:
+#         return "<p>Login Completed, You May Close This Window</p>"
+#     else:
+#         return "<p>Something Went Wrong :(</p>"
+
+
+# @app.route("/get_info")
+# def get_info():
+#     global current_handler_instance
+#     params = flask.request.args
+#     temp_id = params.get('temp_id')
+#     code = session.convert_temp_id_to_code(temp_id)
+
+
 if __name__ == "__main__":
     config = get_google_provider_cfg()
-    # Build and start our scheduler so that we can refresh the ranges periodically
+    # Build and start our scheduler so that
+    # we can refresh the ranges periodically
     scheduler = BackgroundScheduler()
     my_logger.debug("adding job")
     job = scheduler.add_job(call_refresh_endpoint, 'interval', minutes=RANGES_REFRESH_RATE)
     my_logger.debug("starting scheduler")
-    scheduler.start()
+    # scheduler.start()
 
     print("running")
     port = int(os.environ.get("PORT", 5000))
@@ -595,4 +649,6 @@ if __name__ == "__main__":
     # app.run(ssl_context="adhoc", host="0.0.0.0", port=port, debug=False)
     # print(change_timezone("Mon, 19 Apr 2021 08:00:00 GMT"))
     print(utc_to_local(datetime.utcnow()))
-    app.run(ssl_context="adhoc", host="10.50.1.146")
+    # app.run(ssl_context="adhoc", host="10.50.1.146")
+    # app.run(ssl_context="adhoc", host="10.50.1.170")
+    app.run(ssl_context="adhoc", host="192.168.73.7")

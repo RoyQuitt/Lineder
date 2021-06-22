@@ -38,11 +38,18 @@ class Ques:
         callee_id = MyUser.get_id_by_email (callee_address)
         waiter_id = MyUser.get_id_by_email (waiter_address)
         waiter_place = Ques.get_place_in_line (waiter_id, callee_id)
-        db = get_db ()
-        db.execute (
-            "DELETE from Ques WHERE callee_id = ? AND waiter_id = ?",
-            (callee_id, waiter_id)
-        )
+        db = get_db()
+        try:
+            temp = db.execute (
+                "DELETE from Ques WHERE callee_id = ? AND waiter_id = ?",
+                (callee_id, waiter_id)
+            )
+            print("DELETE from Ques WHERE callee_id = %s AND waiter_id = %s", callee_id, waiter_id)
+            print("temp:", temp)
+        except Exception as msg:
+            print("error:", msg)
+            pass
+        db.commit()
         if Ques.get_place_in_line(waiter_id, callee_id) is None:
             db.execute(
                 "UPDATE ques SET place_in_line = place_in_line - 1"
@@ -50,8 +57,10 @@ class Ques:
                 (waiter_place, callee_id)
             )
         else:
+            db.rollback()
             return False
         db.commit()
+        db.close()
         return Ques.get_place_in_line(waiter_id, callee_id) is None
 
     @staticmethod
@@ -122,6 +131,7 @@ class Ques:
             (waiter_id, callee_id)
         )
         db.commit()  # commit to finish transaction
+        db.close()
         print("moved waiter up")
         Ques.print_table()
         updated_place = Ques.get_place_in_line(waiter_id, callee_id)  # waiter place after change
@@ -192,6 +202,7 @@ class Ques:
                 (callee_id, waiter_id, place_in_line)
             )
             db.commit()
+            db.close()
         else:
             print("que dead")
             callee_que_waiter_ids = []
@@ -202,6 +213,7 @@ class Ques:
                 (callee_id, waiter_id, place_in_line)
             )
             db.commit()
+            db.close()
         print(callee_que_waiter_ids)
         return place_in_line
 

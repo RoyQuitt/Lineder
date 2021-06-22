@@ -105,7 +105,9 @@ class Freebusy(UserMixin):
                 , (owner_id, start_time, end_time, owner_id, start_time, end_time)
             )
             db.commit()
+
             cur = db.cursor()  # cursor to find last rowid
+            db.close()
             my_logger.debug("\nADDED NEW RANGE!")
             my_logger.debug("%s, %s, %s", str(owner_id), str(start_time), str(end_time))
 

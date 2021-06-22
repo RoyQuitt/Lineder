@@ -112,7 +112,8 @@ class MyUser(UserMixin):
     @staticmethod
     def next_available(user_address) -> datetime:
         if MyUser.is_available(user_address):
-            return datetime.datetime.utcnow().isoformat()  # (now)
+            # return datetime.datetime.utcnow().isoformat()  # (now)
+            return datetime.datetime.now(timezone.utc)  # (now)
 
         ranges: list[tuple[datetime, datetime]] = MyUser.get_user_ranges(user_address)
         # print("ranges in 'next_available':", ranges)
@@ -213,6 +214,7 @@ class MyUser(UserMixin):
         # self.id = last_id  # set 'self.id' to last rowid
         print("\nNEW USER ADDED TO DB!")
         print(name, email, phone, creds)
+        db.close()
         return last_id
 
     @staticmethod
@@ -232,6 +234,7 @@ class MyUser(UserMixin):
             "UPDATE myUser SET creds = ? WHERE user_id = ?", (creds_json, user_id)
         )
         db.commit()
+        db.close()
         print("updated creds")
 
     def serialize(self):
