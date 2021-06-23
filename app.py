@@ -651,4 +651,4 @@ if __name__ == "__main__":
     print(utc_to_local(datetime.utcnow()))
     # app.run(ssl_context="adhoc", host="10.50.1.146")
     # app.run(ssl_context="adhoc", host="10.50.1.170")
-    app.run(ssl_context="adhoc", host="192.168.73.7")
+    app.run(ssl_context="adhoc", host="192.168.8.104")
